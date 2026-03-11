@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Inscripcion {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Carrera
+  carrera String
+  remera  String
+  talle   String?
+  monto   Int
+
+  // Datos personales
+  nombre    String
+  apellido  String
+  sexo      String
+  edad      Int
+  dni       String
+
+  // Contacto
+  codarea   String
+  telefono  String
+  email     String
+  ciudad    String
+  domicilio String
+
+  // Comprobante
+  comprobanteUrl      String
+  comprobantePublicId String
+
+  // Estado
+  estado String @default("pendiente")
+}
