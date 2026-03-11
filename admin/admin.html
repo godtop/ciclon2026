@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Maratón Ciclón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #1e8a3c;
+      --green-dark: #145c28;
+      --green-light: #2db54f;
+      --green-glow: #3ddc6b;
+      --white: #f5f9f6;
+      --gray: #aabfb0;
+      --dark: #0d1f13;
+      --card-bg: #162b1c;
+      --input-bg: #0f2016;
+      --border: rgba(46,180,80,.2);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--dark); color: var(--white); min-height: 100vh; }
+
+    /* ── LOGIN ── */
+    #loginScreen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+    .login-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 20px; padding: 40px 32px; width: 100%; max-width: 380px; }
+    .login-logo  { font-size: 2.4rem; text-align: center; margin-bottom: 8px; }
+    .login-title { font-family: 'Bebas Neue', sans-serif; text-align: center; font-size: 1.6rem; color: var(--green-glow); letter-spacing: 2px; margin-bottom: 4px; }
+    .login-sub   { text-align: center; font-size: 0.8rem; color: var(--gray); margin-bottom: 28px; }
+    .login-field { margin-bottom: 16px; }
+    .login-field label { display: block; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 8px; }
+    .login-field input { width: 100%; background: var(--input-bg); border: 1.5px solid rgba(255,255,255,.12); border-radius: 12px; padding: 13px 16px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color .2s; }
+    .login-field input:focus { border-color: var(--green-light); box-shadow: 0 0 0 3px rgba(46,180,80,.15); }
+    .login-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--green-light), var(--green)); border: none; border-radius: 14px; font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 2px; color: var(--white); cursor: pointer; margin-top: 8px; transition: all .25s; box-shadow: 0 4px 24px rgba(46,180,80,.35); }
+    .login-btn:hover { transform: translateY(-2px); }
+    .login-btn:disabled { opacity: .5; cursor: default; transform: none; }
+    .login-error { display: none; background: rgba(239,68,68,.1); border: 1px solid #ef4444; color: #ef4444; border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; margin-top: 14px; text-align: center; }
+
+    /* ── PANEL ── */
+    #adminPanel { display: none; }
+    header { background: var(--card-bg); border-bottom: 2px solid var(--green); padding: 14px 20px; display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 50; }
+    .header-logo  { font-size: 1.4rem; }
+    .header-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.2rem; color: var(--green-glow); letter-spacing: 2px; flex: 1; }
+    .header-sub   { font-size: 0.72rem; color: var(--gray); }
+    .logout-btn   { padding: 7px 14px; background: transparent; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; color: var(--gray); cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+    .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+
+    .toolbar { display: flex; gap: 8px; padding: 16px 20px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
+    .filter-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,.12); background: transparent; color: var(--gray); cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+    .filter-btn.active { border-color: var(--green-light); color: var(--green-glow); background: rgba(46,180,80,.1); }
+    .counter { margin-left: auto; font-size: 0.8rem; color: var(--gray); }
+    .refresh-btn { padding: 7px 12px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.12); background: transparent; color: var(--gray); cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+    .refresh-btn:hover { border-color: var(--green-light); color: var(--green-glow); }
+
+    .state-msg { text-align: center; padding: 60px 20px; color: var(--gray); }
+    .state-msg.error { color: #ef4444; }
+
+    /* ── MOBILE CARDS ── */
+    .cards-list { display: flex; flex-direction: column; gap: 10px; padding: 16px; }
+    .icard { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 16px; overflow: hidden; transition: border-color .2s; }
+    .icard.expanded { border-color: var(--green-light); }
+    .icard-summary { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; user-select: none; }
+    .icard-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--green-dark); display: flex; align-items: center; justify-content: center; font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--green-glow); flex-shrink: 0; border: 1.5px solid var(--green); }
+    .icard-main { flex: 1; min-width: 0; }
+    .icard-name { font-weight: 600; font-size: 0.95rem; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .icard-meta { font-size: 0.75rem; color: var(--gray); margin-top: 2px; }
+    .icard-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex-shrink: 0; }
+    .icard-monto { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; color: var(--green-glow); }
+    .badge { display: inline-block; padding: 3px 9px; border-radius: 20px; font-size: 0.68rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; }
+    .badge-pendiente  { background: rgba(251,191,36,.15); color: #fbbf24; border: 1px solid #fbbf24; }
+    .badge-confirmado { background: rgba(46,180,80,.15);  color: var(--green-glow); border: 1px solid var(--green); }
+    .badge-rechazado  { background: rgba(239,68,68,.15);  color: #ef4444; border: 1px solid #ef4444; }
+    .icard-chevron { color: var(--gray); font-size: 0.85rem; margin-left: 4px; transition: transform .25s; flex-shrink: 0; }
+    .icard.expanded .icard-chevron { transform: rotate(180deg); }
+    .icard-detail { display: none; border-top: 1px solid var(--border); padding: 16px; }
+    .icard.expanded .icard-detail { display: block; }
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-bottom: 16px; }
+    .detail-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); font-weight: 600; margin-bottom: 3px; }
+    .detail-value { font-size: 0.88rem; color: var(--white); font-weight: 500; }
+    .detail-field.full { grid-column: 1 / -1; }
+    .voucher-thumb { position: relative; border-radius: 10px; overflow: hidden; background: var(--input-bg); margin-bottom: 14px; border: 1px solid var(--border); cursor: pointer; }
+    .voucher-thumb img { width: 100%; max-height: 160px; object-fit: cover; display: block; }
+    .voucher-pdf-placeholder { height: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; }
+    .voucher-pdf-placeholder span:first-child { font-size: 2rem; }
+    .voucher-pdf-placeholder span:last-child  { font-size: 0.78rem; color: var(--gray); }
+    .voucher-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s; }
+    .voucher-thumb:hover .voucher-overlay { opacity: 1; }
+    .voucher-overlay span { font-size: 1.8rem; }
+    .icard-actions { display: flex; gap: 8px; }
+    .btn-confirm { flex: 1; padding: 11px; border-radius: 10px; border: none; background: linear-gradient(135deg, var(--green-light), var(--green)); color: var(--white); font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; transition: opacity .2s; box-shadow: 0 2px 12px rgba(46,180,80,.3); }
+    .btn-confirm:hover { opacity: .85; }
+    .btn-confirm:disabled { opacity: .35; cursor: default; box-shadow: none; }
+    .btn-reject { padding: 11px 14px; border-radius: 10px; border: 1.5px solid rgba(239,68,68,.4); background: transparent; color: #ef4444; cursor: pointer; font-size: 0.85rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }
+    .btn-reject:hover { background: rgba(239,68,68,.1); }
+    .btn-reject:disabled { opacity: .35; cursor: default; }
+    .btn-open { padding: 11px 12px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.12); background: transparent; color: var(--gray); cursor: pointer; font-size: 0.85rem; text-decoration: none; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+    .btn-open:hover { border-color: var(--green-light); color: var(--green-glow); }
+
+    /* ── DESKTOP TABLE ── */
+    .table-wrap { overflow-x: auto; padding: 20px; display: none; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.83rem; min-width: 960px; }
+    thead tr { border-bottom: 2px solid var(--green); }
+    thead th { padding: 10px 14px; text-align: left; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green-glow); font-weight: 600; white-space: nowrap; }
+    tbody tr { border-bottom: 1px solid var(--border); transition: background .15s; }
+    tbody tr:hover { background: rgba(46,180,80,.05); }
+    tbody td { padding: 12px 14px; color: var(--white); vertical-align: middle; }
+    td.muted { color: var(--gray); }
+    .td-name  { font-weight: 600; }
+    .td-monto { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; color: var(--green-glow); }
+    .tbl-thumb { width: 48px; height: 48px; border-radius: 8px; object-fit: cover; cursor: pointer; border: 1px solid var(--border); transition: transform .15s; }
+    .tbl-thumb:hover { transform: scale(1.08); }
+    .tbl-pdf { width: 48px; height: 48px; border-radius: 8px; background: var(--input-bg); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; transition: transform .15s; }
+    .tbl-pdf:hover { transform: scale(1.08); }
+    .tbl-actions { display: flex; gap: 6px; align-items: center; }
+    .tbl-btn { padding: 6px 10px; border-radius: 8px; border: none; font-size: 0.75rem; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; transition: opacity .2s; white-space: nowrap; }
+    .tbl-btn.confirm { background: var(--green); color: var(--white); }
+    .tbl-btn.confirm:hover { opacity: .85; }
+    .tbl-btn.confirm:disabled { opacity: .35; cursor: default; }
+    .tbl-btn.reject { background: transparent; border: 1px solid rgba(239,68,68,.4); color: #ef4444; }
+    .tbl-btn.reject:hover { background: rgba(239,68,68,.1); }
+    .tbl-btn.reject:disabled { opacity: .35; cursor: default; }
+    .tbl-btn.ext { background: transparent; border: 1px solid rgba(255,255,255,.12); color: var(--gray); text-decoration: none; display: inline-flex; align-items: center; }
+    .tbl-btn.ext:hover { border-color: var(--green-light); color: var(--green-glow); }
+
+    /* ── MODAL COMPROBANTE CON PAN+ZOOM ── */
+    .img-modal {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.92); z-index: 200;
+      overflow: hidden;
+    }
+    .img-modal.open { display: block; }
+
+    .img-modal-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 20px;
+      background: linear-gradient(to bottom, rgba(0,0,0,.75), transparent);
+      z-index: 10;
+    }
+    .img-modal-title { font-size: 0.85rem; color: var(--gray); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .img-modal-btn { padding: 8px 14px; border-radius: 10px; cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; font-weight: 600; transition: all .2s; text-decoration: none; display: flex; align-items: center; gap: 6px; border: none; }
+    .img-modal-btn.close-btn { background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); color: var(--white); }
+    .img-modal-btn.close-btn:hover { background: rgba(255,255,255,.2); }
+    .img-modal-btn.open-btn { background: rgba(46,180,80,.2); border: 1px solid var(--green); color: var(--green-glow); }
+    .img-modal-btn.open-btn:hover { background: rgba(46,180,80,.35); }
+    .img-modal-btn.zoom-btn { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: var(--white); font-size: 1rem; padding: 8px 12px; }
+    .img-modal-btn.zoom-btn:hover { background: rgba(255,255,255,.18); }
+
+    /* canvas de pan+zoom */
+    #zoomCanvas {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      cursor: grab;
+      touch-action: none;
+    }
+    #zoomCanvas.grabbing { cursor: grabbing; }
+
+    .img-modal-hint {
+      position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+      font-size: 0.72rem; color: rgba(255,255,255,.3);
+      background: rgba(0,0,0,.5); padding: 5px 12px; border-radius: 20px;
+      pointer-events: none; white-space: nowrap;
+    }
+
+    @media (min-width: 900px) {
+      .cards-list { display: none; }
+      .table-wrap  { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🏃</div>
+    <div class="login-title">Panel Admin</div>
+    <div class="login-sub">Maratón Club Ciclón · Chivilcoy</div>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Ingresar →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div id="adminPanel">
+  <header>
+    <div class="header-logo">🏃</div>
+    <div>
+      <div class="header-title">Maratón Ciclón</div>
+      <div class="header-sub">Panel de inscripciones</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Salir</button>
+  </header>
+  <div class="toolbar">
+    <button class="filter-btn active" data-filter="todos"      onclick="setFilter(this)">Todos</button>
+    <button class="filter-btn"        data-filter="pendiente"  onclick="setFilter(this)">⏳ Pendientes</button>
+    <button class="filter-btn"        data-filter="confirmado" onclick="setFilter(this)">✅ Confirmados</button>
+    <button class="filter-btn"        data-filter="rechazado"  onclick="setFilter(this)">❌ Rechazados</button>
+    <span class="counter" id="counter"></span>
+    <button class="refresh-btn" onclick="load()" title="Actualizar">↻ Actualizar</button>
+  </div>
+  <div class="cards-list" id="cardsList"></div>
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Comprobante</th>
+          <th>Nombre</th>
+          <th>DNI</th>
+          <th>Nacimiento</th>
+          <th>Edad / Sexo</th>
+          <th>Carrera</th>
+          <th>Remera</th>
+          <th>Monto</th>
+          <th>Ciudad</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Inscripción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Modal comprobante -->
+<div class="img-modal" id="imgModal">
+  <div class="img-modal-bar">
+    <span class="img-modal-title" id="modalTitle">Comprobante</span>
+    <button class="img-modal-btn zoom-btn" onclick="zoomIn()" title="Zoom +">＋</button>
+    <button class="img-modal-btn zoom-btn" onclick="zoomOut()" title="Zoom −">－</button>
+    <button class="img-modal-btn zoom-btn" onclick="resetZoom()" title="Restablecer">⊙</button>
+    <a class="img-modal-btn open-btn" id="modalOpenLink" href="#" target="_blank">↗ Abrir en otra ventana</a>
+    <button class="img-modal-btn close-btn" onclick="closeModal()">✕ Cerrar</button>
+  </div>
+  <canvas id="zoomCanvas"></canvas>
+  <div class="img-modal-hint" id="modalHint">Pellizco o rueda para zoom · Arrastrá para mover</div>
+</div>
+
+<script>
+  const API_URL = window.location.origin;
+  let inscripciones = [];
+  let filtroActual  = 'todos';
+  let token         = null;
+
+  window.addEventListener('load', () => {
+    const saved = localStorage.getItem('ciclon_admin_token');
+    if (saved) { token = saved; showPanel(); load(); }
+  });
+
+  /* ── LOGIN ── */
+  async function doLogin() {
+    const usuario  = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value;
+    const btn = document.getElementById('loginBtn');
+    const errEl = document.getElementById('loginError');
+    if (!usuario || !password) { showLoginError('Completá usuario y contraseña.'); return; }
+    btn.textContent = 'Ingresando...'; btn.disabled = true; errEl.style.display = 'none';
+    try {
+      const res  = await fetch(`${API_URL}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuario, password }) });
+      const data = await res.json();
+      if (!res.ok) { showLoginError(data.error || 'Credenciales incorrectas.'); return; }
+      token = data.token;
+      localStorage.setItem('ciclon_admin_token', token);
+      showPanel(); load();
+    } catch { showLoginError('No se pudo conectar al servidor.'); }
+    finally { btn.textContent = 'Ingresar →'; btn.disabled = false; }
+  }
+  function showLoginError(msg) { const el = document.getElementById('loginError'); el.textContent = msg; el.style.display = 'block'; }
+  function showPanel() { document.getElementById('loginScreen').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; }
+  function doLogout() {
+    token = null; localStorage.removeItem('ciclon_admin_token');
+    document.getElementById('adminPanel').style.display  = 'none';
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginError').style.display  = 'none';
+  }
+
+  /* ── API ── */
+  async function apiFetch(url, opts = {}) {
+    const res = await fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+    if (res.status === 401) { doLogout(); throw new Error('Sesión expirada.'); }
+    return res;
+  }
+
+  async function load() {
+    document.getElementById('cardsList').innerHTML  = '<div class="state-msg">Cargando...</div>';
+    document.getElementById('tableBody').innerHTML  = '<tr><td colspan="14" class="state-msg">Cargando...</td></tr>';
+    try {
+      const res = await apiFetch(`${API_URL}/inscripciones`);
+      inscripciones = await res.json();
+      render();
+    } catch(e) {
+      if (e.message !== 'Sesión expirada.')
+        document.getElementById('cardsList').innerHTML = '<div class="state-msg error">❌ No se pudo conectar.</div>';
+    }
+  }
+
+  function setFilter(btn) {
+    filtroActual = btn.dataset.filter;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active'); render();
+  }
+
+  function render() {
+    const items = filtroActual === 'todos' ? inscripciones : inscripciones.filter(i => i.estado === filtroActual);
+    document.getElementById('counter').textContent = `${items.length} resultado${items.length !== 1 ? 's' : ''}`;
+    renderCards(items);
+    renderTable(items);
+  }
+
+  /* ── CARDS ── */
+  function renderCards(items) {
+    if (!items.length) { document.getElementById('cardsList').innerHTML = '<div class="state-msg">Sin resultados.</div>'; return; }
+    document.getElementById('cardsList').innerHTML = items.map(cardHTML).join('');
+  }
+
+  function cardHTML(i) {
+    const initials = (i.nombre[0] + i.apellido[0]).toUpperCase();
+    const badges   = { pendiente: 'badge-pendiente', confirmado: 'badge-confirmado', rechazado: 'badge-rechazado' };
+    const isPdf    = esPdf(i.comprobanteUrl);
+    const voucherHTML = isPdf
+      ? `<div class="voucher-pdf-placeholder"><span>📄</span><span>comprobante.pdf</span></div>`
+      : `<img src="${i.comprobanteUrl}" loading="lazy" alt="Comprobante">`;
+
+    return `
+    <div class="icard" id="icard-${i.id}">
+      <div class="icard-summary" onclick="toggleCard(${i.id})">
+        <div class="icard-avatar">${initials}</div>
+        <div class="icard-main">
+          <div class="icard-name">${i.nombre} ${i.apellido}</div>
+          <div class="icard-meta">${i.carrera.toUpperCase()} · DNI ${fmtDni(i.dni)} · ${fmtFechaCorta(i.createdAt)}</div>
+        </div>
+        <div class="icard-right">
+          <div class="icard-monto">$${i.monto.toLocaleString('es-AR')}</div>
+          <span class="badge ${badges[i.estado]}">${i.estado}</span>
+        </div>
+        <span class="icard-chevron">▼</span>
+      </div>
+      <div class="icard-detail">
+        <div class="detail-grid">
+          <div class="detail-field"><div class="detail-label">Edad</div><div class="detail-value">${i.edad} años</div></div>
+          <div class="detail-field"><div class="detail-label">Sexo</div><div class="detail-value">${fmtSexo(i.sexo)}</div></div>
+          <div class="detail-field"><div class="detail-label">Nacimiento</div><div class="detail-value">${i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—'}</div></div>
+          <div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">${i.remera === 'con' ? `Con remera · ${i.talle}` : 'Sin remera'}</div></div>
+          <div class="detail-field full"><div class="detail-label">Ciudad</div><div class="detail-value">${i.ciudad}</div></div>
+          <div class="detail-field full"><div class="detail-label">Domicilio</div><div class="detail-value">${i.domicilio}</div></div>
+          <div class="detail-field full"><div class="detail-label">Email</div><div class="detail-value">${i.email}</div></div>
+          <div class="detail-field"><div class="detail-label">Teléfono</div><div class="detail-value">+54 ${i.codarea} ${i.telefono}</div></div>
+          <div class="detail-field"><div class="detail-label">Inscripción</div><div class="detail-value">${fmtFechaCorta(i.createdAt)}</div></div>
+        </div>
+        <div class="voucher-thumb" onclick="openModal('${i.comprobanteUrl}', '${i.nombre} ${i.apellido}')">
+          ${voucherHTML}
+          <div class="voucher-overlay"><span>🔍</span></div>
+        </div>
+        <div class="icard-actions">
+          <button class="btn-confirm" onclick="confirmar(${i.id})" ${i.estado === 'confirmado' ? 'disabled' : ''}>${i.estado === 'confirmado' ? '✅ Confirmado' : 'Confirmar pago'}</button>
+          <button class="btn-reject"  onclick="rechazar(${i.id})"  ${i.estado === 'rechazado'  ? 'disabled' : ''}>✕</button>
+          <a class="btn-open" href="${i.comprobanteUrl}" target="_blank" title="Abrir en otra ventana">↗</a>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  function toggleCard(id) { document.getElementById(`icard-${id}`).classList.toggle('expanded'); }
+
+  /* ── TABLA ── */
+  function renderTable(items) {
+    if (!items.length) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="14"><div class="state-msg">Sin resultados.</div></td></tr>'; return; }
+    const badges = { pendiente: 'badge-pendiente', confirmado: 'badge-confirmado', rechazado: 'badge-rechazado' };
+    document.getElementById('tableBody').innerHTML = items.map(i => {
+      const isPdf  = esPdf(i.comprobanteUrl);
+      const thumb  = isPdf
+        ? `<div class="tbl-pdf" onclick="openModal('${i.comprobanteUrl}','${i.nombre} ${i.apellido}')" title="Ver">📄</div>`
+        : `<img class="tbl-thumb" src="${i.comprobanteUrl}" loading="lazy" onclick="openModal('${i.comprobanteUrl}','${i.nombre} ${i.apellido}')" title="Ver">`;
+      return `
+      <tr>
+        <td>${thumb}</td>
+        <td class="td-name">${i.nombre} ${i.apellido}</td>
+        <td class="muted">${fmtDni(i.dni)}</td>
+        <td class="muted">${i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—'}</td>
+        <td class="muted">${i.edad} / ${fmtSexo(i.sexo)}</td>
+        <td><strong>${i.carrera.toUpperCase()}</strong></td>
+        <td class="muted">${i.remera === 'con' ? `Talle ${i.talle}` : 'Sin remera'}</td>
+        <td class="td-monto">$${i.monto.toLocaleString('es-AR')}</td>
+        <td class="muted">${i.ciudad}</td>
+        <td class="muted" style="font-size:.78rem">${i.email}</td>
+        <td class="muted">+54 ${i.codarea} ${i.telefono}</td>
+        <td class="muted" style="font-size:.78rem">${fmtFechaCorta(i.createdAt)}</td>
+        <td><span class="badge ${badges[i.estado]}">${i.estado}</span></td>
+        <td>
+          <div class="tbl-actions">
+            <button class="tbl-btn confirm" onclick="confirmar(${i.id})" ${i.estado === 'confirmado' ? 'disabled' : ''}>${i.estado === 'confirmado' ? '✅' : '✓ Confirmar'}</button>
+            <button class="tbl-btn reject"  onclick="rechazar(${i.id})"  ${i.estado === 'rechazado'  ? 'disabled' : ''}>✕</button>
+            <a class="tbl-btn ext" href="${i.comprobanteUrl}" target="_blank">↗</a>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ── CONFIRMAR / RECHAZAR ── */
+  async function confirmar(id) {
+    if (!confirm('¿Confirmar la inscripción?')) return;
+    try {
+      const res = await apiFetch(`${API_URL}/inscripciones/${id}/confirmar`, { method: 'PATCH' });
+      if (!res.ok) throw new Error();
+      inscripciones.find(i => i.id === id).estado = 'confirmado';
+      render();
+    } catch { alert('Error al confirmar.'); }
+  }
+  async function rechazar(id) {
+    if (!confirm('¿Rechazar esta inscripción?')) return;
+    try {
+      const res = await apiFetch(`${API_URL}/inscripciones/${id}/rechazar`, { method: 'PATCH' });
+      if (!res.ok) throw new Error();
+      inscripciones.find(i => i.id === id).estado = 'rechazado';
+      render();
+    } catch { alert('Error al rechazar.'); }
+  }
+
+  /* ════════════════════════════════════
+     MODAL CON PAN + ZOOM REAL
+  ════════════════════════════════════ */
+  const canvas = document.getElementById('zoomCanvas');
+  const ctx    = canvas.getContext('2d');
+  let modalImg    = null;
+  let scale       = 1;
+  let minScale    = 0.5;
+  let offsetX     = 0;
+  let offsetY     = 0;
+  let isDragging  = false;
+  let lastX = 0, lastY = 0;
+  let lastDist    = 0;    // pinch
+
+  function openModal(url, nombre) {
+    if (esPdf(url)) { window.open(url, '_blank'); return; }
+
+    document.getElementById('modalTitle').textContent = `Comprobante · ${nombre}`;
+    document.getElementById('modalOpenLink').href     = url;
+    document.getElementById('imgModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    modalImg = new Image();
+    modalImg.crossOrigin = 'anonymous';
+    modalImg.onload = () => {
+      resizeCanvas();
+      fitImage();
+      drawFrame();
+    };
+    modalImg.src = url;
+  }
+
+  function closeModal() {
+    document.getElementById('imgModal').classList.remove('open');
+    document.body.style.overflow = '';
+    modalImg = null;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+
+  function resizeCanvas() {
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+
+  function fitImage() {
+    if (!modalImg) return;
+    const pad   = 80;
+    const scaleX = (canvas.width  - pad) / modalImg.width;
+    const scaleY = (canvas.height - pad) / modalImg.height;
+    scale    = Math.min(scaleX, scaleY, 1);
+    minScale = scale * 0.5;
+    offsetX  = (canvas.width  - modalImg.width  * scale) / 2;
+    offsetY  = (canvas.height - modalImg.height * scale) / 2;
+  }
+
+  function drawFrame() {
+    if (!modalImg) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+    ctx.drawImage(modalImg, 0, 0);
+    ctx.restore();
+    requestAnimationFrame(drawFrame);
+  }
+
+  function applyZoom(delta, cx, cy) {
+    const factor   = delta > 0 ? 1.15 : 1 / 1.15;
+    const newScale = Math.max(minScale, Math.min(scale * factor, 8));
+    const ratio    = newScale / scale;
+    offsetX = cx - (cx - offsetX) * ratio;
+    offsetY = cy - (cy - offsetY) * ratio;
+    scale   = newScale;
+  }
+
+  function zoomIn()    { applyZoom(1,  canvas.width / 2, canvas.height / 2); }
+  function zoomOut()   { applyZoom(-1, canvas.width / 2, canvas.height / 2); }
+  function resetZoom() { fitImage(); }
+
+  /* mouse wheel */
+  canvas.addEventListener('wheel', e => {
+    e.preventDefault();
+    applyZoom(-e.deltaY, e.clientX, e.clientY);
+  }, { passive: false });
+
+  /* mouse drag */
+  canvas.addEventListener('mousedown', e => {
+    isDragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.classList.add('grabbing');
+  });
+  canvas.addEventListener('mousemove', e => {
+    if (!isDragging) return;
+    offsetX += e.clientX - lastX;
+    offsetY += e.clientY - lastY;
+    lastX = e.clientX; lastY = e.clientY;
+  });
+  canvas.addEventListener('mouseup',   () => { isDragging = false; canvas.classList.remove('grabbing'); });
+  canvas.addEventListener('mouseleave',() => { isDragging = false; canvas.classList.remove('grabbing'); });
+
+  /* touch: drag + pinch zoom */
+  canvas.addEventListener('touchstart', e => {
+    e.preventDefault();
+    if (e.touches.length === 1) {
+      isDragging = true;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      isDragging = false;
+      lastDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchmove', e => {
+    e.preventDefault();
+    if (e.touches.length === 1 && isDragging) {
+      offsetX += e.touches[0].clientX - lastX;
+      offsetY += e.touches[0].clientY - lastY;
+      lastX = e.touches[0].clientX; lastY = e.touches[0].clientY;
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const cx = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+      const cy = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+      const delta = dist - lastDist;
+      applyZoom(delta, cx, cy);
+      lastDist = dist;
+    }
+  }, { passive: false });
+
+  canvas.addEventListener('touchend', e => {
+    if (e.touches.length === 0) isDragging = false;
+  });
+
+  /* resize */
+  window.addEventListener('resize', () => {
+    if (document.getElementById('imgModal').classList.contains('open')) {
+      resizeCanvas(); fitImage();
+    }
+  });
+
+  /* ESC */
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  /* ── HELPERS ── */
+  function esPdf(url) { return url && (url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('/raw/')); }
+
+  function fmtDni(dni) {
+    const c = String(dni).replace(/\D/g, '');
+    if (c.length === 8) return c.replace(/(\d{2})(\d{3})(\d{3})/, '$1.$2.$3');
+    if (c.length === 7) return c.replace(/(\d{1})(\d{3})(\d{3})/, '$1.$2.$3');
+    return c;
+  }
+
+  function fmtFechaCorta(dt) {
+    return new Date(dt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function fmtFechaSimple(dt) {
+    // Para fechas de nacimiento (solo fecha, sin hora)
+    const d = new Date(dt);
+    return d.toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  function fmtSexo(s) { return { M: 'Masc.', F: 'Fem.', X: 'No bin.', NI: 'N/D' }[s] || s; }
+</script>
+</body>
+</html>

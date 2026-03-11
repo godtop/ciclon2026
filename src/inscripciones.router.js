@@ -1,8 +1,9 @@
-const express  = require('express');
-const router   = express.Router();
+const express    = require('express');
+const router     = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const cloudinary = require('./cloudinary');
 const upload     = require('./upload');
+const requireAuth = require('./auth.middleware');
 
 const prisma = new PrismaClient();
 
@@ -12,8 +13,7 @@ const PRICES = {
 };
 
 /* ─────────────────────────────────────────
-   POST /inscripciones
-   Recibe el formulario + comprobante
+   POST /inscripciones — PÚBLICO
 ───────────────────────────────────────── */
 router.post('/', upload.single('comprobante'), async (req, res) => {
   try {
@@ -23,11 +23,10 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
 
     const {
       carrera, remera, talle,
-      nombre, apellido, sexo, edad, dni,
+      nombre, apellido, sexo, edad, dni, fechaNacimiento,
       codarea, telefono, email, ciudad, domicilio,
     } = req.body;
 
-    // Validaciones básicas
     if (!carrera || !remera || !nombre || !apellido || !sexo || !edad || !dni ||
         !codarea || !telefono || !email || !ciudad || !domicilio) {
       return res.status(400).json({ error: 'Faltan campos obligatorios.' });
@@ -39,35 +38,24 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
 
     const monto = PRICES[carrera][remera];
 
-    // Subir imagen a Cloudinary desde buffer en memoria
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         { folder: 'maraton-ciclon/comprobantes', resource_type: 'auto' },
-        (error, result) => {
-          if (error) reject(error);
-          else resolve(result);
-        }
+        (error, result) => { if (error) reject(error); else resolve(result); }
       );
       stream.end(req.file.buffer);
     });
 
-    // Guardar en DB
     const inscripcion = await prisma.inscripcion.create({
       data: {
-        carrera,
-        remera,
-        talle:    remera === 'con' ? (talle || null) : null,
+        carrera, remera,
+        talle:          remera === 'con' ? (talle || null) : null,
         monto,
-        nombre,
-        apellido,
-        sexo,
-        edad:     parseInt(edad),
+        nombre, apellido, sexo,
+        edad:           parseInt(edad),
         dni,
-        codarea,
-        telefono,
-        email,
-        ciudad,
-        domicilio,
+        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : null,
+        codarea, telefono, email, ciudad, domicilio,
         comprobanteUrl:      uploadResult.secure_url,
         comprobantePublicId: uploadResult.public_id,
         estado: 'pendiente',
@@ -83,20 +71,15 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
 });
 
 /* ─────────────────────────────────────────
-   GET /inscripciones
-   Lista todos los inscriptos
-   ?estado=pendiente|confirmado  (opcional)
+   GET /inscripciones — ADMIN
 ───────────────────────────────────────── */
-router.get('/', async (req, res) => {
+router.get('/', requireAuth, async (req, res) => {
   try {
     const { estado } = req.query;
     const where = estado ? { estado } : {};
-
     const inscripciones = await prisma.inscripcion.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
+      where, orderBy: { createdAt: 'desc' },
     });
-
     res.json(inscripciones);
   } catch (err) {
     console.error(err);
@@ -105,19 +88,14 @@ router.get('/', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────
-   GET /inscripciones/:id
-   Detalle de un inscripto
+   GET /inscripciones/:id — ADMIN
 ───────────────────────────────────────── */
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   try {
     const inscripcion = await prisma.inscripcion.findUnique({
       where: { id: parseInt(req.params.id) },
     });
-
-    if (!inscripcion) {
-      return res.status(404).json({ error: 'Inscripción no encontrada.' });
-    }
-
+    if (!inscripcion) return res.status(404).json({ error: 'Inscripción no encontrada.' });
     res.json(inscripcion);
   } catch (err) {
     console.error(err);
@@ -126,23 +104,16 @@ router.get('/:id', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────
-   PATCH /inscripciones/:id/confirmar
-   Confirma la inscripción de un corredor
+   PATCH /inscripciones/:id/confirmar — ADMIN
 ───────────────────────────────────────── */
-router.patch('/:id/confirmar', async (req, res) => {
+router.patch('/:id/confirmar', requireAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-
     const existe = await prisma.inscripcion.findUnique({ where: { id } });
-    if (!existe) {
-      return res.status(404).json({ error: 'Inscripción no encontrada.' });
-    }
-
+    if (!existe) return res.status(404).json({ error: 'Inscripción no encontrada.' });
     const actualizada = await prisma.inscripcion.update({
-      where: { id },
-      data:  { estado: 'confirmado' },
+      where: { id }, data: { estado: 'confirmado' },
     });
-
     res.json({ ok: true, inscripcion: actualizada });
   } catch (err) {
     console.error(err);
@@ -151,23 +122,16 @@ router.patch('/:id/confirmar', async (req, res) => {
 });
 
 /* ─────────────────────────────────────────
-   PATCH /inscripciones/:id/rechazar
-   Rechaza la inscripción (vuelve a pendiente o marca rechazado)
+   PATCH /inscripciones/:id/rechazar — ADMIN
 ───────────────────────────────────────── */
-router.patch('/:id/rechazar', async (req, res) => {
+router.patch('/:id/rechazar', requireAuth, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-
     const existe = await prisma.inscripcion.findUnique({ where: { id } });
-    if (!existe) {
-      return res.status(404).json({ error: 'Inscripción no encontrada.' });
-    }
-
+    if (!existe) return res.status(404).json({ error: 'Inscripción no encontrada.' });
     const actualizada = await prisma.inscripcion.update({
-      where: { id },
-      data:  { estado: 'rechazado' },
+      where: { id }, data: { estado: 'rechazado' },
     });
-
     res.json({ ok: true, inscripcion: actualizada });
   } catch (err) {
     console.error(err);

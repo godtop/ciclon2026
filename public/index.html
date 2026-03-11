@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Maratón Club Ciclón Chivilcoy – 3ª Edición</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="edition-tag">✦ Tercera Edición ✦</div>
+  <h1>MARAT<span>Ó</span>N</h1>
+  <div class="club-name">Club Ciclón · Chivilcoy</div>
+  <div class="distances">
+    <div class="dist-badge"><div class="km">4K</div><div class="type">Participativa</div></div>
+    <div class="dist-badge"><div class="km">10K</div><div class="type">Competitiva</div></div>
+  </div>
+  <div class="event-info">
+    <span>🗓 <strong>Domingo 14 de Junio</strong></span>
+    <span>⏰ <strong>10:00 AM</strong></span>
+    <span>📍 <strong>Club Atlético Ciclón</strong></span>
+  </div>
+</div>
+
+<!-- ── STEP INDICATOR ── -->
+<div class="steps-bar" id="stepsBar">
+  <div class="step-dot"><div class="step-circle active" id="sc1">1</div><div class="step-label">Carrera</div></div>
+  <div class="step-line" id="sl1"></div>
+  <div class="step-dot"><div class="step-circle" id="sc2">2</div><div class="step-label">Datos</div></div>
+  <div class="step-line" id="sl2"></div>
+  <div class="step-dot"><div class="step-circle" id="sc3">3</div><div class="step-label">Pago</div></div>
+</div>
+
+<!-- ── STEP 1: Race Selection ── -->
+<div id="step1" class="card">
+  <div class="card-title">Elegí tu carrera</div>
+  <div class="race-options">
+    <label class="race-option" id="opt4k">
+      <input type="radio" name="race" value="4k">
+      <div class="radio-ring"></div>
+      <div class="race-info">
+        <div class="race-km">4K</div>
+        <div class="race-type">Participativa</div>
+        <div class="race-desc">Con cronometraje oficial</div>
+      </div>
+      <div class="race-price">
+        <div class="price-options">
+          <div class="price-opt"><span class="price-tag">$4.500</span><span class="price-label">Con remera</span></div>
+          <div class="price-opt"><span class="price-tag">$3.500</span><span class="price-label">Sin remera</span></div>
+        </div>
+      </div>
+    </label>
+    <label class="race-option" id="opt10k">
+      <input type="radio" name="race" value="10k">
+      <div class="radio-ring"></div>
+      <div class="race-info">
+        <div class="race-km">10K</div>
+        <div class="race-type">Competitiva</div>
+        <div class="race-desc">Con cronometraje oficial</div>
+      </div>
+      <div class="race-price">
+        <div class="price-options">
+          <div class="price-opt"><span class="price-tag">$6.000</span><span class="price-label">Con remera</span></div>
+          <div class="price-opt"><span class="price-tag">$5.000</span><span class="price-label">Sin remera</span></div>
+        </div>
+      </div>
+    </label>
+  </div>
+
+  <div class="shirt-selector" id="shirtSelector" style="display:none;">
+    <div class="shirt-selector-title">¿Incluye remera oficial?</div>
+    <div class="shirt-options">
+      <label class="shirt-option" id="shirtCon">
+        <input type="radio" name="shirt" value="con">
+        <div class="shirt-icon">👕</div>
+        <div class="shirt-info"><div class="shirt-name">Con remera</div><div class="shirt-price" id="shirtConPrice">$4.500</div></div>
+        <div class="shirt-radio-ring"></div>
+      </label>
+      <label class="shirt-option" id="shirtSin">
+        <input type="radio" name="shirt" value="sin">
+        <div class="shirt-icon">🏃</div>
+        <div class="shirt-info"><div class="shirt-name">Sin remera</div><div class="shirt-price" id="shirtSinPrice">$3.500</div></div>
+        <div class="shirt-radio-ring"></div>
+      </label>
+    </div>
+  </div>
+
+  <div class="inline-error" id="raceError">Por favor seleccioná una carrera.</div>
+  <div class="inline-error" id="shirtError">Por favor elegí si querés remera o no.</div>
+  <button class="btn" style="margin-top:22px;" onclick="goStep2()">Continuar →</button>
+</div>
+
+<!-- ── STEP 2: Runner Data ── -->
+<div id="step2" class="card" style="display:none;">
+  <div class="card-title">Tus datos</div>
+
+  <div class="row-2">
+    <div class="field" id="f-nombre">
+      <label>Nombre</label>
+      <input type="text" id="nombre" placeholder="Ej: María">
+      <div class="error-msg">Ingresá tu nombre.</div>
+    </div>
+    <div class="field" id="f-apellido">
+      <label>Apellido</label>
+      <input type="text" id="apellido" placeholder="Ej: González">
+      <div class="error-msg">Ingresá tu apellido.</div>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="field" id="f-sexo">
+      <label>Sexo</label>
+      <select id="sexo">
+        <option value="" disabled selected>—</option>
+        <option value="M">Masculino</option>
+        <option value="F">Femenino</option>
+        <option value="X">No binario</option>
+        <option value="NI">Prefiero no decir</option>
+      </select>
+      <div class="error-msg">Seleccioná una opción.</div>
+    </div>
+    <div class="field" id="f-edad">
+      <label>Edad</label>
+      <input type="number" id="edad" placeholder="25" min="10" max="99" inputmode="numeric">
+      <div class="error-msg">Edad inválida.</div>
+    </div>
+  </div>
+
+  <div class="row-2">
+    <div class="field" id="f-dni">
+      <label>DNI</label>
+      <input type="text" id="dni" placeholder="Ej: 35123456" maxlength="8" inputmode="numeric">
+      <div class="error-msg">Ingresá un DNI válido (7 u 8 dígitos).</div>
+    </div>
+    <!-- NUEVO: Fecha de nacimiento -->
+    <div class="field" id="f-fechaNacimiento">
+      <label>Fecha de nacimiento</label>
+      <input type="date" id="fechaNacimiento" max="">
+      <div class="error-msg">Ingresá tu fecha de nacimiento.</div>
+    </div>
+  </div>
+
+  <div class="field-group-label">Teléfono de contacto</div>
+  <div class="row-phone">
+    <div class="field" id="f-codarea">
+      <label>Cód. de área</label>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">+54</span>
+        <input type="text" id="codarea" placeholder="011" maxlength="5" inputmode="numeric">
+      </div>
+      <div class="error-msg">Ingresá el código de área.</div>
+    </div>
+    <div class="field" id="f-telefono">
+      <label>Número</label>
+      <input type="text" id="telefono" placeholder="15 2345 6789" maxlength="12" inputmode="numeric">
+      <div class="error-msg">Ingresá un número válido.</div>
+    </div>
+  </div>
+
+  <div class="field" id="f-email">
+    <label>Email</label>
+    <input type="email" id="email" placeholder="runner@ejemplo.com" inputmode="email">
+    <div class="error-msg">Ingresá un email válido.</div>
+  </div>
+  <div class="field" id="f-email2">
+    <label>Confirmá tu email</label>
+    <input type="email" id="email2" placeholder="runner@ejemplo.com" inputmode="email">
+    <div class="error-msg">Los emails no coinciden.</div>
+  </div>
+
+  <div class="field" id="f-ciudad">
+    <label>Ciudad / Localidad</label>
+    <div class="autocomplete-wrap">
+      <input type="text" id="ciudad" placeholder="Ej: Chivilcoy" autocomplete="off">
+      <div class="autocomplete-list" id="ciudadList"></div>
+    </div>
+    <div class="error-msg">Ingresá tu ciudad.</div>
+  </div>
+
+  <div class="field" id="f-domicilio">
+    <label>Domicilio</label>
+    <input type="text" id="domicilio" placeholder="Ej: Av. Rivadavia 1234">
+    <div class="error-msg">Ingresá tu domicilio.</div>
+  </div>
+
+  <div id="talleWrap" style="display:none;">
+    <div class="field" id="f-talle">
+      <label>Talle Remera</label>
+      <select id="talle">
+        <option value="" disabled selected>—</option>
+        <option value="XS">XS</option>
+        <option value="S">S</option>
+        <option value="M">M</option>
+        <option value="L">L</option>
+        <option value="XL">XL</option>
+        <option value="XXL">XXL</option>
+      </select>
+      <div class="error-msg">Elegí un talle.</div>
+    </div>
+  </div>
+
+  <button class="btn" onclick="goStep3()">Continuar al pago →</button>
+  <button class="btn-ghost" onclick="goBack(1)">← Volver</button>
+</div>
+
+<!-- ── STEP 3: Payment ── -->
+<div id="step3" class="card" style="display:none;">
+  <div class="card-title">Confirmá tu inscripción</div>
+  <div class="payment-summary">
+    <div class="pay-row"><span>Carrera</span><span id="sumRace">—</span></div>
+    <div class="pay-row"><span>Remera</span><span id="sumShirt">—</span></div>
+    <div class="pay-row"><span>Corredor/a</span><span id="sumName">—</span></div>
+    <div class="pay-row"><span>DNI</span><span id="sumDni">—</span></div>
+    <div class="pay-row total"><span>Total a transferir</span><span id="sumTotal">—</span></div>
+  </div>
+  <div class="transfer-info">
+    <div class="transfer-title">💳 Datos para la transferencia</div>
+    <div class="transfer-rows">
+      <div class="transfer-row"><span>CBU</span><span class="tf-val">0000003100012345678901</span></div>
+      <div class="transfer-row"><span>Alias</span><span class="tf-val">CICLON.CHIVILCOY</span></div>
+      <div class="transfer-row"><span>Titular</span><span class="tf-val">Club Atlético Ciclón</span></div>
+      <div class="transfer-row"><span>Monto exacto</span><span class="tf-val tf-highlight" id="transferTotal">—</span></div>
+    </div>
+    <div class="transfer-note">⚠️ Transferí el monto exacto para facilitar la verificación.</div>
+  </div>
+  <div class="voucher-section">
+    <div class="voucher-title">📎 Subí tu comprobante de pago</div>
+    <div class="voucher-subtitle">Una vez transferido, adjuntá la captura o foto del comprobante.</div>
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('voucherInput').click()">
+      <input type="file" id="voucherInput" accept="image/*,.pdf" style="display:none;" onchange="handleVoucherUpload(event)">
+      <div class="upload-idle" id="uploadIdle">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">Tocá para subir el comprobante</div>
+        <div class="upload-hint">JPG, PNG o PDF · Máx. 10 MB</div>
+      </div>
+      <div class="upload-preview" id="uploadPreview" style="display:none;">
+        <img id="previewImg" src="" alt="Comprobante">
+        <div class="preview-overlay">
+          <span class="preview-filename" id="previewFilename"></span>
+          <button class="preview-change" onclick="changeVoucher(event)">Cambiar</button>
+        </div>
+      </div>
+    </div>
+    <div class="inline-error" id="voucherError">Es obligatorio subir el comprobante para inscribirse.</div>
+  </div>
+  <div class="terms-row" onclick="toggleTerms()">
+    <div class="custom-check" id="termsCheck"></div>
+    <div class="terms-text">
+      Acepto los <a href="#" onclick="openTerms(event)">términos y condiciones</a>
+      y declaro que mi estado de salud es apto para participar en la carrera.
+    </div>
+  </div>
+  <button class="btn" id="payBtn" onclick="processPayment()">Enviar inscripción ✓</button>
+  <button class="btn-ghost" onclick="goBack(2)">← Volver</button>
+</div>
+
+<!-- ── SUCCESS ── -->
+<div id="stepSuccess" class="card success-card" style="display:none;">
+  <div class="success-icon">🏃</div>
+  <div class="success-title">¡Inscripción enviada!</div>
+  <p class="success-sub">
+    Tu comprobante fue recibido y está siendo verificado.<br>
+    Te contactaremos por <strong>email o WhatsApp</strong> para confirmar tu inscripción.<br><br>
+    ¡Nos vemos el 14 de junio!
+  </p>
+  <div class="pending-badge">
+    <div class="pending-icon">⏳</div>
+    <div class="pending-text">
+      <strong>Verificación pendiente</strong>
+      <span>Tiempo estimado: 24 a 48 hs hábiles</span>
+    </div>
+  </div>
+  <div class="success-contact">Una vez confirmado el pago, recibirás tu número de corredor y los detalles del evento.</div>
+  <div class="success-details">
+    📅 Domingo 14 de junio · 10:00 AM<br>
+    📍 Club Atlético Ciclón, Chivilcoy<br>
+    👕 Retirá tu kit el día anterior de 9 a 13 hs
+  </div>
+</div>
+
+<div class="footer">
+  Maratón Club Ciclón Chivilcoy · 3ª Edición 2025<br>
+  Auspicia YPF · Primas Group
+</div>
+
+<!-- ── TERMS MODAL ── -->
+<div class="modal-overlay" id="termsModal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Términos y Condiciones</h3>
+    <p><strong style="color:var(--white);">1. Aptitud física:</strong> El participante declara estar en condiciones físicas aptas para realizar actividad deportiva de las distancias indicadas.</p>
+    <p><strong style="color:var(--white);">2. Responsabilidad:</strong> El Club Atlético Ciclón no se responsabiliza por lesiones, accidentes o pérdidas materiales durante el evento.</p>
+    <p><strong style="color:var(--white);">3. Inscripción:</strong> La inscripción es personal e intransferible. No se realizan devoluciones una vez confirmado el pago.</p>
+    <p><strong style="color:var(--white);">4. Imágenes:</strong> El participante autoriza el uso de su imagen con fines de comunicación del evento.</p>
+    <p><strong style="color:var(--white);">5. Reglamento:</strong> Todo corredor debe respetar las indicaciones de los organizadores y el reglamento oficial de la carrera.</p>
+    <button class="modal-close" onclick="closeTerms()">Entendido ✓</button>
+  </div>
+</div>
+
+<script>
+  // Limitar fecha de nacimiento a hoy
+  document.getElementById('fechaNacimiento').max = new Date().toISOString().split('T')[0];
+</script>
+<script src="app.js"></script>
+</body>
+</html>

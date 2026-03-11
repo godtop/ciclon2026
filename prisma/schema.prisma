@@ -24,6 +24,7 @@ model Inscripcion {
   sexo      String
   edad      Int
   dni       String
+  fechaNacimiento DateTime?
 
   // Contacto
   codarea   String
