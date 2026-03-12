@@ -9,8 +9,8 @@ let voucherFile   = null;
 const API_URL = 'http://localhost:3000'; // Cambiar por tu URL de producción
 
 const PRICES = {
-  '4k':  { con: 4500, sin: 3500 },
-  '10k': { con: 6000, sin: 5000 }
+  '4k':  { con: 23000, sin: 15000 },
+  '10k': { con: 30000, sin: 22000 }
 };
 
 /* ══════════════════════════════════════
