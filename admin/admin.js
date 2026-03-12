@@ -74,6 +74,8 @@ async function load() {
   try {
     const res = await apiFetch(`${API_URL}/inscripciones`);
     inscripciones = await res.json();
+    // Guardar en sessionStorage para la página de categorías
+    sessionStorage.setItem('ciclon_inscripciones', JSON.stringify(inscripciones));
     render();
   } catch(e) {
     if (e.message !== 'Sesión expirada.')

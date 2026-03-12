@@ -36,6 +36,20 @@
   .header-sub   { font-size: 0.72rem; color: var(--gray); }
   .logout-btn   { padding: 7px 14px; background: transparent; border: 1px solid rgba(255,255,255,.15); border-radius: 10px; color: var(--gray); cursor: pointer; font-size: 0.8rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }
   .logout-btn:hover { border-color: #ef4444; color: #ef4444; }
+  .cat-btn {
+    padding: 7px 14px;
+    background: rgba(46,180,80,.12);
+    border: 1px solid var(--green);
+    border-radius: 10px;
+    color: var(--green-glow);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+    text-decoration: none;
+    transition: all .2s;
+    font-weight: 600;
+  }
+  .cat-btn:hover { background: rgba(46,180,80,.25); }
   
   .toolbar { display: flex; gap: 8px; padding: 16px 20px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
   .filter-btn { padding: 7px 16px; border-radius: 20px; border: 1.5px solid rgba(255,255,255,.12); background: transparent; color: var(--gray); cursor: pointer; font-size: 0.82rem; font-family: 'DM Sans', sans-serif; transition: all .2s; }

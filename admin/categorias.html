@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Categorías – Maratón Ciclón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="categorias.css">
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-logo">🏃</div>
+  <div>
+    <div class="header-title">Categorías</div>
+    <div class="header-sub">Maratón Club Ciclón · 14 jun 2026</div>
+  </div>
+  <a class="back-btn" href="index.html">← Panel</a>
+</header>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div id="mainContent">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <!-- Filtro por carrera -->
+    <div class="toolbar-group">
+      <button class="filter-btn filter-carrera active" onclick="setCarrera(this, 'todas')">Todas</button>
+      <button class="filter-btn filter-carrera"        onclick="setCarrera(this, '4k')">4K</button>
+      <button class="filter-btn filter-carrera"        onclick="setCarrera(this, '10k')">10K</button>
+    </div>
+
+    <div class="toolbar-sep"></div>
+
+    <!-- Toggle separar por sexo -->
+    <button class="toggle-btn" id="btnSexo" onclick="toggleSexo(this)">
+      <span>⚥</span> Separar por sexo
+    </button>
+
+    <span class="counter" id="counter"></span>
+  </div>
+
+  <!-- RESUMEN DE CATEGORÍAS -->
+  <div class="resumen-section">
+    <div class="resumen-title">CATEGORÍAS · HACÉ CLICK PARA FILTRAR</div>
+    <div class="resumen-grid" id="resumenGrid"></div>
+  </div>
+
+  <!-- TABLA / CARDS -->
+  <div class="table-section">
+    <div class="table-section-title" id="tablaTitulo">Todos los corredores</div>
+
+    <!-- Desktop -->
+    <div id="tablaDesktop"></div>
+
+    <!-- Mobile -->
+    <div id="tablaMobile"></div>
+  </div>
+
+</div>
+
+<script src="categorias.js"></script>
+</body>
+</html>
