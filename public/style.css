@@ -895,3 +895,100 @@ body {
   margin: 6px 0;
   display: none;
 }
+/* ── Ciudad Select Estilizado ── */
+.select-styled {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1.5px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: rgba(255,255,255,0.4);
+  font-size: 15px;
+  cursor: pointer;
+  transition: border-color .2s, background .2s;
+  box-sizing: border-box;
+}
+.select-styled:hover { border-color: rgba(255,255,255,0.28); }
+.select-styled.selected { color: #fff; border-color: rgba(255,255,255,0.3); }
+.field.error .select-styled { border-color: #ff6b6b; }
+.select-styled-text { flex: 1; }
+.select-styled-arrow { opacity: .45; font-size: 13px; }
+
+/* ── Modal Ciudad ── */
+.modal-ciudad {
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.ciudad-search-wrap {
+  position: relative;
+  margin-bottom: 12px;
+}
+.ciudad-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 15px;
+  pointer-events: none;
+}
+.ciudad-search-wrap input {
+  width: 100%;
+  padding: 12px 14px 12px 38px;
+  background: rgba(255,255,255,0.07);
+  border: 1.5px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+}
+.ciudad-search-wrap input:focus { border-color: rgba(255,255,255,0.4); }
+.ciudad-search-wrap input::placeholder { color: rgba(255,255,255,0.3); }
+
+.ciudad-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: rgba(255,255,255,0.4);
+  padding: 24px 0;
+  font-size: 14px;
+}
+.ciudad-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,0.15);
+  border-top-color: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ciudad-lista {
+  overflow-y: auto;
+  flex: 1;
+  margin: 0 -20px;
+  padding: 0 4px;
+}
+.ciudad-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.ciudad-item:hover { background: rgba(255,255,255,0.08); }
+.ciudad-item-nombre { color: #fff; font-size: 15px; }
+.ciudad-item-prov { color: rgba(255,255,255,0.38); font-size: 12px; }
+.ciudad-no-result {
+  text-align: center;
+  color: rgba(255,255,255,0.3);
+  padding: 24px 0;
+  font-size: 14px;
+}

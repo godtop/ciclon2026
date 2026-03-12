@@ -43,45 +43,85 @@ document.querySelectorAll('input[name="shirt"]').forEach(radio => {
 });
 
 /* ══════════════════════════════════════
-   CIUDAD AUTOCOMPLETE
+   CIUDAD — MODAL CON BÚSQUEDA LOCAL
 ══════════════════════════════════════ */
-let ciudadTimer = null;
-let ciudadSeleccionada = '';
-const ciudadInput = document.getElementById('ciudad');
-const ciudadList  = document.getElementById('ciudadList');
+let ciudadSeleccionada   = '';
+let ciudadProvSeleccionada = '';
+let todasLasLocalidades  = [];
+let ciudadesListo        = false;
 
-ciudadInput.addEventListener('input', () => {
-  const q = ciudadInput.value.trim();
-  ciudadSeleccionada = '';
-  if (q.length < 2) { ciudadList.classList.remove('open'); return; }
-  clearTimeout(ciudadTimer);
-  ciudadTimer = setTimeout(() => buscarCiudad(q), 300);
-});
-ciudadInput.addEventListener('blur', () => { setTimeout(() => ciudadList.classList.remove('open'), 200); });
-
-async function buscarCiudad(q) {
-  ciudadList.innerHTML = '<div class="autocomplete-loading">Buscando...</div>';
-  ciudadList.classList.add('open');
+// Carga única al iniciar la página
+(async function cargarLocalidades() {
   try {
-    const url  = `https://apis.datos.gob.ar/georef/api/localidades?nombre=${encodeURIComponent(q)}&max=8&campos=nombre,provincia.nombre`;
+    const url  = 'https://apis.datos.gob.ar/georef/api/localidades?max=5000&campos=nombre,provincia.nombre&orden=nombre';
     const res  = await fetch(url);
     const data = await res.json();
-    const items = data.localidades || [];
-    if (!items.length) { ciudadList.innerHTML = '<div class="autocomplete-loading">Sin resultados</div>'; return; }
-    ciudadList.innerHTML = items.map(loc => `
-      <div class="autocomplete-item" data-name="${loc.nombre}" data-prov="${loc.provincia.nombre}">
-        <div>${loc.nombre}</div>
-        <div class="city-prov">${loc.provincia.nombre}</div>
-      </div>`).join('');
-    ciudadList.querySelectorAll('.autocomplete-item').forEach(item => {
-      item.addEventListener('mousedown', () => {
-        ciudadInput.value  = item.dataset.name;
-        ciudadSeleccionada = item.dataset.name;
-        ciudadList.classList.remove('open');
-        document.getElementById('f-ciudad').classList.remove('error');
-      });
-    });
-  } catch { ciudadList.classList.remove('open'); }
+    todasLasLocalidades = (data.localidades || [])
+      .map(l => ({ nombre: l.nombre, provincia: l.provincia.nombre }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    ciudadesListo = true;
+    document.getElementById('ciudadLoading').style.display = 'none';
+    // Mostrar primeras ciudades apenas carga
+    renderCiudades('');
+  } catch {
+    document.getElementById('ciudadLoading').textContent = '⚠️ Error al cargar. Intentá de nuevo.';
+  }
+})();
+
+function abrirModalCiudad() {
+  document.getElementById('ciudadModal').classList.add('open');
+  document.getElementById('ciudadSearchInput').value = '';
+  if (ciudadesListo) renderCiudades('');
+  // Pequeño delay para que el modal esté visible antes del focus (mejor en móvil)
+  setTimeout(() => document.getElementById('ciudadSearchInput').focus(), 150);
+}
+
+function cerrarModalCiudad() {
+  document.getElementById('ciudadModal').classList.remove('open');
+}
+
+function renderCiudades(q) {
+  if (!ciudadesListo) return;
+  const lista  = document.getElementById('ciudadLista');
+  const texto  = q.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+  const filtradas = q.length === 0
+    ? todasLasLocalidades.slice(0, 120)
+    : todasLasLocalidades.filter(l => {
+        const nombre = l.nombre.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        return nombre.includes(texto);
+      }).slice(0, 100);
+
+  if (!filtradas.length) {
+    lista.innerHTML = '<div class="ciudad-no-result">Sin resultados para "' + q + '"</div>';
+    return;
+  }
+
+  lista.innerHTML = filtradas.map(l =>
+    `<div class="ciudad-item" onclick="seleccionarCiudad('${escapar(l.nombre)}','${escapar(l.provincia)}')">
+      <span class="ciudad-item-nombre">${l.nombre}</span>
+      <span class="ciudad-item-prov">${l.provincia}</span>
+    </div>`
+  ).join('');
+}
+
+function seleccionarCiudad(nombre, provincia) {
+  ciudadSeleccionada     = nombre;
+  ciudadProvSeleccionada = provincia;
+  document.getElementById('ciudadBtnText').textContent = `${nombre}, ${provincia}`;
+  document.getElementById('ciudadBtn').classList.add('selected');
+  setFieldError('f-ciudad', false);
+  cerrarModalCiudad();
+}
+
+// Cerrar modal al clickear el fondo oscuro
+document.getElementById('ciudadModal').addEventListener('click', function(e) {
+  if (e.target === this) cerrarModalCiudad();
+});
+
+// Helper para evitar problemas con comillas en nombres de localidades
+function escapar(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
 
 /* ══════════════════════════════════════
@@ -107,23 +147,22 @@ function goStep3() {
   const telefono        = document.getElementById('telefono').value.trim();
   const email           = document.getElementById('email').value.trim();
   const email2          = document.getElementById('email2').value.trim();
-  const ciudad          = document.getElementById('ciudad').value.trim();
   const domicilio       = document.getElementById('domicilio').value.trim();
   const talle           = selectedShirt === 'con' ? document.getElementById('talle').value : 'N/A';
 
-  const nombreOk   = nombre.length >= 2;
-  const apellidoOk = apellido.length >= 2;
-  const sexoOk     = !!sexo;
-  const dniOk      = /^\d{7,8}$/.test(dni);
-  const ageOk      = !isNaN(edad) && edad >= 10 && edad <= 99;
-  const fechaNacOk = !!fechaNacimiento;
-  const codarOk    = /^\d{2,5}$/.test(codarea);
-  const telOk      = /^\d{6,12}$/.test(telefono.replace(/\s/g, ''));
-  const emailOk    = email.includes('@') && email.includes('.');
-  const email2Ok   = email === email2;
-  const ciudadOk   = ciudad.length >= 2;
-  const domicOk    = domicilio.length >= 4;
-  const talleOk    = selectedShirt === 'sin' || !!talle;
+  const nombreOk    = nombre.length >= 2;
+  const apellidoOk  = apellido.length >= 2;
+  const sexoOk      = !!sexo;
+  const dniOk       = /^\d{7,8}$/.test(dni);
+  const ageOk       = !isNaN(edad) && edad >= 10 && edad <= 99;
+  const fechaNacOk  = !!fechaNacimiento;
+  const codarOk     = /^\d{2,5}$/.test(codarea);
+  const telOk       = /^\d{6,12}$/.test(telefono.replace(/\s/g, ''));
+  const emailOk     = email.includes('@') && email.includes('.');
+  const email2Ok    = email === email2;
+  const ciudadOk    = !!ciudadSeleccionada; // Solo válido si se seleccionó del modal
+  const domicOk     = domicilio.length >= 4;
+  const talleOk     = selectedShirt === 'sin' || !!talle;
 
   setFieldError('f-nombre',          !nombreOk);
   setFieldError('f-apellido',        !apellidoOk);
@@ -248,7 +287,8 @@ async function processPayment() {
   formData.append('codarea',         document.getElementById('codarea').value.trim());
   formData.append('telefono',        document.getElementById('telefono').value.trim());
   formData.append('email',           document.getElementById('email').value.trim());
-  formData.append('ciudad',          document.getElementById('ciudad').value.trim());
+  formData.append('ciudad',          ciudadSeleccionada);
+  formData.append('provincia',       ciudadProvSeleccionada);
   formData.append('domicilio',       document.getElementById('domicilio').value.trim());
   if (selectedShirt === 'con') formData.append('talle', document.getElementById('talle').value);
 
@@ -297,9 +337,9 @@ function updateStepBar(current) {
   for (let i = 1; i <= 3; i++) {
     const circle = document.getElementById('sc' + i);
     circle.className = 'step-circle';
-    if (i < current)      { circle.classList.add('done');   circle.textContent = '✓'; }
+    if (i < current)       { circle.classList.add('done');   circle.textContent = '✓'; }
     else if (i === current){ circle.classList.add('active'); circle.textContent = i; }
-    else                  { circle.textContent = i; }
+    else                   { circle.textContent = i; }
   }
   for (let i = 1; i <= 2; i++) document.getElementById('sl' + i).classList.toggle('done', i < current);
 }

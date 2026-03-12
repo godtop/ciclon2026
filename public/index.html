@@ -134,7 +134,6 @@
       <input type="text" id="dni" placeholder="Ej: 35123456" maxlength="8" inputmode="numeric">
       <div class="error-msg">Ingresá un DNI válido (7 u 8 dígitos).</div>
     </div>
-    <!-- NUEVO: Fecha de nacimiento -->
     <div class="field" id="f-fechaNacimiento">
       <label>Fecha de nacimiento</label>
       <input type="date" id="fechaNacimiento" max="">
@@ -170,13 +169,15 @@
     <div class="error-msg">Los emails no coinciden.</div>
   </div>
 
+  <!-- CIUDAD — select estilizado que abre modal -->
   <div class="field" id="f-ciudad">
     <label>Ciudad / Localidad</label>
-    <div class="autocomplete-wrap">
-      <input type="text" id="ciudad" placeholder="Ej: Chivilcoy" autocomplete="off">
-      <div class="autocomplete-list" id="ciudadList"></div>
+    <div class="select-styled" id="ciudadBtn" onclick="abrirModalCiudad()">
+      <span class="select-styled-icon">📍</span>
+      <span class="select-styled-text" id="ciudadBtnText">Elegir ciudad...</span>
+      <span class="select-styled-arrow">▾</span>
     </div>
-    <div class="error-msg">Ingresá tu ciudad.</div>
+    <div class="error-msg">Seleccioná una ciudad de la lista.</div>
   </div>
 
   <div class="field" id="f-domicilio">
@@ -299,8 +300,24 @@
   </div>
 </div>
 
+<!-- ── CIUDAD MODAL ── -->
+<div class="modal-overlay" id="ciudadModal">
+  <div class="modal modal-ciudad">
+    <div class="modal-handle"></div>
+    <h3>Elegí tu ciudad</h3>
+    <div class="ciudad-search-wrap">
+      <span class="ciudad-search-icon">🔍</span>
+      <input type="text" id="ciudadSearchInput" placeholder="Escribí para filtrar..." autocomplete="off" oninput="renderCiudades(this.value.trim())">
+    </div>
+    <div class="ciudad-loading" id="ciudadLoading">
+      <div class="ciudad-spinner"></div>
+      Cargando localidades...
+    </div>
+    <div class="ciudad-lista" id="ciudadLista"></div>
+  </div>
+</div>
+
 <script>
-  // Limitar fecha de nacimiento a hoy
   document.getElementById('fechaNacimiento').max = new Date().toISOString().split('T')[0];
 </script>
 <script src="app.js"></script>
