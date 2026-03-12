@@ -21,9 +21,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Sirve admin
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '../admin/admin.html'));
-});
+app.use('/admin', express.static(path.join(__dirname, '../admin')));
 
 // ── Rutas ──
 app.get('/health', (req, res) => res.json({ status: 'ok' }));

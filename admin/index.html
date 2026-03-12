@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin – Maratón Ciclón</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     LOGIN
+══════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🏃</div>
+    <div class="login-title">Panel Admin</div>
+    <div class="login-sub">Maratón Club Ciclón · Chivilcoy</div>
+    <div class="login-field">
+      <label>Usuario</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    </div>
+    <div class="login-field">
+      <label>Contraseña</label>
+      <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="doLogin()">Ingresar →</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     PANEL
+══════════════════════════════ -->
+<div id="adminPanel">
+  <header>
+    <div class="header-logo">🏃</div>
+    <div>
+      <div class="header-title">Maratón Ciclón</div>
+      <div class="header-sub">Panel de inscripciones</div>
+    </div>
+    <button class="logout-btn" onclick="doLogout()">Salir</button>
+  </header>
+
+  <div class="toolbar">
+    <button class="filter-btn active" data-filter="todos"      onclick="setFilter(this)">Todos</button>
+    <button class="filter-btn"        data-filter="pendiente"  onclick="setFilter(this)">⏳ Pendientes</button>
+    <button class="filter-btn"        data-filter="confirmado" onclick="setFilter(this)">✅ Confirmados</button>
+    <button class="filter-btn"        data-filter="rechazado"  onclick="setFilter(this)">❌ Rechazados</button>
+    <span class="counter" id="counter"></span>
+    <button class="refresh-btn" onclick="load()" title="Actualizar">↻ Actualizar</button>
+  </div>
+
+  <!-- Mobile cards -->
+  <div class="cards-list" id="cardsList"></div>
+
+  <!-- Desktop table -->
+  <div class="table-wrap" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Comprobante</th>
+          <th>Nombre</th>
+          <th>DNI</th>
+          <th>Nacimiento</th>
+          <th>Edad decl.</th>
+          <th>Edad 14/jun</th>
+          <th>Sexo</th>
+          <th>Carrera</th>
+          <th>Remera</th>
+          <th>Monto</th>
+          <th>Ciudad</th>
+          <th>Email</th>
+          <th>Teléfono</th>
+          <th>Inscripción</th>
+          <th>Estado</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     MODAL COMPROBANTE
+══════════════════════════════ -->
+<div class="img-modal" id="imgModal">
+  <div class="img-modal-bar">
+    <span class="img-modal-title" id="modalTitle">Comprobante</span>
+    <button class="img-modal-btn zoom-btn" onclick="zoomIn()"    title="Zoom +">＋</button>
+    <button class="img-modal-btn zoom-btn" onclick="zoomOut()"   title="Zoom −">－</button>
+    <button class="img-modal-btn zoom-btn" onclick="resetZoom()" title="Restablecer">⊙</button>
+    <a class="img-modal-btn open-btn" id="modalOpenLink" href="#" target="_blank">↗ Abrir en otra ventana</a>
+    <button class="img-modal-btn close-btn" onclick="closeModal()">✕ Cerrar</button>
+  </div>
+  <canvas id="zoomCanvas"></canvas>
+  <div class="img-modal-hint">Pellizco o rueda para zoom · Arrastrá para mover</div>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
