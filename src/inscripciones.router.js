@@ -8,8 +8,8 @@ const requireAuth = require('./auth.middleware');
 const prisma = new PrismaClient();
 
 const PRICES = {
-  '4k':  { con: 4500, sin: 3500 },
-  '10k': { con: 6000, sin: 5000 },
+  '4k':  { con: 23000, sin: 15000 },
+  '10k': { con: 30000, sin: 22000 },
 };
 
 /* ─────────────────────────────────────────
