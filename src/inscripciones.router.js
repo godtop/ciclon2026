@@ -54,7 +54,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         nombre, apellido, sexo,
         edad:           parseInt(edad),
         dni,
-        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : null,
+        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
         codarea, telefono, email, ciudad, domicilio,
         comprobanteUrl:      uploadResult.secure_url,
         comprobantePublicId: uploadResult.public_id,
