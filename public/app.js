@@ -6,7 +6,7 @@ let selectedShirt = null;
 let termsAccepted = false;
 let voucherFile   = null;
 
-const API_URL = 'http://localhost:3000'; // Cambiar por tu URL de producción
+const API_URL = 'https://ciclon.up.railway.app/'; // Cambiar por tu URL de producción
 
 const PRICES = {
   '4k':  { con: 23000, sin: 15000 },
