@@ -30,6 +30,11 @@ document.querySelectorAll('input[name="race"]').forEach(radio => {
     document.getElementById('shirtSelector').style.display = 'block';
     document.getElementById('raceError').style.display  = 'none';
     document.getElementById('shirtError').style.display = 'none';
+
+    // Scroll al botón continuar luego de que aparezca el selector de remera
+    setTimeout(() => {
+      document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 300);
   });
 });
 
@@ -39,6 +44,11 @@ document.querySelectorAll('input[name="shirt"]').forEach(radio => {
     document.querySelectorAll('.shirt-option').forEach(o => o.classList.remove('selected'));
     radio.closest('.shirt-option').classList.add('selected');
     document.getElementById('shirtError').style.display = 'none';
+
+    // Scroll al botón continuar luego de seleccionar remera
+    setTimeout(() => {
+      document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, 150);
   });
 });
 
