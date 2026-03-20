@@ -543,8 +543,7 @@ body {
   font-weight: 600;
   color: var(--white);
   text-align: right;
-  word-break: break-all;
-  max-width: 60%;
+  white-space: nowrap;
 }
 
 .tf-highlight {
