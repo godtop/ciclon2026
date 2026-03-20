@@ -270,7 +270,7 @@ async function enviarEmailConfirmacion(inscripcion) {
           <tr>
             <td style="background:#0b1a10;border-radius:0 0 20px 20px;padding:24px 28px;text-align:center;border:1px solid #1e4d2a;border-top:1px solid #1e4d2a;">
               <p style="margin:0 0 6px;font-size:12px;color:#4a7a58;">
-                Maratón Club Ciclón Chivilcoy · 3ª Edición 2025
+                Maratón Club Ciclón Chivilcoy · 3ª Edición 2026
               </p>
               <p style="margin:0;font-size:11px;color:#2d4d38;">
                 Auspicia YPF · Primas Group
