@@ -41,7 +41,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   const {
     nombre, apellido, email, carrera, remera, talle,
     monto, dni, edad, sexo, fechaNacimiento,
-    ciudad, domicilio, codarea, telefono, createdAt,
+    ciudad, domicilio, codpais, codarea, telefono, createdAt,
   } = inscripcion;
 
   const nombreCompleto = `${nombre} ${apellido}`;
@@ -237,7 +237,7 @@ async function enviarEmailConfirmacion(inscripcion) {
                     <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Teléfono</span>
                   </td>
                   <td style="padding:12px 18px;">
-                    <span style="font-size:14px;color:#d0e8d8;">+54 ${codarea} ${telefono}</span>
+                    <span style="font-size:14px;color:#d0e8d8;">+${codpais || '54'} ${codarea} ${telefono}</span>
                   </td>
                 </tr>
 
@@ -318,7 +318,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
 
     const {
       carrera, remera, talle,
-      nombre, apellido, sexo, edad, dni, fechaNacimiento,
+      nombre, apellido, sexo, edad, dni, fechaNacimiento, codpais,
       codarea, telefono, email, ciudad, domicilio,
     } = req.body;
 
@@ -350,7 +350,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         edad:           parseInt(edad),
         dni,
         fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
-        codarea, telefono, email, ciudad, domicilio,
+        codpais: codpais || '54',codarea, telefono, email, ciudad, domicilio,
         comprobanteUrl:      uploadResult.secure_url,
         comprobantePublicId: uploadResult.public_id,
         estado: 'pendiente',

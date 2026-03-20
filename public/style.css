@@ -435,7 +435,7 @@ body {
   border: none;
   border-radius: 0;
   padding: 14px 12px;
-  flex: 1;
+  flex: 1;  
   min-width: 0;
   box-shadow: none !important;
 }
@@ -1035,4 +1035,32 @@ body {
   background: rgba(46,180,80,.25);
   color: #fff;
   border-color: var(--green-light);
+}
+.input-prefix-plus {
+  font-size: 13px;
+  color: var(--gray);
+  padding: 14px 2px 14px 14px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+#codpais {
+  width: 28px;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--gray);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 14px 4px;
+  outline: none;
+  box-shadow: none !important;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.input-prefix-sep {
+  color: rgba(255,255,255,.15);
+  font-size: 16px;
+  padding: 0 8px 0 4px;
+  flex-shrink: 0;
 }

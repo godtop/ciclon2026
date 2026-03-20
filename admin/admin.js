@@ -188,7 +188,7 @@ function cardHTML(i) {
         <div class="detail-field full"><div class="detail-label">Ciudad</div><div class="detail-value">${i.ciudad}</div></div>
         <div class="detail-field full"><div class="detail-label">Domicilio</div><div class="detail-value">${i.domicilio}</div></div>
         <div class="detail-field full"><div class="detail-label">Email</div><div class="detail-value">${i.email}</div></div>
-        <div class="detail-field"><div class="detail-label">Teléfono</div><div class="detail-value">+54 ${i.codarea} ${i.telefono}</div></div>
+        <div class="detail-label">Teléfono</div><div class="detail-value">+${i.codpais || '54'} ${i.codarea} ${i.telefono}</div>
         <div class="detail-field"><div class="detail-label">Inscripción</div><div class="detail-value">${fmtFechaCorta(i.createdAt)}</div></div>
       </div>
       <div class="voucher-thumb" onclick="openModal('${i.comprobanteUrl}', '${i.nombre} ${i.apellido}')">
@@ -237,7 +237,7 @@ function renderTable(items) {
       <td class="td-monto">$${i.monto.toLocaleString('es-AR')}</td>
       <td class="muted">${i.ciudad}</td>
       <td class="muted" style="font-size:.78rem">${i.email}</td>
-      <td class="muted">+54 ${i.codarea} ${i.telefono}</td>
+      <td class="muted">+${i.codpais || '54'} ${i.codarea} ${i.telefono}</td>
       <td class="muted" style="font-size:.78rem">${fmtFechaCorta(i.createdAt)}</td>
       <td><span class="badge ${badges[i.estado]}">${i.estado}</span></td>
       <td>

@@ -341,6 +341,8 @@ async function processPayment() {
   formData.append('edad',            document.getElementById('edad').value);
   formData.append('dni',             document.getElementById('dni').value.trim());
   formData.append('fechaNacimiento', getFechaNacimiento());
+  const codpais = document.getElementById('codpais').value.trim() || '54';
+  formData.append('codpais', codpais);
   formData.append('codarea',         document.getElementById('codarea').value.trim());
   formData.append('telefono',        document.getElementById('telefono').value.trim());
   formData.append('email',           document.getElementById('email').value.trim());
@@ -416,7 +418,9 @@ function formatDni(dni) {
 document.getElementById('dni').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').substring(0, 8); });
 document.getElementById('codarea').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').substring(0, 5); });
 document.getElementById('telefono').addEventListener('input', function () { this.value = this.value.replace(/\D/g, '').substring(0, 12); });
-
+document.getElementById('codpais').addEventListener('input', function () {
+  this.value = this.value.replace(/\D/g, '').substring(0, 3);
+});
 function openTerms(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('termsModal').classList.add('open'); }
 function closeTerms() { document.getElementById('termsModal').classList.remove('open'); }
 document.getElementById('termsModal').addEventListener('click', function(e) { if (e.target === this) closeTerms(); });

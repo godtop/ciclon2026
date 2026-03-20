@@ -27,6 +27,7 @@ model Inscripcion {
   fechaNacimiento DateTime?
 
   // Contacto
+  codpais   String @default("54")
   codarea   String
   telefono  String
   email     String
