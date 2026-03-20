@@ -47,6 +47,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   const nombreCompleto = `${nombre} ${apellido}`;
   const remeraTexto    = remera === 'con' ? `Con remera · Talle ${talle}` : 'Sin remera';
   const fechaNacTexto  = fechaNacimiento ? fmtFecha(fechaNacimiento) : '—';
+  const carreraLabel   = carrera === '4k' ? '4K — Participativa' : '10K — Competitiva';
 
   const html = `
 <!DOCTYPE html>
@@ -54,35 +55,83 @@ async function enviarEmailConfirmacion(inscripcion) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Inscripción Confirmada – Maratón Club Ciclón</title>
+  <title>Inscripción Confirmada</title>
 </head>
-<body style="margin:0;padding:0;background:#0f0f0f;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#0f0f0f;padding:32px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+<body style="margin:0;padding:0;background:#0b1a10;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
-          <!-- HEADER -->
+  <!-- WRAPPER -->
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b1a10;padding:24px 0 48px;">
+    <tr>
+      <td align="center" style="padding:0 12px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:540px;">
+
+
+          <!-- ══ HERO HEADER ══ -->
           <tr>
-            <td style="background:linear-gradient(135deg,#e63946 0%,#c1121f 100%);border-radius:16px 16px 0 0;padding:40px 32px;text-align:center;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);text-transform:uppercase;margin-bottom:12px;">✦ Tercera Edición ✦</div>
-              <div style="font-size:48px;font-weight:900;color:#ffffff;letter-spacing:-2px;line-height:1;margin-bottom:4px;">MARATÓN</div>
-              <div style="font-size:16px;font-weight:600;color:rgba(255,255,255,0.85);letter-spacing:2px;">Club Ciclón · Chivilcoy</div>
+            <td style="background:#0f2416;border-radius:20px 20px 0 0;padding:36px 28px 32px;text-align:center;border:1px solid #1e4d2a;border-bottom:none;">
+
+              <!-- Edition tag -->
+              <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:3px;color:#3ddc6b;text-transform:uppercase;border:1px solid rgba(61,220,107,.3);border-radius:20px;padding:4px 14px;margin-bottom:20px;">
+                ✦ TERCERA EDICIÓN ✦
+              </div>
+
+              <!-- Title -->
+              <div style="font-size:42px;font-weight:900;color:#f5f9f6;letter-spacing:-1px;line-height:1;margin-bottom:4px;">
+                MARATÓN
+              </div>
+              <div style="font-size:14px;font-weight:600;color:#3ddc6b;letter-spacing:3px;margin-bottom:28px;">
+                CLUB CICLÓN · CHIVILCOY
+              </div>
+
+              <!-- Confirmed badge -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="background:linear-gradient(135deg,#1e8a3c,#145c28);border-radius:14px;padding:18px 28px;text-align:center;">
+                    <div style="font-size:32px;line-height:1;margin-bottom:8px;">✅</div>
+                    <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;margin-bottom:4px;">
+                      INSCRIPCIÓN CONFIRMADA
+                    </div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;">
+                      Pago verificado · Ya sos parte de la carrera
+                    </div>
+                  </td>
+                </tr>
+              </table>
+
             </td>
           </tr>
 
-          <!-- CONFIRMATION BADGE -->
+
+          <!-- ══ GREETING ══ -->
           <tr>
-            <td style="background:#1a1a1a;padding:32px 32px 0;">
-              <table width="100%" cellpadding="0" cellspacing="0">
+            <td style="background:#0f2416;padding:0 28px 28px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+              <p style="margin:20px 0 0;font-size:15px;color:#aabfb0;line-height:1.7;">
+                Hola <strong style="color:#f5f9f6;">${nombre}</strong>,<br>
+                tu inscripción a la <strong style="color:#2db54f;">Maratón Club Ciclón 3ª Edición</strong>
+                fue confirmada exitosamente. Encontrás a continuación el resumen de tu participación.
+              </p>
+            </td>
+          </tr>
+
+
+          <!-- ══ CARRERA DESTACADA ══ -->
+          <tr>
+            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:linear-gradient(135deg,#162b1c,#0f2416);border:1.5px solid rgba(46,181,80,.35);border-radius:14px;overflow:hidden;">
                 <tr>
-                  <td style="background:#0d2b0d;border:1.5px solid #2d6a2d;border-radius:12px;padding:20px 24px;">
-                    <table cellpadding="0" cellspacing="0">
+                  <td style="padding:20px 22px;">
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
-                        <td style="font-size:32px;padding-right:16px;">✅</td>
                         <td>
-                          <div style="font-size:18px;font-weight:700;color:#4ade80;margin-bottom:4px;">¡Inscripción confirmada!</div>
-                          <div style="font-size:14px;color:#86efac;">Tu pago fue verificado. Ya sos parte de la carrera.</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Carrera</div>
+                          <div style="font-size:28px;font-weight:900;color:#ffffff;line-height:1;">${carrera.toUpperCase()}</div>
+                          <div style="font-size:12px;color:#aabfb0;margin-top:2px;">${carrera === '4k' ? 'Participativa' : 'Competitiva'} · Con cronometraje oficial</div>
+                        </td>
+                        <td style="text-align:right;vertical-align:top;">
+                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Monto abonado</div>
+                          <div style="font-size:26px;font-weight:900;color:#2db54f;line-height:1;">$${monto.toLocaleString('es-AR')}</div>
+                          <div style="font-size:11px;color:#aabfb0;margin-top:2px;">${remeraTexto}</div>
                         </td>
                       </tr>
                     </table>
@@ -92,120 +141,103 @@ async function enviarEmailConfirmacion(inscripcion) {
             </td>
           </tr>
 
-          <!-- GREETING -->
-          <tr>
-            <td style="background:#1a1a1a;padding:28px 32px 0;">
-              <p style="margin:0;font-size:16px;color:#e0e0e0;line-height:1.6;">
-                Hola <strong style="color:#ffffff;">${nombreCompleto}</strong>,
-              </p>
-              <p style="margin:12px 0 0;font-size:15px;color:#aaaaaa;line-height:1.7;">
-                Tu inscripción a la <strong style="color:#e63946;">Maratón Club Ciclón – 3ª Edición</strong> fue confirmada correctamente.
-                A continuación encontrás el resumen de tu participación.
-              </p>
-            </td>
-          </tr>
 
-          <!-- EVENT INFO -->
+          <!-- ══ INFO EVENTO ══ -->
           <tr>
-            <td style="background:#1a1a1a;padding:24px 32px 0;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#242424;border-radius:12px;overflow:hidden;">
+            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#0b1a10;border-radius:12px;overflow:hidden;border:1px solid #1e4d2a;">
                 <tr>
-                  <td style="padding:16px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:18px;">🗓</span>
-                    <span style="font-size:14px;font-weight:600;color:#ffffff;margin-left:10px;">Domingo 14 de Junio de 2026</span>
+                  <td style="padding:14px 18px;border-bottom:1px solid #1e4d2a;">
+                    <span style="font-size:16px;">🗓</span>
+                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">Domingo 14 de junio · 10:00 AM</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:16px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:18px;">⏰</span>
-                    <span style="font-size:14px;font-weight:600;color:#ffffff;margin-left:10px;">10:00 AM</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:16px 20px;">
-                    <span style="font-size:18px;">📍</span>
-                    <span style="font-size:14px;font-weight:600;color:#ffffff;margin-left:10px;">Club Atlético Ciclón, Chivilcoy</span>
+                  <td style="padding:14px 18px;">
+                    <span style="font-size:16px;">📍</span>
+                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">Club Atlético Ciclón, Chivilcoy</span>
                   </td>
                 </tr>
               </table>
             </td>
           </tr>
 
-          <!-- PARTICIPANT DATA -->
+
+          <!-- ══ DATOS DEL CORREDOR ══ -->
           <tr>
-            <td style="background:#1a1a1a;padding:24px 32px 0;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:14px;">Datos del corredor</div>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#242424;border-radius:12px;overflow:hidden;">
+            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
 
+              <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:12px;">
+                Datos del corredor
+              </div>
+
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#0b1a10;border-radius:12px;border:1px solid #1e4d2a;overflow:hidden;">
+
+                <!-- fila -->
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;width:42%;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Nombre</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;width:40%;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Nombre</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#ffffff;font-weight:600;">${nombreCompleto}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#f5f9f6;font-weight:600;">${nombreCompleto}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">DNI</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">DNI</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${fmtDni(dni)}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${fmtDni(dni)}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Fecha de nac.</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Fecha de nac.</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${fechaNacTexto}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${fechaNacTexto}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Edad</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Edad</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${edad} años</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${edad} años</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Sexo</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sexo</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${fmtSexo(sexo)}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${fmtSexo(sexo)}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Ciudad</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Ciudad</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${ciudad}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${ciudad}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Domicilio</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Domicilio</span>
                   </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${domicilio}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
+                    <span style="font-size:14px;color:#d0e8d8;">${domicilio}</span>
                   </td>
                 </tr>
-
                 <tr>
-                  <td style="padding:13px 20px;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Teléfono</span>
+                  <td style="padding:12px 18px;">
+                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Teléfono</span>
                   </td>
-                  <td style="padding:13px 20px;">
-                    <span style="font-size:14px;color:#e0e0e0;">+54 ${codarea} ${telefono}</span>
+                  <td style="padding:12px 18px;">
+                    <span style="font-size:14px;color:#d0e8d8;">+54 ${codarea} ${telefono}</span>
                   </td>
                 </tr>
 
@@ -213,63 +245,18 @@ async function enviarEmailConfirmacion(inscripcion) {
             </td>
           </tr>
 
-          <!-- RACE DATA -->
+
+          <!-- ══ KIT ══ -->
           <tr>
-            <td style="background:#1a1a1a;padding:24px 32px 0;">
-              <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#888;text-transform:uppercase;margin-bottom:14px;">Detalles de inscripción</div>
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#242424;border-radius:12px;overflow:hidden;">
-
+            <td style="background:#0f2416;padding:0 28px 28px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#162211;border:1.5px solid rgba(61,220,107,.25);border-radius:14px;">
                 <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;width:42%;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Carrera</span>
-                  </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:16px;font-weight:800;color:#e63946;">${carrera.toUpperCase()}</span>
-                    <span style="font-size:13px;color:#888;margin-left:8px;">${carrera === '4k' ? 'Participativa' : 'Competitiva'}</span>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Remera</span>
-                  </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:14px;color:#e0e0e0;">${remeraTexto}</span>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Inscripción</span>
-                  </td>
-                  <td style="padding:13px 20px;border-bottom:1px solid #333;">
-                    <span style="font-size:13px;color:#aaaaaa;">${fmtFecha(createdAt)}</span>
-                  </td>
-                </tr>
-
-                <tr>
-                  <td style="padding:13px 20px;">
-                    <span style="font-size:12px;color:#888;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Monto abonado</span>
-                  </td>
-                  <td style="padding:13px 20px;">
-                    <span style="font-size:18px;font-weight:800;color:#4ade80;">$${monto.toLocaleString('es-AR')}</span>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-
-          <!-- KIT PICKUP -->
-          <tr>
-            <td style="background:#1a1a1a;padding:24px 32px 0;">
-              <table width="100%" cellpadding="0" cellspacing="0" style="background:#1c1a10;border:1.5px solid #4a3f00;border-radius:12px;padding:20px 24px;">
-                <tr>
-                  <td>
-                    <div style="font-size:15px;font-weight:700;color:#fbbf24;margin-bottom:10px;">👕 Retiro de kit</div>
-                    <div style="font-size:14px;color:#d4b483;line-height:1.7;">
-                      Podés retirar tu kit el día anterior a la carrera:<br>
-                      <strong style="color:#fbbf24;">Sábado 13 de junio · 9:00 a 13:00 hs</strong><br>
+                  <td style="padding:20px 22px;">
+                    <div style="font-size:15px;font-weight:700;color:#3ddc6b;margin-bottom:10px;">👕 Retiro de kit</div>
+                    <div style="font-size:14px;color:#aabfb0;line-height:1.8;">
+                      Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
+                      <strong style="color:#f5f9f6;">Domingo 14 de junio · Desde las 8:30 AM</strong><br>
                       Club Atlético Ciclón, Chivilcoy
                     </div>
                   </td>
@@ -278,22 +265,25 @@ async function enviarEmailConfirmacion(inscripcion) {
             </td>
           </tr>
 
-          <!-- FOOTER -->
+
+          <!-- ══ FOOTER ══ -->
           <tr>
-            <td style="background:#1a1a1a;padding:32px;border-radius:0 0 16px 16px;border-top:1px solid #2a2a2a;margin-top:24px;">
-              <p style="margin:0 0 8px;font-size:13px;color:#666;text-align:center;">
-                Maratón Club Ciclón Chivilcoy · 3ª Edición 2026
+            <td style="background:#0b1a10;border-radius:0 0 20px 20px;padding:24px 28px;text-align:center;border:1px solid #1e4d2a;border-top:1px solid #1e4d2a;">
+              <p style="margin:0 0 6px;font-size:12px;color:#4a7a58;">
+                Maratón Club Ciclón Chivilcoy · 3ª Edición 2025
               </p>
-              <p style="margin:0;font-size:12px;color:#444;text-align:center;">
+              <p style="margin:0;font-size:11px;color:#2d4d38;">
                 Auspicia YPF · Primas Group
               </p>
             </td>
           </tr>
 
+
         </table>
       </td>
     </tr>
   </table>
+
 </body>
 </html>
   `.trim();

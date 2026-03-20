@@ -420,3 +420,15 @@ document.getElementById('telefono').addEventListener('input', function () { this
 function openTerms(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('termsModal').classList.add('open'); }
 function closeTerms() { document.getElementById('termsModal').classList.remove('open'); }
 document.getElementById('termsModal').addEventListener('click', function(e) { if (e.target === this) closeTerms(); });
+
+/* ══════════════════════════════════════
+   COPIAR AL PORTAPAPELES
+══════════════════════════════════════ */
+function copiarTexto(btn, texto) {
+  navigator.clipboard.writeText(texto).then(() => {
+    const original = btn.innerHTML;
+    btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> COPIADO`;
+    btn.classList.add('copied');
+    setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
+  });
+}

@@ -243,8 +243,26 @@
   <div class="transfer-info">
     <div class="transfer-title">💳 Datos para la transferencia</div>
     <div class="transfer-rows">
-      <div class="transfer-row"><span>CBU</span><span class="tf-val">0000003100012345678901</span></div>
-      <div class="transfer-row"><span>Alias</span><span class="tf-val">CICLON.CHIVILCOY</span></div>
+      <div class="transfer-row">
+        <span>CBU</span>
+        <div class="tf-copy-group">
+          <span class="tf-val">0000003100012345678901</span>
+          <button class="tf-copy-btn" onclick="copiarTexto(this, '0000003100012345678901')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            COPIAR
+          </button>
+        </div>
+      </div>
+      <div class="transfer-row">
+        <span>Alias</span>
+        <div class="tf-copy-group">
+          <span class="tf-val">CICLON.CHIVILCOY</span>
+          <button class="tf-copy-btn" onclick="copiarTexto(this, 'CICLON.CHIVILCOY')">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            COPIAR
+          </button>
+        </div>
+      </div>
       <div class="transfer-row"><span>Titular</span><span class="tf-val">Club Atlético Ciclón</span></div>
       <div class="transfer-row"><span>Monto exacto</span><span class="tf-val tf-highlight" id="transferTotal">—</span></div>
     </div>
@@ -286,22 +304,24 @@
   <div class="success-icon">🏃</div>
   <div class="success-title">¡Inscripción enviada!</div>
   <p class="success-sub">
-    Tu comprobante fue recibido y está siendo verificado.<br>
-    Te contactaremos por <strong>email o WhatsApp</strong> para confirmar tu inscripción.<br><br>
+    Tu comprobante fue recibido correctamente.<br>
+    Un <strong>administrador revisará tu pago</strong> y una vez confirmado recibirás un <strong>correo electrónico</strong> con la confirmación de tu inscripción a la carrera.<br><br>
     ¡Nos vemos el 14 de junio!
   </p>
   <div class="pending-badge">
     <div class="pending-icon">⏳</div>
     <div class="pending-text">
-      <strong>Verificación pendiente</strong>
+      <strong>Revisión pendiente por un administrador</strong>
       <span>Tiempo estimado: 24 a 48 hs hábiles</span>
     </div>
   </div>
-  <div class="success-contact">Una vez confirmado el pago, recibirás tu número de corredor y los detalles del evento.</div>
+  <div class="success-contact">
+    Si hubo algún problema con el pago (monto incorrecto, comprobante ilegible u otro inconveniente), nos comunicaremos con vos por <strong>WhatsApp, teléfono o email</strong> para resolverlo.
+  </div>
   <div class="success-details">
     📅 Domingo 14 de junio · 10:00 AM<br>
     📍 Club Atlético Ciclón, Chivilcoy<br>
-    👕 Retirá tu kit el día anterior de 9 a 13 hs
+    👕 Retirá tu kit el mismo dia de la carrera
   </div>
 </div>
 
