@@ -14,6 +14,60 @@ const PRICES = {
 };
 
 /* ══════════════════════════════════════
+   FECHA DE NACIMIENTO — poblar selects
+══════════════════════════════════════ */
+
+// Poblar años (año actual hacia atrás hasta 1920)
+(function poblarAnios() {
+  const sel = document.getElementById('fnAnio');
+  const hoy = new Date().getFullYear();
+  for (let a = hoy; a >= 1920; a--) {
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    sel.appendChild(opt);
+  }
+})();
+
+// Poblar días según mes y año seleccionados (corrige coherencia)
+function poblarDias() {
+  const selDia  = document.getElementById('fnDia');
+  const mes     = document.getElementById('fnMes').value;
+  const anio    = document.getElementById('fnAnio').value;
+  const diaActual = selDia.value;
+
+  // Cuántos días tiene el mes seleccionado (o 31 si aún no hay mes)
+  const maxDias = (mes && anio)
+    ? new Date(parseInt(anio), parseInt(mes), 0).getDate()
+    : 31;
+
+  // Limpiar y repoblar
+  selDia.innerHTML = '<option value="" disabled selected>Día</option>';
+  for (let d = 1; d <= maxDias; d++) {
+    const opt = document.createElement('option');
+    opt.value = String(d).padStart(2, '0');
+    opt.textContent = d;
+    // Mantener el día que tenía si sigue siendo válido
+    if (opt.value === diaActual) opt.selected = true;
+    selDia.appendChild(opt);
+  }
+}
+
+// Poblar días al inicio y cada vez que cambia mes o año
+poblarDias();
+document.getElementById('fnMes').addEventListener('change', poblarDias);
+document.getElementById('fnAnio').addEventListener('change', poblarDias);
+
+// Devuelve la fecha en formato YYYY-MM-DD para el backend, o '' si incompleta
+function getFechaNacimiento() {
+  const dia  = document.getElementById('fnDia').value;
+  const mes  = document.getElementById('fnMes').value;
+  const anio = document.getElementById('fnAnio').value;
+  if (!dia || !mes || !anio) return '';
+  return `${anio}-${mes}-${dia}`;
+}
+
+/* ══════════════════════════════════════
    STEP 1
 ══════════════════════════════════════ */
 document.querySelectorAll('input[name="race"]').forEach(radio => {
@@ -31,7 +85,6 @@ document.querySelectorAll('input[name="race"]').forEach(radio => {
     document.getElementById('raceError').style.display  = 'none';
     document.getElementById('shirtError').style.display = 'none';
 
-    // Scroll al botón continuar luego de que aparezca el selector de remera
     setTimeout(() => {
       document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 300);
@@ -45,7 +98,6 @@ document.querySelectorAll('input[name="shirt"]').forEach(radio => {
     radio.closest('.shirt-option').classList.add('selected');
     document.getElementById('shirtError').style.display = 'none';
 
-    // Scroll al botón continuar luego de seleccionar remera
     setTimeout(() => {
       document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 150);
@@ -60,7 +112,6 @@ let ciudadProvSeleccionada = '';
 let todasLasLocalidades  = [];
 let ciudadesListo        = false;
 
-// Carga única al iniciar la página
 (async function cargarLocalidades() {
   try {
     const url  = 'https://apis.datos.gob.ar/georef/api/localidades?max=5000&campos=nombre,provincia.nombre&orden=nombre';
@@ -71,7 +122,6 @@ let ciudadesListo        = false;
       .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     ciudadesListo = true;
     document.getElementById('ciudadLoading').style.display = 'none';
-    // Mostrar primeras ciudades apenas carga
     renderCiudades('');
   } catch {
     document.getElementById('ciudadLoading').textContent = '⚠️ Error al cargar. Intentá de nuevo.';
@@ -82,7 +132,6 @@ function abrirModalCiudad() {
   document.getElementById('ciudadModal').classList.add('open');
   document.getElementById('ciudadSearchInput').value = '';
   if (ciudadesListo) renderCiudades('');
-  // Pequeño delay para que el modal esté visible antes del focus (mejor en móvil)
   setTimeout(() => document.getElementById('ciudadSearchInput').focus(), 150);
 }
 
@@ -124,12 +173,10 @@ function seleccionarCiudad(nombre, provincia) {
   cerrarModalCiudad();
 }
 
-// Cerrar modal al clickear el fondo oscuro
 document.getElementById('ciudadModal').addEventListener('click', function(e) {
   if (e.target === this) cerrarModalCiudad();
 });
 
-// Helper para evitar problemas con comillas en nombres de localidades
 function escapar(str) {
   return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
 }
@@ -152,7 +199,7 @@ function goStep3() {
   const sexo            = document.getElementById('sexo').value;
   const dni             = document.getElementById('dni').value.trim();
   const edad            = parseInt(document.getElementById('edad').value);
-  const fechaNacimiento = document.getElementById('fechaNacimiento').value;
+  const fechaNacimiento = getFechaNacimiento();
   const codarea         = document.getElementById('codarea').value.trim();
   const telefono        = document.getElementById('telefono').value.trim();
   const email           = document.getElementById('email').value.trim();
@@ -170,7 +217,7 @@ function goStep3() {
   const telOk       = /^\d{6,12}$/.test(telefono.replace(/\s/g, ''));
   const emailOk     = email.includes('@') && email.includes('.');
   const email2Ok    = email === email2;
-  const ciudadOk    = !!ciudadSeleccionada; // Solo válido si se seleccionó del modal
+  const ciudadOk    = !!ciudadSeleccionada;
   const domicOk     = domicilio.length >= 4;
   const talleOk     = selectedShirt === 'sin' || !!talle;
 
@@ -293,7 +340,7 @@ async function processPayment() {
   formData.append('sexo',            document.getElementById('sexo').value);
   formData.append('edad',            document.getElementById('edad').value);
   formData.append('dni',             document.getElementById('dni').value.trim());
-  formData.append('fechaNacimiento', document.getElementById('fechaNacimiento').value);
+  formData.append('fechaNacimiento', getFechaNacimiento());
   formData.append('codarea',         document.getElementById('codarea').value.trim());
   formData.append('telefono',        document.getElementById('telefono').value.trim());
   formData.append('email',           document.getElementById('email').value.trim());

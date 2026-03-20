@@ -134,11 +134,35 @@
       <input type="text" id="dni" placeholder="Ej: 35123456" maxlength="8" inputmode="numeric">
       <div class="error-msg">Ingresá un DNI válido (7 u 8 dígitos).</div>
     </div>
-    <div class="field" id="f-fechaNacimiento">
-      <label>Fecha de nacimiento</label>
-      <input type="date" id="fechaNacimiento" max="">
-      <div class="error-msg">Ingresá tu fecha de nacimiento.</div>
+  </div>
+
+  <!-- ── FECHA DE NACIMIENTO — fila completa, tres selects ── -->
+  <div class="field" id="f-fechaNacimiento">
+    <label>Fecha de nacimiento</label>
+    <div class="fecha-selects">
+      <select id="fnDia">
+        <option value="" disabled selected>Día</option>
+      </select>
+      <select id="fnMes">
+        <option value="" disabled selected>Mes</option>
+        <option value="01">Enero</option>
+        <option value="02">Febrero</option>
+        <option value="03">Marzo</option>
+        <option value="04">Abril</option>
+        <option value="05">Mayo</option>
+        <option value="06">Junio</option>
+        <option value="07">Julio</option>
+        <option value="08">Agosto</option>
+        <option value="09">Septiembre</option>
+        <option value="10">Octubre</option>
+        <option value="11">Noviembre</option>
+        <option value="12">Diciembre</option>
+      </select>
+      <select id="fnAnio">
+        <option value="" disabled selected>Año</option>
+      </select>
     </div>
+    <div class="error-msg">Ingresá tu fecha de nacimiento.</div>
   </div>
 
   <div class="field-group-label">Teléfono de contacto</div>
@@ -317,9 +341,6 @@
   </div>
 </div>
 
-<script>
-  document.getElementById('fechaNacimiento').max = new Date().toISOString().split('T')[0];
-</script>
 <script src="app.js"></script>
 </body>
 </html>

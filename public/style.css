@@ -992,3 +992,12 @@ body {
   padding: 24px 0;
   font-size: 14px;
 }
+.fecha-selects {
+  display: grid;
+  grid-template-columns: 80px 1fr 100px;
+  gap: 8px;
+}
+.fecha-selects select {
+  width: 100%;
+  min-width: 0;
+}
