@@ -253,12 +253,23 @@ async function enviarEmailConfirmacion(inscripcion) {
                      style="background:#162211;border:1.5px solid rgba(61,220,107,.25);border-radius:14px;">
                 <tr>
                   <td style="padding:20px 22px;">
-                    <div style="font-size:15px;font-weight:700;color:#3ddc6b;margin-bottom:10px;">👕 Retiro de kit</div>
-                    <div style="font-size:14px;color:#aabfb0;line-height:1.8;">
-                      Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
-                      <strong style="color:#f5f9f6;">Domingo 14 de junio · Desde las 8:30 AM</strong><br>
-                      Club Atlético Ciclón, Chivilcoy
-                    </div>
+                   <div style="font-size:14px;color:#aabfb0;line-height:1.9;">
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
+    Retirá tu kit el día previo a la carrera.<br>
+    <strong style="color:#f5f9f6;">Sábado 13 de junio · 14:00 a 19:00 hs</strong><br>
+    Club Atlético Ciclón, Chivilcoy
+  </div>
+
+  <div style="border-top:0.5px solid #2e4a38;padding-top:14px;">
+    <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
+    Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
+    <strong style="color:#f5f9f6;">Domingo 14 de junio · Desde las 8:30 hs</strong><br>
+    Club Atlético Ciclón, Chivilcoy
+  </div>
+
+</div>
                   </td>
                 </tr>
               </table>
