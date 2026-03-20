@@ -299,7 +299,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   `.trim();
 
   await resend.emails.send({
-    from: 'Maratón Club Ciclón <no-reply@EMAIL>',
+    from: 'Maratón Club Ciclón <no-reply@ciclon.com.ar>',
     to:   email,
     subject: `✅ Inscripción confirmada – Maratón Club Ciclón ${carrera.toUpperCase()}`,
     html,
