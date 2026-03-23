@@ -291,13 +291,14 @@
     </div>
     <div class="inline-error" id="voucherError">Es obligatorio subir el comprobante para inscribirse.</div>
   </div>
-  <div class="terms-row" onclick="toggleTerms()">
+  <div class="terms-row" id="termsRow" onclick="openTermsModal(event)">
     <div class="custom-check" id="termsCheck"></div>
     <div class="terms-text">
-      Acepto los <a href="#" onclick="openTerms(event)">términos y condiciones</a>
+      Leí y firmo los <span class="terms-link">términos y condiciones</span>
       y declaro que mi estado de salud es apto para participar en la carrera.
     </div>
   </div>
+  <div class="inline-error" id="termsError" style="display:none; margin-top:6px;">Debés leer y firmar los términos para continuar.</div>
   <button class="btn" id="payBtn" onclick="processPayment()">Enviar inscripción ✓</button>
   <button class="btn-ghost" onclick="goBack(2)">← Volver</button>
 </div>
@@ -340,17 +341,41 @@
   Auspicia YPF · Primas Group
 </div>
 
-<!-- ── TERMS MODAL ── -->
-<div class="modal-overlay" id="termsModal">
-  <div class="modal">
-    <div class="modal-handle"></div>
-    <h3>Términos y Condiciones</h3>
-    <p><strong style="color:var(--white);">1. Aptitud física:</strong> El participante declara estar en condiciones físicas aptas para realizar actividad deportiva de las distancias indicadas.</p>
-    <p><strong style="color:var(--white);">2. Responsabilidad:</strong> El Club Atlético Ciclón no se responsabiliza por lesiones, accidentes o pérdidas materiales durante el evento.</p>
-    <p><strong style="color:var(--white);">3. Inscripción:</strong> La inscripción es personal e intransferible. No se realizan devoluciones una vez confirmado el pago.</p>
-    <p><strong style="color:var(--white);">4. Imágenes:</strong> El participante autoriza el uso de su imagen con fines de comunicación del evento.</p>
-    <p><strong style="color:var(--white);">5. Reglamento:</strong> Todo corredor debe respetar las indicaciones de los organizadores y el reglamento oficial de la carrera.</p>
-    <button class="modal-close" onclick="closeTerms()">Entendido ✓</button>
+<!-- ── TERMS + FIRMA MODAL ── -->
+<div class="modal-overlay modal-fullscreen" id="termsModal">
+  <div class="modal modal-terms-firma">
+    <div class="modal-header-sticky">
+      <div class="modal-handle"></div>
+      <h3>Términos y Condiciones</h3>
+    </div>
+
+    <div class="terms-body">
+      <p><strong style="color:var(--white);">1. Aptitud física:</strong> El participante declara estar en condiciones físicas aptas para realizar actividad deportiva de las distancias indicadas (4K o 10K). Cualquier condición médica preexistente es responsabilidad exclusiva del participante.</p>
+      <p><strong style="color:var(--white);">2. Responsabilidad:</strong> El Club Atlético Ciclón no se responsabiliza por lesiones, accidentes, enfermedades o pérdidas materiales ocurridas durante el evento o en sus inmediaciones. El participante asume todos los riesgos inherentes a la actividad deportiva.</p>
+      <p><strong style="color:var(--white);">3. Inscripción:</strong> La inscripción es personal e intransferible. No se realizan devoluciones una vez confirmado el pago. En caso de no poder participar, el corredor puede ceder su lugar a un tercero previo aviso a la organización.</p>
+      <p><strong style="color:var(--white);">4. Imágenes:</strong> El participante autoriza expresamente el uso de su imagen, voz y nombre con fines de comunicación, promoción y difusión del evento, sin derecho a compensación económica.</p>
+      <p><strong style="color:var(--white);">5. Reglamento:</strong> Todo corredor debe respetar las indicaciones de los organizadores, jueces y el reglamento oficial de la carrera. El incumplimiento puede resultar en descalificación sin devolución del importe.</p>
+      <p><strong style="color:var(--white);">6. Datos personales:</strong> Los datos personales ingresados serán utilizados únicamente para la gestión de la inscripción y comunicaciones relacionadas al evento, en cumplimiento de la Ley 25.326 de Protección de Datos Personales.</p>
+      <p><strong style="color:var(--white);">7. Clima y fuerza mayor:</strong> La organización se reserva el derecho de modificar el recorrido, horarios o cancelar el evento por razones de seguridad, condiciones climáticas adversas u otras causas de fuerza mayor.</p>
+
+      <!-- FIRMA -->
+      <div class="firma-section" id="firmaSection">
+        <div class="firma-title">✍️ Firma digital</div>
+        <div class="firma-subtitle">Firmá en el recuadro de abajo para aceptar los términos y condiciones.</div>
+        <div class="firma-canvas-wrap" id="firmaCanvasWrap">
+          <canvas id="firmaCanvas"></canvas>
+          <div class="firma-placeholder" id="firmaPlaceholder">Firmá aquí</div>
+        </div>
+        <button class="firma-clear-btn" onclick="limpiarFirma()">🗑 Borrar firma</button>
+        <div class="inline-error" id="firmaError" style="display:none; margin-top:8px;">Por favor firmá antes de confirmar.</div>
+      </div>
+    </div>
+
+    <!-- BOTÓN FIJO -->
+    <div class="modal-footer-fixed">
+      <button class="btn" id="confirmarTermsBtn" onclick="confirmarTerms()">Confirmar y firmar ✓</button>
+      <button class="btn-ghost" onclick="closeTermsModal()">Cancelar</button>
+    </div>
   </div>
 </div>
 

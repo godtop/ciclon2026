@@ -19,11 +19,11 @@ model Inscripcion {
   monto   Int
 
   // Datos personales
-  nombre    String
-  apellido  String
-  sexo      String
-  edad      Int
-  dni       String
+  nombre          String
+  apellido        String
+  sexo            String
+  edad            Int
+  dni             String
   fechaNacimiento DateTime?
 
   // Contacto
@@ -34,9 +34,12 @@ model Inscripcion {
   ciudad    String
   domicilio String
 
-  // Comprobante
+  // Comprobante de pago
   comprobanteUrl      String
   comprobantePublicId String
+
+  // Firma digital (imagen PNG en base64, ej: "data:image/png;base64,iVBOR...")
+  firmaBase64 String @default("0123456789")
 
   // Estado
   estado String @default("pendiente")

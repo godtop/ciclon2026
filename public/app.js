@@ -313,10 +313,12 @@ function changeVoucher(e) {
    SUBMIT
 ══════════════════════════════════════ */
 async function processPayment() {
-  if (!termsAccepted) {
-    const tr = document.querySelector('.terms-row');
+  if (!termsAccepted || !firmaDataUrl) {
+    document.getElementById('termsError').style.display = 'block';
+    const tr = document.getElementById('termsRow');
     tr.style.borderColor = '#ff6b6b';
     setTimeout(() => tr.style.borderColor = '', 1500);
+    tr.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
   if (!voucherFile) {
@@ -350,6 +352,7 @@ async function processPayment() {
   formData.append('provincia',       ciudadProvSeleccionada);
   formData.append('domicilio',       document.getElementById('domicilio').value.trim());
   if (selectedShirt === 'con') formData.append('talle', document.getElementById('talle').value);
+  formData.append('firmaBase64', firmaDataUrl);
 
   try {
     const res  = await fetch(`${API_URL}/inscripciones`, { method: 'POST', body: formData });
@@ -374,12 +377,122 @@ function showSuccess() {
 }
 
 /* ══════════════════════════════════════
-   TERMS / STEPS / HELPERS
+   TERMS + FIRMA DIGITAL
 ══════════════════════════════════════ */
-function toggleTerms() {
-  termsAccepted = !termsAccepted;
-  document.getElementById('termsCheck').classList.toggle('checked', termsAccepted);
+let firmaDataUrl = null; // base64 de la firma
+
+// ── Canvas setup ──
+let firmaCanvas, firmaCtx, dibujando = false, firmaVacia = true;
+
+function initFirmaCanvas() {
+  firmaCanvas = document.getElementById('firmaCanvas');
+  firmaCtx    = firmaCanvas.getContext('2d');
+
+  // Tamaño real del canvas = tamaño visual del contenedor
+  const wrap = document.getElementById('firmaCanvasWrap');
+  firmaCanvas.width  = wrap.clientWidth  || 320;
+  firmaCanvas.height = wrap.clientHeight || 160;
+
+  firmaCtx.strokeStyle = '#3ddc6b';
+  firmaCtx.lineWidth   = 2.5;
+  firmaCtx.lineCap     = 'round';
+  firmaCtx.lineJoin    = 'round';
+
+  // Eventos mouse
+  firmaCanvas.addEventListener('mousedown',  startDraw);
+  firmaCanvas.addEventListener('mousemove',  draw);
+  firmaCanvas.addEventListener('mouseup',    endDraw);
+  firmaCanvas.addEventListener('mouseleave', endDraw);
+
+  // Eventos touch
+  firmaCanvas.addEventListener('touchstart',  e => { e.preventDefault(); startDraw(e.touches[0]); }, { passive: false });
+  firmaCanvas.addEventListener('touchmove',   e => { e.preventDefault(); draw(e.touches[0]); },      { passive: false });
+  firmaCanvas.addEventListener('touchend',    endDraw);
 }
+
+function getPos(e) {
+  const rect = firmaCanvas.getBoundingClientRect();
+  const scaleX = firmaCanvas.width  / rect.width;
+  const scaleY = firmaCanvas.height / rect.height;
+  return {
+    x: (e.clientX - rect.left) * scaleX,
+    y: (e.clientY - rect.top)  * scaleY
+  };
+}
+
+function startDraw(e) {
+  dibujando = true;
+  const p = getPos(e);
+  firmaCtx.beginPath();
+  firmaCtx.moveTo(p.x, p.y);
+  document.getElementById('firmaPlaceholder').style.display = 'none';
+  document.getElementById('firmaError').style.display = 'none';
+}
+
+function draw(e) {
+  if (!dibujando) return;
+  firmaVacia = false;
+  const p = getPos(e);
+  firmaCtx.lineTo(p.x, p.y);
+  firmaCtx.stroke();
+}
+
+function endDraw() { dibujando = false; }
+
+function limpiarFirma() {
+  firmaCtx.clearRect(0, 0, firmaCanvas.width, firmaCanvas.height);
+  firmaVacia = true;
+  firmaDataUrl = null;
+  document.getElementById('firmaPlaceholder').style.display = 'flex';
+}
+
+// ── Abrir / cerrar modal ──
+function openTermsModal(e) {
+  e.stopPropagation();
+  document.getElementById('termsModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  // Pequeño delay para que el modal esté visible antes de medir el canvas
+  setTimeout(() => {
+    if (!firmaCanvas) initFirmaCanvas();
+    else {
+      // Re-ajustar tamaño si cambió
+      const wrap = document.getElementById('firmaCanvasWrap');
+      firmaCanvas.width  = wrap.clientWidth  || 320;
+      firmaCanvas.height = wrap.clientHeight || 160;
+    }
+    // Scroll al fondo del modal para que vean la firma
+  }, 120);
+}
+
+function closeTermsModal() {
+  document.getElementById('termsModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function confirmarTerms() {
+  if (firmaVacia) {
+    // Hacer scroll a la firma y mostrar error
+    document.getElementById('firmaError').style.display = 'block';
+    document.getElementById('firmaSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  // Guardar la firma como base64
+  firmaDataUrl = firmaCanvas.toDataURL('image/png');
+  termsAccepted = true;
+  document.getElementById('termsCheck').classList.add('checked');
+  document.getElementById('termsRow').classList.add('signed');
+  document.getElementById('termsError').style.display = 'none';
+  closeTermsModal();
+}
+
+// Botón "ir a la firma" fijo — scroll dentro del modal
+function irAFirma() {
+  document.getElementById('firmaSection').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* ══════════════════════════════════════
+   STEPS / HELPERS
+══════════════════════════════════════ */
 
 function showStep(n) {
   [1, 2, 3].forEach(i => { const el = document.getElementById('step' + i); if (el) el.style.display = 'none'; });
@@ -421,9 +534,10 @@ document.getElementById('telefono').addEventListener('input', function () { this
 document.getElementById('codpais').addEventListener('input', function () {
   this.value = this.value.replace(/\D/g, '').substring(0, 3);
 });
-function openTerms(e) { e.preventDefault(); e.stopPropagation(); document.getElementById('termsModal').classList.add('open'); }
-function closeTerms() { document.getElementById('termsModal').classList.remove('open'); }
-document.getElementById('termsModal').addEventListener('click', function(e) { if (e.target === this) closeTerms(); });
+// Cerrar modal al tocar el overlay (fuera del modal)
+document.getElementById('termsModal').addEventListener('click', function(e) {
+  if (e.target === this) closeTermsModal();
+});
 
 /* ══════════════════════════════════════
    COPIAR AL PORTAPAPELES

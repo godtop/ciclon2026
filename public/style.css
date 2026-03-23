@@ -1064,3 +1064,121 @@ body {
   padding: 0 8px 0 4px;
   flex-shrink: 0;
 }
+/* ══════════════════════════════════════
+   MODAL TÉRMINOS + FIRMA
+══════════════════════════════════════ */
+.modal-fullscreen .modal.modal-terms-firma {
+  max-height: 100dvh;
+  height: 100dvh;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal-header-sticky {
+  padding: 14px 20px 10px;
+  background: var(--card-bg);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  flex-shrink: 0;
+  text-align: center;
+}
+.modal-header-sticky h3 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--white);
+}
+
+.terms-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 20px 0;
+  -webkit-overflow-scrolling: touch;
+}
+.terms-body p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+
+/* ── Firma ── */
+.firma-section {
+  margin-top: 28px;
+  padding-bottom: 20px;
+}
+.firma-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.firma-subtitle {
+  font-size: 13px;
+  color: var(--gray);
+  margin-bottom: 14px;
+}
+.firma-canvas-wrap {
+  position: relative;
+  background: var(--input-bg);
+  border: 1.5px solid rgba(61,220,107,.3);
+  border-radius: 12px;
+  height: 160px;
+  overflow: hidden;
+  touch-action: none;
+  cursor: crosshair;
+}
+.firma-canvas-wrap canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.firma-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: rgba(170,191,176,.4);
+  pointer-events: none;
+  font-style: italic;
+}
+.firma-clear-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--gray);
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color .2s;
+}
+.firma-clear-btn:hover { border-color: rgba(255,255,255,.3); }
+
+/* ── Footer fijo ── */
+.modal-footer-fixed {
+  flex-shrink: 0;
+  padding: 14px 20px 20px;
+  background: var(--card-bg);
+  border-top: 1px solid rgba(255,255,255,.07);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.modal-footer-fixed .btn { margin-top: 0; }
+.modal-footer-fixed .btn-ghost { margin-top: 0; }
+
+/* ── terms-row firmado ── */
+.terms-row {
+  cursor: pointer;
+}
+.terms-row.signed .custom-check { border-color: var(--green-light); }
+.terms-link {
+  color: var(--green-glow);
+  text-decoration: underline;
+  cursor: pointer;
+}

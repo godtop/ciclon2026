@@ -320,11 +320,16 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
       carrera, remera, talle,
       nombre, apellido, sexo, edad, dni, fechaNacimiento, codpais,
       codarea, telefono, email, ciudad, domicilio,
+      firmaBase64,
     } = req.body;
 
     if (!carrera || !remera || !nombre || !apellido || !sexo || !edad || !dni ||
         !codarea || !telefono || !email || !ciudad || !domicilio) {
       return res.status(400).json({ error: 'Faltan campos obligatorios.' });
+    }
+
+    if (!firmaBase64 || !/^data:image\/(png|jpeg);base64,/.test(firmaBase64)) {
+      return res.status(400).json({ error: 'La firma digital es obligatoria.' });
     }
 
     if (!PRICES[carrera] || !PRICES[carrera][remera]) {
@@ -353,6 +358,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         codpais: codpais || '54',codarea, telefono, email, ciudad, domicilio,
         comprobanteUrl:      uploadResult.secure_url,
         comprobantePublicId: uploadResult.public_id,
+        firmaBase64,
         estado: 'pendiente',
       },
     });
