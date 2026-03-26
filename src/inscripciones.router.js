@@ -339,12 +339,16 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
     const monto = PRICES[carrera][remera];
 
     const uploadResult = await new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'maraton-ciclon/comprobantes', resource_type: 'auto' },
-        (error, result) => { if (error) reject(error); else resolve(result); }
-      );
-      stream.end(req.file.buffer);
-    });
+  const isPdf = req.file.mimetype === 'application/pdf';
+  const stream = cloudinary.uploader.upload_stream(
+    {
+      folder: 'maraton-ciclon/comprobantes',
+      resource_type: isPdf ? 'raw' : 'image',
+    },
+    (error, result) => { if (error) reject(error); else resolve(result); }
+  );
+  stream.end(req.file.buffer);
+});
 
     const inscripcion = await prisma.inscripcion.create({
       data: {

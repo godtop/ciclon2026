@@ -285,7 +285,29 @@ let isDragging = false;
 let lastX = 0,  lastY = 0, lastDist = 0;
 
 function openModal(url, nombre) {
-  if (esPdf(url)) { window.open(url, '_blank'); return; }
+    if (esPdf(url)) {
+    // Reemplazar /image/upload/ por /raw/upload/ para que Cloudinary lo sirva como raw
+    const pdfUrl = url.replace('/image/upload/', '/raw/upload/');
+    
+    // Usar fetch para descargar el PDF y forzar la descarga con extensión .pdf
+    fetch(pdfUrl)
+      .then(response => response.blob())
+      .then(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `comprobante_${nombre.replace(/\s+/g, '_')}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+      })
+      .catch(error => {
+        console.error('Error descargando PDF:', error);
+        // Fallback: abrir en nueva pestaña
+        window.open(pdfUrl, '_blank');
+      });
+    return;
+  }
   document.getElementById('modalTitle').textContent = `Comprobante · ${nombre}`;
   document.getElementById('modalOpenLink').href     = url;
   document.getElementById('imgModal').classList.add('open');
