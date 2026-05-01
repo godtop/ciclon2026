@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Códigos de Descuento – Admin Ciclón</title>
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .codigos-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .codigos-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .codigos-header h2 { font-size: 22px; color: var(--white); margin: 0; }
+    .back-link { color: var(--green-glow); text-decoration: none; font-size: 14px; }
+    .back-link:hover { text-decoration: underline; }
+    .codigo-form {
+      background: var(--card-bg);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+    .codigo-form h3 { margin: 0 0 18px; font-size: 16px; color: var(--white); }
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+    .form-group { flex: 1; min-width: 160px; }
+    .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); margin-bottom: 6px; font-weight: 600; }
+    .form-group input, .form-group select {
+      width: 100%; background: var(--input-bg); border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--white);
+      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group select:focus { border-color: var(--green-glow); }
+    .tipo-radio { display: flex; gap: 16px; margin-top: 6px; }
+    .tipo-radio label { font-size: 13px; color: var(--gray); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .tipo-radio input[type="radio"] { accent-color: var(--green-glow); }
+    .valor-input { display: flex; align-items: center; gap: 6px; }
+    .valor-input span { color: var(--gray); font-size: 13px; white-space: nowrap; }
+    .form-actions { display: flex; gap: 10px; margin-top: 18px; }
+    .btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; transition: background .2s; }
+    .btn-create { background: var(--green); color: #fff; }
+    .btn-create:hover { background: var(--green-dark); }
+    .btn-generate { background: transparent; border: 1px solid rgba(255,255,255,.2); color: var(--gray); }
+    .btn-generate:hover { border-color: var(--green-glow); color: var(--white); }
+    .codigos-table-wrap { overflow-x: auto; }
+    .codigos-table { width: 100%; border-collapse: collapse; }
+    .codigos-table th {
+      text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
+      color: var(--gray); padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08);
+      font-weight: 600;
+    }
+    .codigos-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; color: var(--white); }
+    .codigo-badge { font-family: monospace; background: rgba(61,220,107,.12); color: var(--green-glow); padding: 3px 8px; border-radius: 6px; font-size: 13px; letter-spacing: .5px; }
+    .uso-badge { color: var(--gray); font-size: 13px; }
+    .activo-si { color: var(--green-glow); }
+    .activo-no { color: #ff6b6b; }
+    .tbl-btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; margin-right: 6px; transition: opacity .2s; }
+    .tbl-btn-sm:hover { opacity: .8; }
+    .btn-share { background: rgba(61,220,107,.15); color: var(--green-glow); }
+    .btn-delete { background: rgba(255,107,107,.15); color: #ff6b6b; }
+    .no-codigos { text-align: center; padding: 40px; color: var(--gray); font-size: 14px; }
+    .inline-error { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
+    @media (max-width: 600px) {
+      .form-row { flex-direction: column; }
+      .codigos-table th, .codigos-table td { padding: 8px 6px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="codigos-container">
+    <div class="codigos-header">
+      <h2>🎟 Códigos de Descuento</h2>
+      <a href="index.html" class="back-link">← Volver al panel</a>
+    </div>
+
+    <!-- Formulario crear código -->
+    <div class="codigo-form">
+      <h3>Crear nuevo código</h3>
+      <div class="form-row">
+        <div class="form-group" style="flex:.6;">
+        <label>Código</label>
+        <input type="text" id="codigoInput" placeholder="Ej: VERANO20" maxlength="20" style="text-transform:uppercase;">
+        </div>
+        <div class="form-group" style="flex:0 0 auto;">
+          <label>&nbsp;</label>
+          <button class="btn-sm btn-generate" onclick="generarAleatorio()">Generar</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de descuento</label>
+          <div class="tipo-radio">
+            <label><input type="radio" name="tipo" value="porcentaje" checked onchange="toggleTipo()"> Porcentaje (%)</label>
+            <label><input type="radio" name="tipo" value="montoFijo" onchange="toggleTipo()"> Monto fijo ($)</label>
+          </div>
+        </div>
+        <div class="form-group" id="porcentajeGroup">
+          <label>Porcentaje</label>
+          <div class="valor-input"><input type="number" id="porcentajeInput" min="1" max="100" value="10"><span>%</span></div>
+        </div>
+        <div class="form-group" id="montoFijoGroup" style="display:none;">
+          <label>Monto fijo</label>
+          <div class="valor-input"><span>$</span><input type="number" id="montoFijoInput" min="1" value="1000"></div>
+        </div>
+        <div class="form-group">
+          <label>Usos máximos</label>
+          <input type="number" id="usosInput" min="1" value="100">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-sm btn-create" onclick="crearCodigo()">Crear código</button>
+      </div>
+      <div class="inline-error" id="codigoError"></div>
+    </div>
+
+    <!-- Tabla de códigos -->
+    <div class="codigos-table-wrap">
+      <table class="codigos-table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Tipo</th>
+            <th>Valor</th>
+            <th>Usos</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="codigosBody">
+          <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--gray);">Cargando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    let token = localStorage.getItem('ciclon_admin_token');
+
+    if (!token) { window.location.href = 'index.html'; }
+
+    function apiFetch(url, opts = {}) {
+      return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+    }
+
+    function toggleTipo() {
+      const tipo = document.querySelector('input[name="tipo"]:checked').value;
+      document.getElementById('porcentajeGroup').style.display = tipo === 'porcentaje' ? 'block' : 'none';
+      document.getElementById('montoFijoGroup').style.display   = tipo === 'montoFijo'   ? 'block' : 'none';
+    }
+
+    function generarAleatorio() {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      const codigo = Array.from({ length: 8 }, () => chars.charAt(Math.floor(Math.random() * chars.length))).join('');
+      document.getElementById('codigoInput').value = codigo;
+    }
+
+    async function crearCodigo() {
+      const codigo      = document.getElementById('codigoInput').value.trim().toUpperCase();
+      const tipo        = document.querySelector('input[name="tipo"]:checked').value;
+      const porcentaje  = document.getElementById('porcentajeInput').value;
+      const montoFijo   = document.getElementById('montoFijoInput').value;
+      const usosMaximos = document.getElementById('usosInput').value;
+      const errorEl     = document.getElementById('codigoError');
+
+      if (!codigo) { errorEl.textContent = 'Ingresá un código.'; errorEl.style.display = 'block'; return; }
+
+      errorEl.style.display = 'none';
+
+      const body = { codigo, tipo, usosMaximos: parseInt(usosMaximos) };
+      if (tipo === 'porcentaje') body.porcentaje = parseInt(porcentaje);
+      else body.montoFijo = parseInt(montoFijo);
+
+      try {
+        const res  = await apiFetch(`${API_URL}/codigos`, { method: 'POST', body: JSON.stringify(body) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al crear.');
+        document.getElementById('codigoInput').value = '';
+        loadCodigos();
+      } catch (err) {
+        errorEl.textContent = err.message;
+        errorEl.style.display = 'block';
+      }
+    }
+
+    async function loadCodigos() {
+      const tbody = document.getElementById('codigosBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--gray);">Cargando...</td></tr>';
+      try {
+        const res    = await apiFetch(`${API_URL}/codigos`);
+        if (res.status === 401) { localStorage.removeItem('ciclon_admin_token'); window.location.href = 'index.html'; return; }
+        const codigos = await res.json();
+        if (!codigos.length) {
+          tbody.innerHTML = '<tr><td colspan="6" class="no-codigos">No hay códigos creados.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = codigos.map(c => {
+          const valorStr = c.tipo === 'porcentaje' ? `${c.porcentaje}%` : `$${c.montoFijo.toLocaleString('es-AR')}`;
+          const activoStr = c.activo
+            ? '<span class="activo-si">Activo</span>'
+            : '<span class="activo-no">Inactivo</span>';
+          return `<tr>
+            <td><span class="codigo-badge">${c.codigo}</span></td>
+            <td>${c.tipo === 'porcentaje' ? 'Porcentaje' : 'Monto fijo'}</td>
+            <td>${valorStr}</td>
+            <td><span class="uso-badge">${c.usosActuales} / ${c.usosMaximos}</span></td>
+            <td>${activoStr}</td>
+            <td>
+              <button class="tbl-btn-sm btn-share" onclick="compartirCodigo('${c.codigo}')">📋</button>
+              <button class="tbl-btn-sm btn-delete" onclick="eliminarCodigo(${c.id}, '${c.codigo}')">🗑</button>
+            </td>
+          </tr>`;
+        }).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ff6b6b; padding:30px;">Error al cargar.</td></tr>';
+      }
+    }
+
+    function compartirCodigo(codigo) {
+      navigator.clipboard.writeText(codigo).then(() => {
+        alert('Código copiado: ' + codigo);
+      });
+    }
+
+    async function eliminarCodigo(id, codigo) {
+      if (!confirm(`¿Eliminar el código "${codigo}"? Esta acción no se puede deshacer.`)) return;
+      try {
+        const res = await apiFetch(`${API_URL}/codigos/${id}`, { method: 'DELETE' });
+        if (!res.ok) throw new Error();
+        loadCodigos();
+      } catch {
+        alert('Error al eliminar.');
+      }
+    }
+
+    loadCodigos();
+  </script>
+</body>
+</html>

@@ -3,17 +3,16 @@ let inscripciones = [];
 let filtroActual  = 'todos';
 let token         = null;
 
-// ── Fecha de la carrera: 14 de junio de 2026 ──
-const FECHA_CARRERA = new Date(2026, 5, 14); // mes 5 = junio (0-indexed)
+const FECHA_CARRERA = new Date(2026, 5, 14);
 
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('ciclon_admin_token');
   if (saved) { token = saved; showPanel(); load(); }
 });
 
-/* ══════════════════════════════
+/* ════════════════════════════
    LOGIN
-══════════════════════════════ */
+═════════════════════════════ */
 async function doLogin() {
   const usuario  = document.getElementById('loginUser').value.trim();
   const password = document.getElementById('loginPass').value;
@@ -22,9 +21,8 @@ async function doLogin() {
   if (!usuario || !password) { showLoginError('Completá usuario y contraseña.'); return; }
   btn.textContent = 'Ingresando...'; btn.disabled = true; errEl.style.display = 'none';
   try {
-    const res  = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    const res  = await fetch(API_URL + '/auth/login', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ usuario, password })
     });
     const data = await res.json();
@@ -37,8 +35,7 @@ async function doLogin() {
 }
 
 function showLoginError(msg) {
-  const el = document.getElementById('loginError');
-  el.textContent = msg; el.style.display = 'block';
+  const el = document.getElementById('loginError'); el.textContent = msg; el.style.display = 'block';
 }
 function showPanel() {
   document.getElementById('loginScreen').style.display = 'none';
@@ -52,35 +49,24 @@ function doLogout() {
   document.getElementById('loginError').style.display  = 'none';
 }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    API
-══════════════════════════════ */
+═════════════════════════════ */
 async function apiFetch(url, opts = {}) {
-  const res = await fetch(url, {
-    ...opts,
-    headers: {
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json',
-      ...(opts.headers || {})
-    }
-  });
+  const res = await fetch(url, { ...opts, headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
   if (res.status === 401) { doLogout(); throw new Error('Sesión expirada.'); }
   return res;
 }
 
 async function load() {
   document.getElementById('cardsList').innerHTML  = '<div class="state-msg">Cargando...</div>';
-  document.getElementById('tableBody').innerHTML  = '<tr><td colspan="16" class="state-msg">Cargando...</td></tr>';
+  document.getElementById('tableBody').innerHTML  = '<tr><td colspan="17" class="state-msg">Cargando...</td></tr>';
   try {
-    const res = await apiFetch(`${API_URL}/inscripciones`);
+    const res = await apiFetch(API_URL + '/inscripciones');
     inscripciones = await res.json();
-    // Guardar en sessionStorage para la página de categorías
     sessionStorage.setItem('ciclon_inscripciones', JSON.stringify(inscripciones));
     render();
-  } catch(e) {
-    if (e.message !== 'Sesión expirada.')
-      document.getElementById('cardsList').innerHTML = '<div class="state-msg error">❌ No se pudo conectar.</div>';
-  }
+  } catch(e) { if (e.message !== 'Sesión expirada.') document.getElementById('cardsList').innerHTML = '<div class="state-msg error">❌ No se pudo conectar.</div>'; }
 }
 
 function setFilter(btn) {
@@ -91,20 +77,16 @@ function setFilter(btn) {
 }
 
 function render() {
-  const items = filtroActual === 'todos'
-    ? inscripciones
-    : inscripciones.filter(i => i.estado === filtroActual);
-  document.getElementById('counter').textContent = `${items.length} resultado${items.length !== 1 ? 's' : ''}`;
+  const items = filtroActual === 'todos' ? inscripciones : inscripciones.filter(i => i.estado === filtroActual);
+  document.getElementById('counter').textContent = items.length + ' resultado' + (items.length !== 1 ? 's' : '');
   renderCards(items);
   renderTable(items);
 }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    HELPERS
-══════════════════════════════ */
-function esPdf(url) {
-  return url && (url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('/raw/'));
-}
+═════════════════════════════ */
+function esPdf(url) { return url && (url.toLowerCase().includes('.pdf') || url.toLowerCase().includes('/raw/')); }
 
 function fmtDni(dni) {
   const c = String(dni).replace(/\D/g, '');
@@ -113,46 +95,24 @@ function fmtDni(dni) {
   return c;
 }
 
-function fmtFechaCorta(dt) {
-  return new Date(dt).toLocaleString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit'
-  });
-}
+function fmtFechaCorta(dt) { return new Date(dt).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }); }
+function fmtFechaSimple(dt) { return new Date(dt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+function fmtSexo(s) { return { M: 'Masc.', F: 'Fem.', X: 'No bin.', NI: 'N/D' }[s] || s; }
 
-function fmtFechaSimple(dt) {
-  return new Date(dt).toLocaleDateString('es-AR', {
-    day: '2-digit', month: '2-digit', year: 'numeric'
-  });
-}
-
-function fmtSexo(s) {
-  return { M: 'Masc.', F: 'Fem.', X: 'No bin.', NI: 'N/D' }[s] || s;
-}
-
-/**
- * Calcula la edad que tendrá el corredor el 14 de junio de 2026.
- * Tiene en cuenta si ya cumplió o no antes de esa fecha.
- */
 function edadEnCarrera(fechaNac) {
   if (!fechaNac) return '—';
   const nac  = new Date(fechaNac);
   let edad   = FECHA_CARRERA.getFullYear() - nac.getFullYear();
-  const yaCumplio =
-    nac.getMonth() < FECHA_CARRERA.getMonth() ||
-    (nac.getMonth() === FECHA_CARRERA.getMonth() && nac.getDate() <= FECHA_CARRERA.getDate());
+  const yaCumplio = nac.getMonth() < FECHA_CARRERA.getMonth() || (nac.getMonth() === FECHA_CARRERA.getMonth() && nac.getDate() <= FECHA_CARRERA.getDate());
   if (!yaCumplio) edad--;
   return edad;
 }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    MOBILE CARDS
-══════════════════════════════ */
+═════════════════════════════ */
 function renderCards(items) {
-  if (!items.length) {
-    document.getElementById('cardsList').innerHTML = '<div class="state-msg">Sin resultados.</div>';
-    return;
-  }
+  if (!items.length) { document.getElementById('cardsList').innerHTML = '<div class="state-msg">Sin resultados.</div>'; return; }
   document.getElementById('cardsList').innerHTML = items.map(cardHTML).join('');
 }
 
@@ -161,103 +121,110 @@ function cardHTML(i) {
   const badges   = { pendiente: 'badge-pendiente', confirmado: 'badge-confirmado', rechazado: 'badge-rechazado' };
   const isPdf    = esPdf(i.comprobanteUrl);
   const voucherHTML = isPdf
-    ? `<div class="voucher-pdf-placeholder"><span>📄</span><span>comprobante.pdf</span></div>`
-    : `<img src="${i.comprobanteUrl}" loading="lazy" alt="Comprobante">`;
+    ? '<div class="voucher-pdf-placeholder"><span>📄</span><span>comprobante.pdf</span></div>'
+    : '<img src="' + i.comprobanteUrl + '" loading="lazy" alt="Comprobante">';
 
-  return `
-  <div class="icard" id="icard-${i.id}">
-    <div class="icard-summary" onclick="toggleCard(${i.id})">
-      <div class="icard-avatar">${initials}</div>
-      <div class="icard-main">
-        <div class="icard-name">${i.nombre} ${i.apellido}</div>
-        <div class="icard-meta">${i.carrera.toUpperCase()} · DNI ${fmtDni(i.dni)} · ${fmtFechaCorta(i.createdAt)}</div>
-      </div>
-      <div class="icard-right">
-        <div class="icard-monto">$${i.monto.toLocaleString('es-AR')}</div>
-        <span class="badge ${badges[i.estado]}">${i.estado}</span>
-      </div>
-      <span class="icard-chevron">▼</span>
-    </div>
-    <div class="icard-detail">
-      <div class="detail-grid">
-        <div class="detail-field"><div class="detail-label">Edad declarada</div><div class="detail-value">${i.edad} años</div></div>
-        <div class="detail-field"><div class="detail-label">Edad 14/jun</div><div class="detail-value highlight">${edadEnCarrera(i.fechaNacimiento)} años</div></div>
-        <div class="detail-field"><div class="detail-label">Sexo</div><div class="detail-value">${fmtSexo(i.sexo)}</div></div>
-        <div class="detail-field"><div class="detail-label">Nacimiento</div><div class="detail-value">${i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—'}</div></div>
-        <div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">${i.remera === 'con' ? `Con remera · ${i.talle}` : 'Sin remera'}</div></div>
-        <div class="detail-field full"><div class="detail-label">Ciudad</div><div class="detail-value">${i.ciudad}</div></div>
-        <div class="detail-field full"><div class="detail-label">Domicilio</div><div class="detail-value">${i.domicilio}</div></div>
-        <div class="detail-field full"><div class="detail-label">Email</div><div class="detail-value">${i.email}</div></div>
-        <div class="detail-label">Teléfono</div><div class="detail-value">+${i.codpais || '54'} ${i.codarea} ${i.telefono}</div>
-        <div class="detail-field"><div class="detail-label">Inscripción</div><div class="detail-value">${fmtFechaCorta(i.createdAt)}</div></div>
-      </div>
-      <div class="voucher-thumb" onclick="openModal('${i.comprobanteUrl}', '${i.nombre} ${i.apellido}')">
-        ${voucherHTML}
-        <div class="voucher-overlay"><span>🔍</span></div>
-      </div>
-      <div class="icard-actions">
-        <button class="btn-confirm" onclick="confirmar(${i.id})" ${i.estado === 'confirmado' ? 'disabled' : ''}>${i.estado === 'confirmado' ? '✅ Confirmado' : 'Confirmar pago'}</button>
-        <button class="btn-reject"  onclick="rechazar(${i.id})"  ${i.estado === 'rechazado'  ? 'disabled' : ''}>✕</button>
-        <a class="btn-open" href="${i.comprobanteUrl}" target="_blank" title="Abrir en otra ventana">↗</a>
-      </div>
-    </div>
-  </div>`;
+  let montoHTML = '$' + i.monto.toLocaleString('es-AR');
+  if (i.codigoDescuentoId && i.montoOriginal) {
+    const desc = i.montoOriginal - i.monto;
+    montoHTML = '<span style="text-decoration:line-through; opacity:.6; font-size:.85em;">$' + i.montoOriginal.toLocaleString('es-AR') + '</span> → $' + i.monto.toLocaleString('es-AR') + ' <span style="color:#ff9f43; font-size:.75em;">(-$' + desc.toLocaleString('es-AR') + ')</span>';
+  }
+
+  return '<div class="icard" id="icard-' + i.id + '">' +
+    '<div class="icard-summary" onclick="toggleCard(' + i.id + ')">' +
+      '<div class="icard-avatar">' + initials + '</div>' +
+      '<div class="icard-main">' +
+        '<div class="icard-name">' + i.nombre + ' ' + i.apellido + '</div>' +
+        '<div class="icard-meta">' + i.carrera.toUpperCase() + ' · DNI ' + fmtDni(i.dni) + ' · ' + fmtFechaCorta(i.createdAt) + '</div>' +
+      '</div>' +
+      '<div class="icard-right">' +
+        '<div class="icard-monto">' + montoHTML + '</div>' +
+        '<span class="badge ' + badges[i.estado] + '">' + i.estado + '</span>' +
+      '</div>' +
+      '<span class="icard-chevron">▼</span>' +
+    '</div>' +
+    '<div class="icard-detail">' +
+      '<div class="detail-grid">' +
+        '<div class="detail-field"><div class="detail-label">Edad declarada</div><div class="detail-value">' + i.edad + ' años</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Edad 14/jun</div><div class="detail-value highlight">' + edadEnCarrera(i.fechaNacimiento) + ' años</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Sexo</div><div class="detail-value">' + fmtSexo(i.sexo) + '</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Nacimiento</div><div class="detail-value">' + (i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—') + '</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">' + (i.remera === 'con' ? 'Con remera · ' + i.talle : 'Sin remera') + '</div></div>' +
+        '<div class="detail-field full"><div class="detail-label">Ciudad</div><div class="detail-value">' + i.ciudad + '</div></div>' +
+        '<div class="detail-field full"><div class="detail-label">Domicilio</div><div class="detail-value">' + i.domicilio + '</div></div>' +
+        '<div class="detail-field full"><div class="detail-label">Email</div><div class="detail-value">' + i.email + '</div></div>' +
+        '<div class="detail-label">Teléfono</div><div class="detail-value">+' + (i.codpais || '54') + ' ' + i.codarea + ' ' + i.telefono + '</div>' +
+        '<div class="detail-field"><div class="detail-label">Inscripción</div><div class="detail-value">' + fmtFechaCorta(i.createdAt) + '</div></div>' +
+      '</div>' +
+      '<div class="voucher-thumb" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')">' +
+        voucherHTML +
+        '<div class="voucher-overlay"><span>🔍</span></div>' +
+      '</div>' +
+      '<div class="icard-actions">' +
+        '<button class="btn-confirm" onclick="confirmar(' + i.id + ')" ' + (i.estado === 'confirmado' ? 'disabled' : '') + '>' + (i.estado === 'confirmado' ? '✅ Confirmado' : 'Confirmar pago') + '</button>' +
+        '<button class="btn-reject"  onclick="rechazar(' + i.id + ')"  ' + (i.estado === 'rechazado'  ? 'disabled' : '') + '>✕</button>' +
+        '<a class="btn-open" href="' + i.comprobanteUrl + '" target="_blank" title="Abrir en otra ventana">↗</a>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
 }
 
-function toggleCard(id) {
-  document.getElementById(`icard-${id}`).classList.toggle('expanded');
-}
+function toggleCard(id) { document.getElementById('icard-' + id).classList.toggle('expanded'); }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    TABLA DESKTOP
-   Columnas: Comprobante | Nombre | DNI | Nacimiento | Edad decl. | Edad 14/jun | Sexo | Carrera | Remera | Monto | Ciudad | Email | Teléfono | Inscripción | Estado | Acciones
-══════════════════════════════ */
+═════════════════════════════ */
 function renderTable(items) {
   if (!items.length) {
-    document.getElementById('tableBody').innerHTML = '<tr><td colspan="16"><div class="state-msg">Sin resultados.</div></td></tr>';
+    document.getElementById('tableBody').innerHTML = '<tr><td colspan="17"><div class="state-msg">Sin resultados.</div></td></tr>';
     return;
   }
   const badges = { pendiente: 'badge-pendiente', confirmado: 'badge-confirmado', rechazado: 'badge-rechazado' };
   document.getElementById('tableBody').innerHTML = items.map(i => {
     const isPdf = esPdf(i.comprobanteUrl);
     const thumb = isPdf
-      ? `<div class="tbl-pdf" onclick="openModal('${i.comprobanteUrl}','${i.nombre} ${i.apellido}')" title="Ver">📄</div>`
-      : `<img class="tbl-thumb" src="${i.comprobanteUrl}" loading="lazy" onclick="openModal('${i.comprobanteUrl}','${i.nombre} ${i.apellido}')" title="Ver">`;
-    return `
-    <tr>
-      <td>${thumb}</td>
-      <td class="td-name">${i.nombre} ${i.apellido}</td>
-      <td class="muted">${fmtDni(i.dni)}</td>
-      <td class="muted">${i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—'}</td>
-      <td class="muted">${i.edad}</td>
-      <td class="td-edad-carrera">${edadEnCarrera(i.fechaNacimiento)}</td>
-      <td class="muted">${fmtSexo(i.sexo)}</td>
-      <td><strong>${i.carrera.toUpperCase()}</strong></td>
-      <td class="muted">${i.remera === 'con' ? `Talle ${i.talle}` : 'Sin remera'}</td>
-      <td class="td-monto">$${i.monto.toLocaleString('es-AR')}</td>
-      <td class="muted">${i.ciudad}</td>
-      <td class="muted" style="font-size:.78rem">${i.email}</td>
-      <td class="muted">+${i.codpais || '54'} ${i.codarea} ${i.telefono}</td>
-      <td class="muted" style="font-size:.78rem">${fmtFechaCorta(i.createdAt)}</td>
-      <td><span class="badge ${badges[i.estado]}">${i.estado}</span></td>
-      <td>
-        <div class="tbl-actions">
-          <button class="tbl-btn confirm" onclick="confirmar(${i.id})" ${i.estado === 'confirmado' ? 'disabled' : ''}>${i.estado === 'confirmado' ? '✅' : '✓ Confirmar'}</button>
-          <button class="tbl-btn reject"  onclick="rechazar(${i.id})"  ${i.estado === 'rechazado'  ? 'disabled' : ''}>✕</button>
-          <a class="tbl-btn ext" href="${i.comprobanteUrl}" target="_blank">↗</a>
-        </div>
-      </td>
-    </tr>`;
+      ? '<div class="tbl-pdf" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')" title="Ver">📄</div>'
+      : '<img class="tbl-thumb" src="' + i.comprobanteUrl + '" loading="lazy" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')" title="Ver">';
+
+    let descuentoHTML = '—';
+    if (i.codigoDescuentoId && i.montoOriginal) {
+      const desc = i.montoOriginal - i.monto;
+      descuentoHTML = '<span style="color:#ff9f43; font-size:.85em;" title="Original: $' + i.montoOriginal.toLocaleString('es-AR') + '">-$' + desc.toLocaleString('es-AR') + '</span>';
+    }
+
+    return '<tr>' +
+      '<td>' + thumb + '</td>' +
+      '<td class="td-name">' + i.nombre + ' ' + i.apellido + '</td>' +
+      '<td class="muted">' + fmtDni(i.dni) + '</td>' +
+      '<td class="muted">' + (i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—') + '</td>' +
+      '<td class="muted">' + i.edad + '</td>' +
+      '<td class="td-edad-carrera">' + edadEnCarrera(i.fechaNacimiento) + '</td>' +
+      '<td class="muted">' + fmtSexo(i.sexo) + '</td>' +
+      '<td><strong>' + i.carrera.toUpperCase() + '</strong></td>' +
+      '<td class="muted">' + (i.remera === 'con' ? 'Talle ' + i.talle : 'Sin remera') + '</td>' +
+      '<td class="td-monto">$' + i.monto.toLocaleString('es-AR') + '</td>' +
+      '<td>' + descuentoHTML + '</td>' +
+      '<td class="muted">' + i.ciudad + '</td>' +
+      '<td class="muted" style="font-size:.78rem">' + i.email + '</td>' +
+      '<td class="muted">+' + (i.codpais || '54') + ' ' + i.codarea + ' ' + i.telefono + '</td>' +
+      '<td class="muted" style="font-size:.78rem">' + fmtFechaCorta(i.createdAt) + '</td>' +
+      '<td><span class="badge ' + badges[i.estado] + '">' + i.estado + '</span></td>' +
+      '<td><div class="tbl-actions">' +
+        '<button class="tbl-btn confirm" onclick="confirmar(' + i.id + ')" ' + (i.estado === 'confirmado' ? 'disabled' : '') + '>' + (i.estado === 'confirmado' ? '✅' : '✓ Confirmar') + '</button>' +
+        '<button class="tbl-btn reject"  onclick="rechazar(' + i.id + ')"  ' + (i.estado === 'rechazado'  ? 'disabled' : '') + '>✕</button>' +
+        '<a class="tbl-btn ext" href="' + i.comprobanteUrl + '" target="_blank">↗</a>' +
+      '</div></td>' +
+    '</tr>';
   }).join('');
 }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    CONFIRMAR / RECHAZAR
-══════════════════════════════ */
+═════════════════════════════ */
 async function confirmar(id) {
   if (!confirm('¿Confirmar la inscripción?')) return;
   try {
-    const res = await apiFetch(`${API_URL}/inscripciones/${id}/confirmar`, { method: 'PATCH' });
+    const res = await apiFetch(API_URL + '/inscripciones/' + id + '/confirmar', { method: 'PATCH' });
     if (!res.ok) throw new Error();
     inscripciones.find(i => i.id === id).estado = 'confirmado';
     render();
@@ -266,16 +233,16 @@ async function confirmar(id) {
 async function rechazar(id) {
   if (!confirm('¿Rechazar esta inscripción?')) return;
   try {
-    const res = await apiFetch(`${API_URL}/inscripciones/${id}/rechazar`, { method: 'PATCH' });
+    const res = await apiFetch(API_URL + '/inscripciones/' + id + '/rechazar', { method: 'PATCH' });
     if (!res.ok) throw new Error();
     inscripciones.find(i => i.id === id).estado = 'rechazado';
     render();
   } catch { alert('Error al rechazar.'); }
 }
 
-/* ══════════════════════════════
+/* ════════════════════════════
    MODAL PAN + ZOOM
-══════════════════════════════ */
+═════════════════════════════ */
 const canvas = document.getElementById('zoomCanvas');
 const ctx    = canvas.getContext('2d');
 let modalImg   = null;
@@ -285,30 +252,20 @@ let isDragging = false;
 let lastX = 0,  lastY = 0, lastDist = 0;
 
 function openModal(url, nombre) {
-    if (esPdf(url)) {
-    // Reemplazar /image/upload/ por /raw/upload/ para que Cloudinary lo sirva como raw
+  if (esPdf(url)) {
     const pdfUrl = url.replace('/image/upload/', '/raw/upload/');
-    
-    // Usar fetch para descargar el PDF y forzar la descarga con extensión .pdf
-    fetch(pdfUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `comprobante_${nombre.replace(/\s+/g, '_')}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
-      })
-      .catch(error => {
-        console.error('Error descargando PDF:', error);
-        // Fallback: abrir en nueva pestaña
-        window.open(pdfUrl, '_blank');
-      });
+    fetch(pdfUrl).then(response => response.blob()).then(blob => {
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'comprobante_' + nombre.replace(/\s+/g, '_') + '.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(link.href);
+    }).catch(error => { window.open(pdfUrl, '_blank'); });
     return;
   }
-  document.getElementById('modalTitle').textContent = `Comprobante · ${nombre}`;
+  document.getElementById('modalTitle').textContent = 'Comprobante · ' + nombre;
   document.getElementById('modalOpenLink').href     = url;
   document.getElementById('imgModal').classList.add('open');
   document.body.style.overflow = 'hidden';

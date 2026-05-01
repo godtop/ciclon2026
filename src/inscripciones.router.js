@@ -336,7 +336,30 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
       return res.status(400).json({ error: 'Carrera o remera inválida.' });
     }
 
-    const monto = PRICES[carrera][remera];
+    const montoOriginal = PRICES[carrera][remera];
+    let monto = montoOriginal;
+    let codigoDescuentoId = null;
+
+    // Si viene código de descuento, validar y aplicar
+    if (req.body.codigoDescuento) {
+      const codigoDB = await prisma.codigoDescuento.findUnique({
+        where: { codigo: req.body.codigoDescuento }
+      });
+      if (codigoDB && codigoDB.activo && codigoDB.usosActuales < codigoDB.usosMaximos) {
+        let descuento = 0;
+        if (codigoDB.tipo === 'porcentaje' && codigoDB.porcentaje) {
+          descuento = Math.floor(montoOriginal * codigoDB.porcentaje / 100);
+        } else if (codigoDB.tipo === 'montoFijo' && codigoDB.montoFijo) {
+          descuento = Math.min(codigoDB.montoFijo, montoOriginal);
+        }
+        monto = montoOriginal - descuento;
+        codigoDescuentoId = codigoDB.id;
+        await prisma.codigoDescuento.update({
+          where: { id: codigoDB.id },
+          data: { usosActuales: { increment: 1 } }
+        });
+      }
+    }
 
     const uploadResult = await new Promise((resolve, reject) => {
   const isPdf = req.file.mimetype === 'application/pdf';
@@ -359,11 +382,14 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         edad:           parseInt(edad),
         dni,
         fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
-        codpais: codpais || '54',codarea, telefono, email, ciudad, domicilio,
+        codpais: codpais || '54', codarea, telefono, email, ciudad, domicilio,
         comprobanteUrl:      uploadResult.secure_url,
         comprobantePublicId: uploadResult.public_id,
         firmaBase64,
         estado: 'pendiente',
+        monto: monto,
+        montoOriginal: montoOriginal,
+        codigoDescuentoId: codigoDescuentoId,
       },
     });
 

@@ -4,6 +4,7 @@ const cors    = require('cors');
 const path    = require('path');
 
 const inscripcionesRouter = require('./inscripciones.router');
+const codigosRouter       = require('./codigos.router');
 const authRouter          = require('./auth.router');
 
 const app  = express();
@@ -27,6 +28,7 @@ app.use('/admin', express.static(path.join(__dirname, '../admin')));
 app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/auth', authRouter);
 app.use('/inscripciones', inscripcionesRouter);
+app.use('/codigos', codigosRouter);
 
 // ── Error handler ──
 app.use((err, req, res, next) => {

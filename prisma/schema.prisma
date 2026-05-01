@@ -7,6 +7,20 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model CodigoDescuento {
+  id            Int            @id @default(autoincrement())
+  codigo        String         @unique
+  tipo          String         // 'porcentaje' o 'montoFijo'
+  porcentaje    Int?           // solo si tipo = 'porcentaje'
+  montoFijo     Int?           // solo si tipo = 'montoFijo'
+  usosMaximos   Int
+  usosActuales  Int           @default(0)
+  activo        Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  inscripciones Inscripcion[]
+}
+
 model Inscripcion {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -17,6 +31,11 @@ model Inscripcion {
   remera  String
   talle   String?
   monto   Int
+
+  // Descuento
+  codigoDescuentoId Int?
+  codigoDescuento   CodigoDescuento? @relation(fields: [codigoDescuentoId], references: [id])
+  montoOriginal     Int
 
   // Datos personales
   nombre          String

@@ -85,10 +85,22 @@
         <div class="shirt-radio-ring"></div>
       </label>
     </div>
-  </div>
-  <div class="inline-error" id="raceError">Por favor seleccioná una carrera.</div>
-  <div class="inline-error" id="shirtError">Por favor elegí si querés remera o no.</div>
-  <button class="btn" style="margin-top:22px;" onclick="goStep2()">Continuar →</button>
+   </div>
+   <div class="discount-section" id="discountSection" style="display:none;">
+     <label>Código de descuento</label>
+     <div class="discount-input-group">
+       <input type="text" id="discountCode" placeholder="Ingresá tu código" maxlength="20">
+       <button class="discount-btn" id="discountBtn" onclick="validarCodigo()">Comprobar</button>
+     </div>
+     <div class="inline-error" id="discountError" style="display:none;"></div>
+     <div class="discount-success" id="discountSuccess" style="display:none;">
+       <span class="discount-check">✓</span>
+       <span id="discountMsg"></span>
+     </div>
+   </div>
+   <div class="inline-error" id="raceError">Por favor seleccioná una carrera.</div>
+   <div class="inline-error" id="shirtError">Por favor elegí si querés remera o no.</div>
+   <button class="btn" style="margin-top:22px;" onclick="goStep2()">Continuar →</button>
 </div>
 
 <!-- ── STEP 2 ── -->
@@ -209,13 +221,17 @@
 <!-- ── STEP 3 ── -->
 <div id="step3" class="card" style="display:none;">
   <div class="card-title">Confirmá tu inscripción</div>
-  <div class="payment-summary">
-    <div class="pay-row"><span>Carrera</span><span id="sumRace">—</span></div>
-    <div class="pay-row"><span>Remera</span><span id="sumShirt">—</span></div>
-    <div class="pay-row"><span>Corredor/a</span><span id="sumName">—</span></div>
-    <div class="pay-row"><span>DNI</span><span id="sumDni">—</span></div>
-    <div class="pay-row total"><span>Total a transferir</span><span id="sumTotal">—</span></div>
-  </div>
+   <div class="payment-summary">
+     <div class="pay-row"><span>Carrera</span><span id="sumRace">—</span></div>
+     <div class="pay-row"><span>Remera</span><span id="sumShirt">—</span></div>
+     <div class="pay-row"><span>Corredor/a</span><span id="sumName">—</span></div>
+     <div class="pay-row"><span>DNI</span><span id="sumDni">—</span></div>
+     <div class="pay-row" id="sumDiscountRow" style="display:none;">
+       <span>Descuento aplicado</span>
+       <span class="discount-amount" id="sumDiscount">—</span>
+     </div>
+     <div class="pay-row total"><span>Total a transferir</span><span id="sumTotal">—</span></div>
+   </div>
   <div class="transfer-info">
     <div class="transfer-title">💳 Datos para la transferencia</div>
     <div class="transfer-rows">
