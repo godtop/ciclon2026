@@ -137,6 +137,8 @@ let ciudadesListo        = false;
     todasLasLocalidades = (data.localidades || [])
       .map(l => ({ nombre: l.nombre, provincia: l.provincia.nombre }))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+    todasLasLocalidades.push({ nombre: 'Saladillo', provincia: 'Buenos Aires' });
+    todasLasLocalidades.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     ciudadesListo = true;
     document.getElementById('ciudadLoading').style.display = 'none';
     renderCiudades('');
