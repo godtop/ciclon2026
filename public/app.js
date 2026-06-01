@@ -1,17 +1,19 @@
 /* ════════════════════════════════════
    STATE
 ═════════════════════════════════════ */
-let selectedRace  = null;
-let selectedShirt = null;
-let termsAccepted = false;
-let voucherFile   = null;
-let descuentoInfo = null;
+let selectedRace    = null;
+let selectedShirt   = null;
+let termsAccepted   = false;
+let voucherFile     = null;
+let descuentoInfo   = null;
+let caminataAccepted = false;
 
 const API_URL = window.location.origin;
 
 const PRICES = {
   '4k':  { con: 23000, sin: 15000 },
-  '10k': { con: 30000, sin: 22000 }
+  '10k': { con: 30000, sin: 22000 },
+  'caminata': { con: 15000, sin: 0 }
 };
 
 /* ════════════════════════════════════
@@ -63,16 +65,25 @@ document.querySelectorAll('input[name="race"]').forEach(radio => {
   radio.addEventListener('change', () => {
     selectedRace  = radio.value;
     selectedShirt = null;
+    descuentoInfo = null;
+    caminataAccepted = false;
     document.querySelectorAll('.shirt-option').forEach(o => o.classList.remove('selected'));
     document.querySelectorAll('input[name="shirt"]').forEach(r => r.checked = false);
     document.querySelectorAll('.race-option').forEach(opt => opt.classList.remove('selected'));
     radio.closest('.race-option').classList.add('selected');
     const prices = PRICES[selectedRace];
     document.getElementById('shirtConPrice').textContent = '$' + prices.con.toLocaleString('es-AR');
-    document.getElementById('shirtSinPrice').textContent = '$' + prices.sin.toLocaleString('es-AR');
+    document.getElementById('shirtSinPrice').textContent = prices.sin === 0 ? 'Gratis' : '$' + prices.sin.toLocaleString('es-AR');
+    document.getElementById('discountSection').style.display = 'none';
+    document.getElementById('discountCode').value = '';
+    document.getElementById('discountError').style.display = 'none';
+    document.getElementById('discountSuccess').style.display = 'none';
     document.getElementById('shirtSelector').style.display = 'block';
     document.getElementById('raceError').style.display  = 'none';
     document.getElementById('shirtError').style.display = 'none';
+    if (selectedRace === 'caminata') {
+      setTimeout(() => { if (selectedRace === 'caminata') abrirModalAlimentos(); }, 200);
+    }
     setTimeout(() => {
       document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, 300);
@@ -85,7 +96,12 @@ document.querySelectorAll('input[name="shirt"]').forEach(radio => {
     document.querySelectorAll('.shirt-option').forEach(o => o.classList.remove('selected'));
     radio.closest('.shirt-option').classList.add('selected');
     document.getElementById('shirtError').style.display = 'none';
-    document.getElementById('discountSection').style.display = 'block';
+    const prices = PRICES[selectedRace];
+    if (prices && prices[selectedShirt] === 0) {
+      document.getElementById('discountSection').style.display = 'none';
+    } else {
+      document.getElementById('discountSection').style.display = 'block';
+    }
     document.getElementById('discountCode').value = '';
     document.getElementById('discountError').style.display = 'none';
     document.getElementById('discountSuccess').style.display = 'none';
@@ -179,12 +195,32 @@ document.getElementById('ciudadModal').addEventListener('click', function(e) { i
 function escapar(str) { return str.replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
 
 /* ════════════════════════════════════
+   MODAL ALIMENTOS (CAMINATA)
+═════════════════════════════════════ */
+function abrirModalAlimentos() {
+  document.getElementById('alimentosModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function cerrarModalAlimentos() {
+  document.getElementById('alimentosModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function aceptarAlimentos() {
+  caminataAccepted = true;
+  cerrarModalAlimentos();
+}
+
+/* ════════════════════════════════════
    NAVIGATION
 ═════════════════════════════════════ */
 function goStep2() {
   let ok = true;
   if (!selectedRace)  { document.getElementById('raceError').style.display  = 'block'; ok = false; }
   if (!selectedShirt) { document.getElementById('shirtError').style.display = 'block'; ok = false; }
+  if (selectedRace === 'caminata' && !caminataAccepted) {
+    abrirModalAlimentos();
+    return;
+  }
   if (!ok) return;
   document.getElementById('talleWrap').style.display = selectedShirt === 'con' ? 'block' : 'none';
   showStep(2);
@@ -231,13 +267,14 @@ function goStep3() {
   if (selectedShirt === 'con') setFieldError('f-talle', !talleOk);
   if (!nombreOk || !apellidoOk || !sexoOk || !dniOk || !ageOk || !fechaNacOk ||
       !codarOk || !telOk || !emailOk || !email2Ok || !ciudadOk || !domicOk || !talleOk) return;
-  const raceName = selectedRace === '4k' ? '4K Participativa' : '10K Competitiva';
+  const raceNames = { '4k': '4K Participativa', '10k': '10K Competitiva', 'caminata': '4K Caminata' };
+  const raceName  = raceNames[selectedRace] || selectedRace;
   let price    = PRICES[selectedRace][selectedShirt];
-  let priceStr = '$' + price.toLocaleString('es-AR') + ' ARS';
+  let priceStr = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
   const discountRow = document.getElementById('sumDiscountRow');
   if (descuentoInfo) {
     price = descuentoInfo.montoFinal;
-    priceStr = '$' + price.toLocaleString('es-AR') + ' ARS';
+    priceStr = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
     document.getElementById('sumDiscount').textContent = '-$' + descuentoInfo.descuento.toLocaleString('es-AR') + ' (' + (descuentoInfo.tipo === 'porcentaje' ? descuentoInfo.valor + '%' : '$' + descuentoInfo.valor.toLocaleString('es-AR')) + ')';
     discountRow.style.display = 'flex';
   } else { discountRow.style.display = 'none'; }
@@ -247,6 +284,10 @@ function goStep3() {
   document.getElementById('sumDni').textContent        = formatDni(dni);
   document.getElementById('sumTotal').textContent      = priceStr;
   document.getElementById('transferTotal').textContent = priceStr;
+  // Ocultar sección de pago si es Gratis
+  const esGratis = price === 0;
+  document.querySelector('.transfer-info').style.display = esGratis ? 'none' : 'block';
+  document.querySelector('.voucher-section').style.display = esGratis ? 'none' : 'block';
   showStep(3);
 }
 function goBack(toStep) { showStep(toStep); }
@@ -288,7 +329,9 @@ async function processPayment() {
     setTimeout(() => tr.style.borderColor = '', 1500);
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
   }
-  if (!voucherFile) {
+  const montoTotal = descuentoInfo ? descuentoInfo.montoFinal : PRICES[selectedRace][selectedShirt];
+  const esGratis = montoTotal === 0;
+  if (!esGratis && !voucherFile) {
     document.getElementById('voucherError').style.display = 'block';
     document.getElementById('uploadArea').style.borderColor = '#ff6b6b';
     setTimeout(() => document.getElementById('uploadArea').style.borderColor = '', 2000); return;
@@ -296,7 +339,7 @@ async function processPayment() {
   const btn = document.getElementById('payBtn');
   btn.textContent = 'Enviando...'; btn.classList.add('loading'); btn.disabled = true;
   const formData = new FormData();
-  formData.append('comprobante',     voucherFile);
+  if (!esGratis) formData.append('comprobante', voucherFile);
   formData.append('carrera',         selectedRace);
   formData.append('remera',          selectedShirt);
   formData.append('nombre',          document.getElementById('nombre').value.trim());

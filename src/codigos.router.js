@@ -8,6 +8,7 @@ const prisma = new PrismaClient();
 const PRICES = {
   '4k':  { con: 23000, sin: 15000 },
   '10k': { con: 30000, sin: 22000 },
+  'caminata': { con: 15000, sin: 0 },
 };
 
 router.post('/', requireAuth, async (req, res) => {
@@ -79,8 +80,8 @@ router.post('/validar', async (req, res) => {
     if (codigoDB.usosActuales >= codigoDB.usosMaximos) {
       return res.status(400).json({ error: 'El código ya agotó sus usos.' });
     }
-    const montoOriginal = PRICES[carrera] && PRICES[carrera][remera];
-    if (!montoOriginal) {
+    const montoOriginal = PRICES[carrera] !== undefined ? PRICES[carrera][remera] : undefined;
+    if (montoOriginal === undefined) {
       return res.status(400).json({ error: 'Carrera o remera inválida.' });
     }
     let descuento = 0;

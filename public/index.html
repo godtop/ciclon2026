@@ -17,6 +17,7 @@
   <div class="distances">
     <div class="dist-badge"><div class="km">4K</div><div class="type">Participativa</div></div>
     <div class="dist-badge"><div class="km">10K</div><div class="type">Competitiva</div></div>
+    <div class="dist-badge"><div class="km">4K</div><div class="type">Caminata</div></div>
   </div>
   <div class="event-info">
     <span>🗓 <strong>Domingo 14 de Junio</strong></span>
@@ -65,6 +66,21 @@
         <div class="price-options">
           <div class="price-opt"><span class="price-tag">$30.000</span><span class="price-label">Con remera</span></div>
           <div class="price-opt"><span class="price-tag">$22.000</span><span class="price-label">Sin remera</span></div>
+        </div>
+      </div>
+    </label>
+    <label class="race-option" id="optCaminata">
+      <input type="radio" name="race" value="caminata">
+      <div class="radio-ring"></div>
+      <div class="race-info">
+        <div class="race-km">4K</div>
+        <div class="race-type">Caminata</div>
+        <div class="race-desc">Sin cronometraje · Solidaria</div>
+      </div>
+      <div class="race-price">
+        <div class="price-options">
+          <div class="price-opt"><span class="price-tag">$15.000</span><span class="price-label">Con remera</span></div>
+          <div class="price-opt"><span class="price-tag" style="color:#f5c842;">GRATIS</span><span class="price-label">Sin remera</span></div>
         </div>
       </div>
     </label>
@@ -297,8 +313,8 @@
   <div class="success-icon">🏃</div>
   <div class="success-title">¡Inscripción enviada!</div>
   <p class="success-sub">
-    Tu comprobante fue recibido correctamente.<br>
-    Un <strong>administrador revisará tu pago</strong> y una vez confirmado recibirás un <strong>correo electrónico</strong> con la confirmación de tu inscripción a la carrera.<br><br>
+    Tu inscripción fue recibida correctamente.<br>
+    Un <strong>administrador la revisará</strong> y una vez confirmada recibirás un <strong>correo electrónico</strong> con la confirmación de tu participación.<br><br>
     ¡Nos vemos el 14 de junio!
   </p>
   <div class="pending-badge">
@@ -353,6 +369,21 @@
     <div class="modal-footer-fixed">
       <button class="btn" id="confirmarTermsBtn" onclick="confirmarTerms()">Confirmar y firmar ✓</button>
       <button class="btn-ghost" onclick="closeTermsModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL ALIMENTOS (CAMINATA) ── -->
+<div class="modal-overlay modal-fullscreen" id="alimentosModal">
+  <div class="modal modal-alimentos">
+    <div class="alimentos-content">
+      <div class="alimentos-icon">🥫</div>
+      <h3>¡Importante!</h3>
+      <p>Al elegir la <strong>Caminata 4K Solidaria</strong>,<br>te comprometés a llevar <strong>alimentos no perecederos</strong> para donar.</p>
+      <p>Los recibiremos el día de la carrera en el punto de largada.<br>¡Tu participación ayuda a quienes más lo necesitan! ❤️</p>
+    </div>
+    <div class="modal-footer-fixed">
+      <button class="btn" onclick="aceptarAlimentos()">Entendido ✓</button>
     </div>
   </div>
 </div>

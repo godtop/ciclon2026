@@ -12,6 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const PRICES = {
   '4k':  { con: 23000, sin: 15000 },
   '10k': { con: 30000, sin: 22000 },
+  'caminata': { con: 15000, sin: 0 },
 };
 
 /* ─────────────────────────────────────────
@@ -47,7 +48,8 @@ async function enviarEmailConfirmacion(inscripcion) {
   const nombreCompleto = `${nombre} ${apellido}`;
   const remeraTexto    = remera === 'con' ? `Con remera · Talle ${talle}` : 'Sin remera';
   const fechaNacTexto  = fechaNacimiento ? fmtFecha(fechaNacimiento) : '—';
-  const carreraLabel   = carrera === '4k' ? '4K — Participativa' : '10K — Competitiva';
+  const labels = { '4k': '4K — Participativa', '10k': '10K — Competitiva', 'caminata': '4K — Caminata' };
+  const carreraLabel   = labels[carrera] || carrera;
 
   const html = `
 <!DOCTYPE html>
@@ -126,7 +128,7 @@ async function enviarEmailConfirmacion(inscripcion) {
                         <td>
                           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Carrera</div>
                           <div style="font-size:28px;font-weight:900;color:#ffffff;line-height:1;">${carrera.toUpperCase()}</div>
-                          <div style="font-size:12px;color:#aabfb0;margin-top:2px;">${carrera === '4k' ? 'Participativa' : 'Competitiva'} · Con cronometraje oficial</div>
+                          <div style="font-size:12px;color:#aabfb0;margin-top:2px;">${carrera === '4k' ? 'Participativa' : carrera === '10k' ? 'Competitiva' : 'Caminata'}${carrera === 'caminata' ? '' : ' · Con cronometraje oficial'}</div>
                         </td>
                         <td style="text-align:right;vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Monto abonado</div>
@@ -312,10 +314,6 @@ async function enviarEmailConfirmacion(inscripcion) {
 ───────────────────────────────────────── */
 router.post('/', upload.single('comprobante'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'El comprobante es obligatorio.' });
-    }
-
     const {
       carrera, remera, talle,
       nombre, apellido, sexo, edad, dni, fechaNacimiento, codpais,
@@ -332,7 +330,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
       return res.status(400).json({ error: 'La firma digital es obligatoria.' });
     }
 
-    if (!PRICES[carrera] || !PRICES[carrera][remera]) {
+    if (!PRICES[carrera] || PRICES[carrera][remera] === undefined) {
       return res.status(400).json({ error: 'Carrera o remera inválida.' });
     }
 
@@ -361,17 +359,27 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
       }
     }
 
-    const uploadResult = await new Promise((resolve, reject) => {
-  const isPdf = req.file.mimetype === 'application/pdf';
-  const stream = cloudinary.uploader.upload_stream(
-    {
-      folder: 'maraton-ciclon/comprobantes',
-      resource_type: isPdf ? 'raw' : 'image',
-    },
-    (error, result) => { if (error) reject(error); else resolve(result); }
-  );
-  stream.end(req.file.buffer);
-});
+    let comprobanteUrl = 'GRATIS';
+    let comprobantePublicId = 'GRATIS';
+
+    if (montoOriginal > 0) {
+      if (!req.file) {
+        return res.status(400).json({ error: 'El comprobante es obligatorio.' });
+      }
+      const uploadResult = await new Promise((resolve, reject) => {
+        const isPdf = req.file.mimetype === 'application/pdf';
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: 'maraton-ciclon/comprobantes',
+            resource_type: isPdf ? 'raw' : 'image',
+          },
+          (error, result) => { if (error) reject(error); else resolve(result); }
+        );
+        stream.end(req.file.buffer);
+      });
+      comprobanteUrl = uploadResult.secure_url;
+      comprobantePublicId = uploadResult.public_id;
+    }
 
     const inscripcion = await prisma.inscripcion.create({
       data: {
@@ -383,8 +391,8 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         dni,
         fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
         codpais: codpais || '54', codarea, telefono, email, ciudad, domicilio,
-        comprobanteUrl:      uploadResult.secure_url,
-        comprobantePublicId: uploadResult.public_id,
+        comprobanteUrl,
+        comprobantePublicId,
         firmaBase64,
         estado: 'pendiente',
         monto: monto,
