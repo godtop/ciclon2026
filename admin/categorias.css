@@ -99,6 +99,21 @@
     gap: 6px;
   }
   .toggle-btn.active { border-color: var(--yellow); color: var(--yellow); background: rgba(251,191,36,.08); }
+  .excel-btn {
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid rgba(255,255,255,.12);
+    background: transparent;
+    color: var(--gray);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-family: 'DM Sans', sans-serif;
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .excel-btn:hover { border-color: #22c55e; color: #22c55e; background: rgba(34,197,94,.08); }
   .counter { margin-left: auto; font-size: 0.8rem; color: var(--gray); }
   
   /* ── RESUMEN GRID ── */

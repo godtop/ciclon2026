@@ -315,3 +315,74 @@ function mobileCard(i) {
     </div>
   </div>`;
 }
+
+/* ══════════════════════════════
+   EXCEL
+══════════════════════════════ */
+function fmtEstado(s) {
+  return { pendiente: 'Pendiente', confirmado: 'Confirmado', rechazado: 'Rechazado' }[s] || s;
+}
+
+function generarExcel() {
+  const items = inscriptosVisibles();
+  if (!items.length) { alert('No hay corredores para exportar.'); return; }
+
+  const enriched = items.map(i => {
+    const edad = edadEnCarrera(i.fechaNacimiento);
+    const cat  = categoriaDeEdad(edad);
+    return { ...i, edadCarrera: edad, categoria: cat };
+  });
+
+  const grupos = [
+    { key: 'F', label: 'Femenino' },
+    { key: 'M', label: 'Masculino' },
+    { key: 'X', label: 'No binario / N/D' },
+  ];
+
+  const wsData = [];
+
+  for (const grupo of grupos) {
+    const miembros = enriched.filter(i => {
+      if (grupo.key === 'X') return i.sexo !== 'M' && i.sexo !== 'F';
+      return i.sexo === grupo.key;
+    });
+    if (!miembros.length) continue;
+
+    wsData.push([`${grupo.label} — Total: ${miembros.length} corredor${miembros.length !== 1 ? 'es' : ''}`]);
+    wsData.push([]);
+
+    for (const cat of CATEGORIAS) {
+      const enCat = miembros.filter(i => i.categoria && i.categoria.num === cat.num);
+      if (!enCat.length) continue;
+
+      wsData.push([`Cat. ${cat.num} · ${cat.label} (${cat.min}–${cat.max} años) — ${enCat.length} corredor${enCat.length !== 1 ? 'es' : ''}`]);
+      wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 14/jun', 'Carrera', 'Ciudad', 'Email', 'Teléfono', 'Estado']);
+
+      enCat.forEach((r, idx) => {
+        wsData.push([
+          idx + 1,
+          r.apellido,
+          r.nombre,
+          fmtDni(r.dni),
+          r.fechaNacimiento ? new Date(r.fechaNacimiento).toLocaleDateString('es-AR') : '—',
+          r.edadCarrera !== null ? r.edadCarrera : '—',
+          r.carrera.toUpperCase(),
+          r.ciudad,
+          r.email,
+          `+${r.codpais || '54'} ${r.codarea} ${r.telefono}`,
+          fmtEstado(r.estado),
+        ]);
+      });
+      wsData.push([]);
+    }
+  }
+
+  const wb = XLSX.utils.book_new();
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+  const colWidths = [{ wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 7 }, { wch: 10 }, { wch: 16 }, { wch: 28 }, { wch: 16 }, { wch: 14 }];
+  ws['!cols'] = colWidths;
+
+  XLSX.utils.book_append_sheet(wb, ws, 'Corredores');
+  XLSX.writeFile(wb, 'corredores_por_categoria.xlsx');
+}
