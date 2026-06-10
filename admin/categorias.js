@@ -324,14 +324,16 @@ function fmtEstado(s) {
 }
 
 function generarExcel() {
-  const items = inscriptosVisibles();
-  if (!items.length) { alert('No hay corredores para exportar.'); return; }
+  if (!todosLosInscriptos.length) { alert('No hay corredores para exportar.'); return; }
 
-  const enriched = items.map(i => {
+  const enriched = todosLosInscriptos.map(i => {
     const edad = edadEnCarrera(i.fechaNacimiento);
     const cat  = categoriaDeEdad(edad);
     return { ...i, edadCarrera: edad, categoria: cat };
   });
+
+  const CARRERAS = ['4k', '10k', 'caminata'];
+  const CARRERA_LABEL = { '4k': '4K', '10k': '10K', 'caminata': 'Caminata' };
 
   const grupos = [
     { key: 'F', label: 'Femenino' },
@@ -355,32 +357,39 @@ function generarExcel() {
       const enCat = miembros.filter(i => i.categoria && i.categoria.num === cat.num);
       if (!enCat.length) continue;
 
-      wsData.push([`Cat. ${cat.num} · ${cat.label} (${cat.min}–${cat.max} años) — ${enCat.length} corredor${enCat.length !== 1 ? 'es' : ''}`]);
-      wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 14/jun', 'Carrera', 'Ciudad', 'Email', 'Teléfono', 'Estado']);
+      const totalCat = enCat.length;
+      wsData.push([`Cat. ${cat.num} · ${cat.label} (${cat.min}–${cat.max} años) — ${totalCat} corredor${totalCat !== 1 ? 'es' : ''}`]);
 
-      enCat.forEach((r, idx) => {
-        wsData.push([
-          idx + 1,
-          r.apellido,
-          r.nombre,
-          fmtDni(r.dni),
-          r.fechaNacimiento ? new Date(r.fechaNacimiento).toLocaleDateString('es-AR') : '—',
-          r.edadCarrera !== null ? r.edadCarrera : '—',
-          r.carrera.toUpperCase(),
-          r.ciudad,
-          r.email,
-          `+${r.codpais || '54'} ${r.codarea} ${r.telefono}`,
-          fmtEstado(r.estado),
-        ]);
-      });
-      wsData.push([]);
+      for (const carrera of CARRERAS) {
+        const enCarrera = enCat.filter(i => i.carrera === carrera);
+        if (!enCarrera.length) continue;
+
+        wsData.push([`  ${CARRERA_LABEL[carrera]} — ${enCarrera.length} corredor${enCarrera.length !== 1 ? 'es' : ''}`]);
+        wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 14/jun', 'Ciudad', 'Email', 'Teléfono', 'Estado']);
+
+        enCarrera.forEach((r, idx) => {
+          wsData.push([
+            idx + 1,
+            r.apellido,
+            r.nombre,
+            fmtDni(r.dni),
+            r.fechaNacimiento ? new Date(r.fechaNacimiento).toLocaleDateString('es-AR') : '—',
+            r.edadCarrera !== null ? r.edadCarrera : '—',
+            r.ciudad,
+            r.email,
+            `+${r.codpais || '54'} ${r.codarea} ${r.telefono}`,
+            fmtEstado(r.estado),
+          ]);
+        });
+        wsData.push([]);
+      }
     }
   }
 
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-  const colWidths = [{ wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 7 }, { wch: 10 }, { wch: 16 }, { wch: 28 }, { wch: 16 }, { wch: 14 }];
+  const colWidths = [{ wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 7 }, { wch: 16 }, { wch: 28 }, { wch: 16 }, { wch: 14 }];
   ws['!cols'] = colWidths;
 
   XLSX.utils.book_append_sheet(wb, ws, 'Corredores');
