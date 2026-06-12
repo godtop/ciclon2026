@@ -67,43 +67,8 @@ router.delete('/:id', requireAuth, async (req, res) => {
   }
 });
 
-router.post('/validar', async (req, res) => {
-  try {
-    const { codigo, carrera, remera } = req.body;
-    if (!codigo || !carrera || !remera) {
-      return res.status(400).json({ error: 'Faltan datos.' });
-    }
-    const codigoDB = await prisma.codigoDescuento.findUnique({ where: { codigo } });
-    if (!codigoDB || !codigoDB.activo) {
-      return res.status(400).json({ error: 'Código inválido o inactivo.' });
-    }
-    if (codigoDB.usosActuales >= codigoDB.usosMaximos) {
-      return res.status(400).json({ error: 'El código ya agotó sus usos.' });
-    }
-    const montoOriginal = PRICES[carrera] !== undefined ? PRICES[carrera][remera] : undefined;
-    if (montoOriginal === undefined) {
-      return res.status(400).json({ error: 'Carrera o remera inválida.' });
-    }
-    let descuento = 0;
-    if (codigoDB.tipo === 'porcentaje' && codigoDB.porcentaje) {
-      descuento = Math.floor(montoOriginal * codigoDB.porcentaje / 100);
-    } else if (codigoDB.tipo === 'montoFijo' && codigoDB.montoFijo) {
-      descuento = Math.min(codigoDB.montoFijo, montoOriginal);
-    }
-    const montoFinal = montoOriginal - descuento;
-    res.json({
-      valid: true,
-      codigoId: codigoDB.id,
-      descuento,
-      montoOriginal,
-      montoFinal,
-      tipo: codigoDB.tipo,
-      valor: codigoDB.tipo === 'porcentaje' ? codigoDB.porcentaje : codigoDB.montoFijo,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor.' });
-  }
+router.post('/validar', (req, res) => {
+  res.status(403).json({ error: 'Las inscripciones están cerradas.' });
 });
 
 module.exports = router;

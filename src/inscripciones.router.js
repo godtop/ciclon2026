@@ -310,103 +310,10 @@ async function enviarEmailConfirmacion(inscripcion) {
 }
 
 /* ─────────────────────────────────────────
-   POST /inscripciones — PÚBLICO
+   POST /inscripciones — CERRADO
 ───────────────────────────────────────── */
-router.post('/', upload.single('comprobante'), async (req, res) => {
-  try {
-    const {
-      carrera, remera, talle,
-      nombre, apellido, sexo, edad, dni, fechaNacimiento, codpais,
-      codarea, telefono, email, ciudad, domicilio,
-      firmaBase64,
-    } = req.body;
-
-    if (!carrera || !remera || !nombre || !apellido || !sexo || !edad || !dni ||
-        !codarea || !telefono || !email || !ciudad || !domicilio) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios.' });
-    }
-
-    if (!firmaBase64 || !/^data:image\/(png|jpeg);base64,/.test(firmaBase64)) {
-      return res.status(400).json({ error: 'La firma digital es obligatoria.' });
-    }
-
-    if (!PRICES[carrera] || PRICES[carrera][remera] === undefined) {
-      return res.status(400).json({ error: 'Carrera o remera inválida.' });
-    }
-
-    const montoOriginal = PRICES[carrera][remera];
-    let monto = montoOriginal;
-    let codigoDescuentoId = null;
-
-    // Si viene código de descuento, validar y aplicar
-    if (req.body.codigoDescuento) {
-      const codigoDB = await prisma.codigoDescuento.findUnique({
-        where: { codigo: req.body.codigoDescuento }
-      });
-      if (codigoDB && codigoDB.activo && codigoDB.usosActuales < codigoDB.usosMaximos) {
-        let descuento = 0;
-        if (codigoDB.tipo === 'porcentaje' && codigoDB.porcentaje) {
-          descuento = Math.floor(montoOriginal * codigoDB.porcentaje / 100);
-        } else if (codigoDB.tipo === 'montoFijo' && codigoDB.montoFijo) {
-          descuento = Math.min(codigoDB.montoFijo, montoOriginal);
-        }
-        monto = montoOriginal - descuento;
-        codigoDescuentoId = codigoDB.id;
-        await prisma.codigoDescuento.update({
-          where: { id: codigoDB.id },
-          data: { usosActuales: { increment: 1 } }
-        });
-      }
-    }
-
-    let comprobanteUrl = 'GRATIS';
-    let comprobantePublicId = 'GRATIS';
-
-    if (montoOriginal > 0) {
-      if (!req.file) {
-        return res.status(400).json({ error: 'El comprobante es obligatorio.' });
-      }
-      const uploadResult = await new Promise((resolve, reject) => {
-        const isPdf = req.file.mimetype === 'application/pdf';
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'maraton-ciclon/comprobantes',
-            resource_type: isPdf ? 'raw' : 'image',
-          },
-          (error, result) => { if (error) reject(error); else resolve(result); }
-        );
-        stream.end(req.file.buffer);
-      });
-      comprobanteUrl = uploadResult.secure_url;
-      comprobantePublicId = uploadResult.public_id;
-    }
-
-    const inscripcion = await prisma.inscripcion.create({
-      data: {
-        carrera, remera,
-        talle:          remera === 'con' ? (talle || null) : null,
-        monto,
-        nombre, apellido, sexo,
-        edad:           parseInt(edad),
-        dni,
-        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
-        codpais: codpais || '54', codarea, telefono, email, ciudad, domicilio,
-        comprobanteUrl,
-        comprobantePublicId,
-        firmaBase64,
-        estado: 'pendiente',
-        monto: monto,
-        montoOriginal: montoOriginal,
-        codigoDescuentoId: codigoDescuentoId,
-      },
-    });
-
-    res.status(201).json({ ok: true, id: inscripcion.id });
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error interno del servidor.' });
-  }
+router.post('/', (req, res) => {
+  res.status(403).json({ error: 'Las inscripciones están cerradas.' });
 });
 
 /* ─────────────────────────────────────────
