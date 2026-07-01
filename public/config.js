@@ -1,0 +1,51 @@
+/* ════════════════════════════════════════════════════════════
+   CONFIGURACIÓN DEL CLUB / EVENTO
+   ------------------------------------------------------------
+   ⚠️  DATOS MOCK (de ejemplo). Editá los valores de abajo con
+       la información real de Huracán de Chivilcoy.
+       No hace falta tocar el resto del código: todo el cliente
+       lee desde acá (window.CLUB_CONFIG).
+════════════════════════════════════════════════════════════ */
+window.CLUB_CONFIG = {
+  club: {
+    nombre:      'Huracán de Chivilcoy',              // se muestra en el hero, footer, etc.
+    nombreLegal: 'Club Atlético Huracán de Chivilcoy', // titular de la cuenta / términos
+    slogan:      'Un club hecho por y para vos',
+    edicion:     '1ª Edición',
+  },
+
+  evento: {
+    titulo:     'MARATÓN',
+    fechaTexto: 'Domingo 11 de Octubre',   // MOCK — poné la fecha real
+    fechaCorta: '11 de octubre',           // MOCK
+    hora:       '10:00 AM',                // MOCK
+    anio:       2026,
+    lugar:      'Club Atlético Huracán, Chivilcoy',
+  },
+
+  // Info de retiro de kit (se muestra en la pantalla de éxito)
+  kit: {
+    chivilcoy: 'Retirá tu kit el sábado 10 de octubre de 14:00 a 19:00 hs',
+    otras:     'Retirá tu kit el mismo día de la carrera al presentarte',
+  },
+
+  // Datos para la transferencia — ⚠️ MOCK, reemplazar por los reales
+  transferencia: {
+    titular: 'Club Atlético Huracán de Chivilcoy',
+    cbu:     '0000000000000000000000',   // MOCK (22 dígitos)
+    alias:   'huracan.chivilcoy',        // MOCK
+  },
+
+  contacto: {
+    whatsapp: '5492346000000',           // MOCK — formato internacional sin '+' ni espacios
+  },
+
+  auspiciantes: 'Auspicia YPF · Primas Group',
+
+  // Precios por carrera (ARS). con = con remera, sin = sin remera
+  precios: {
+    '4k':       { con: 23000, sin: 15000 },
+    '10k':      { con: 30000, sin: 22000 },
+    'caminata': { con: 15000, sin: 0 },
+  },
+};

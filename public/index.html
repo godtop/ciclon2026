@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Maratón Club Ciclón Chivilcoy – 3ª Edición</title>
+  <title>Maratón Huracán de Chivilcoy</title>
   <link rel="icon" type="image/svg+xml" href="favicon.svg"> 
   <link rel="stylesheet" href="style.css">
 </head>
@@ -11,18 +11,19 @@
 
 <!-- ── HERO ── -->
 <div class="hero">
-  <div class="edition-tag">✦ Tercera Edición ✦</div>
+  <img class="hero-logo" src="logo.svg" alt="Huracán de Chivilcoy">
+  <div class="edition-tag">✦ <span data-cfg="club.edicion">Primera Edición</span> ✦</div>
   <h1>MARAT<span>Ó</span>N</h1>
-  <div class="club-name">Club Ciclón · Chivilcoy</div>
+  <div class="club-name" data-cfg="club.nombre">Huracán de Chivilcoy</div>
   <div class="distances">
     <div class="dist-badge"><div class="km">4K</div><div class="type">Participativa</div></div>
     <div class="dist-badge"><div class="km">10K</div><div class="type">Competitiva</div></div>
     <div class="dist-badge"><div class="km">4K</div><div class="type">Caminata</div></div>
   </div>
   <div class="event-info">
-    <span>🗓 <strong>Domingo 14 de Junio</strong></span>
-    <span>⏰ <strong>10:00 AM</strong></span>
-    <span>📍 <strong>Club Atlético Ciclón</strong></span>
+    <span>🗓 <strong data-cfg="evento.fechaTexto">Domingo 11 de Octubre</strong></span>
+    <span>⏰ <strong data-cfg="evento.hora">10:00 AM</strong></span>
+    <span>📍 <strong data-cfg="evento.lugar">Club Atlético Huracán</strong></span>
   </div>
 </div>
 
@@ -80,7 +81,7 @@
       <div class="race-price">
         <div class="price-options">
           <div class="price-opt"><span class="price-tag">$15.000</span><span class="price-label">Con remera</span></div>
-          <div class="price-opt"><span class="price-tag" style="color:#f5c842;">GRATIS</span><span class="price-label">Sin remera</span></div>
+          <div class="price-opt"><span class="price-tag" style="color:#15803d;">GRATIS</span><span class="price-label">Sin remera</span></div>
         </div>
       </div>
     </label>
@@ -182,7 +183,7 @@
       <label>Cód. de área</label>
       <div class="input-prefix-wrap">
         <span class="input-prefix-plus">+</span>
-        <input type="text" id="codpais" value="54" maxlength="3" inputmode="numeric" style="width:36px; border:none; background:transparent; color:var(--gray); font-size:13px; font-weight:600; padding:14px 6px 14px 0; outline:none;">
+        <input type="text" id="codpais" value="54" maxlength="3" inputmode="numeric" style="width:36px; border:none; background:transparent; color:var(--ink-soft); font-size:13px; font-weight:600; padding:14px 6px 14px 0; outline:none;">
         <span class="input-prefix-sep">|</span>
         <input type="text" id="codarea" placeholder="011" maxlength="5" inputmode="numeric">
       </div>
@@ -254,8 +255,8 @@
       <div class="transfer-row">
         <span>CBU</span>
         <div class="tf-copy-group">
-          <span class="tf-val">1910144855014400869178</span>
-          <button class="tf-copy-btn" onclick="copiarTexto(this, '1910144855014400869178')">
+          <span class="tf-val" data-cfg="transferencia.cbu">—</span>
+          <button class="tf-copy-btn" onclick="copiarCampo(this)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             COPIAR
           </button>
@@ -264,14 +265,14 @@
       <div class="transfer-row">
         <span>Alias</span>
         <div class="tf-copy-group">
-          <span class="tf-val">clubciclonchivilcoy</span>
-          <button class="tf-copy-btn" onclick="copiarTexto(this, 'clubciclonchivilcoy')">
+          <span class="tf-val" data-cfg="transferencia.alias">—</span>
+          <button class="tf-copy-btn" onclick="copiarCampo(this)">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             COPIAR
           </button>
         </div>
       </div>
-      <div class="transfer-row"><span>Titular</span><span class="tf-val">Club Atlético Ciclón</span></div>
+      <div class="transfer-row"><span>Titular</span><span class="tf-val" data-cfg="transferencia.titular">—</span></div>
       <div class="transfer-row"><span>Monto exacto</span><span class="tf-val tf-highlight" id="transferTotal">—</span></div>
     </div>
     <div class="transfer-note">⚠️ Transferí el monto exacto para facilitar la verificación.</div>
@@ -315,7 +316,7 @@
   <p class="success-sub">
     Tu inscripción fue recibida correctamente.<br>
     Un <strong>administrador la revisará</strong> y una vez confirmada recibirás un <strong>correo electrónico</strong> con la confirmación de tu participación.<br><br>
-    ¡Nos vemos el 14 de junio!
+    ¡Nos vemos el <span data-cfg="evento.fechaCorta">11 de octubre</span>!
   </p>
   <div class="pending-badge">
     <div class="pending-icon">⏳</div>
@@ -328,18 +329,18 @@
     Si hubo algún problema con el pago (monto incorrecto, comprobante ilegible u otro inconveniente), nos comunicaremos con vos por <strong>WhatsApp, teléfono o email</strong> para resolverlo.
   </div>
   <div class="success-details">
-    📅 Domingo 14 de junio · 10:00 AM<br>
-    📍 Club Atlético Ciclón, Chivilcoy<br>
-    <div style="margin-top:10px; border-top:1px solid rgba(255,255,255,0.08); padding-top:10px;">
-      <div style="margin-bottom:6px;">👕 <strong>Chivilcoy:</strong> Retirá tu kit el sábado 13 de junio de 14:00 a 19:00 hs</div>
-      <div>👕 <strong>Otras localidades:</strong> Retirá tu kit el mismo día de la carrera al presentarte</div>
+    📅 <span data-cfg="evento.fechaTexto">Domingo 11 de octubre</span> · <span data-cfg="evento.hora">10:00 AM</span><br>
+    📍 <span data-cfg="evento.lugar">Club Atlético Huracán, Chivilcoy</span><br>
+    <div style="margin-top:10px; border-top:1px solid rgba(0,0,0,0.08); padding-top:10px;">
+      <div style="margin-bottom:6px;">👕 <strong>Chivilcoy:</strong> <span data-cfg="kit.chivilcoy">Retirá tu kit el sábado de 14:00 a 19:00 hs</span></div>
+      <div>👕 <strong>Otras localidades:</strong> <span data-cfg="kit.otras">Retirá tu kit el mismo día de la carrera al presentarte</span></div>
     </div>
   </div>
 </div>
 
 <div class="footer">
-  Maratón Club Ciclón Chivilcoy · 3ª Edición 2026<br>
-  Auspicia YPF · Primas Group
+  Maratón <span data-cfg="club.nombre">Huracán de Chivilcoy</span> · <span data-cfg="club.edicion">1ª Edición</span> <span data-cfg="evento.anio">2026</span><br>
+  <span data-cfg="auspiciantes">Auspicia YPF · Primas Group</span>
 </div>
 
 <!-- ── TERMS + FIRMA MODAL ── -->
@@ -350,11 +351,11 @@
       <h3>Términos y Condiciones</h3>
     </div>
     <div class="terms-body">
-      <p>“Declaro bajo juramento que no padezco afecciones físicas adquiridas o congénitas, ni lesiones que pudieran ocasionar trastornos en mi salud o condiciones de vida, como consecuencia de participar en la Maratón Club Ciclón de Chivilcoy a realizarse el día 14 de Junio del 2026.
+      <p>“Declaro bajo juramento que no padezco afecciones físicas adquiridas o congénitas, ni lesiones que pudieran ocasionar trastornos en mi salud o condiciones de vida, como consecuencia de participar en la Maratón Club Huracán de Chivilcoy a realizarse el día <span data-cfg="evento.fechaCorta">11 de octubre</span> del <span data-cfg="evento.anio">2026</span>.
         Asimismo, declaro bajo juramento que antes de realizar la competencia me he realizado un chequeo médico y me encuentro en condiciones físicas óptimas para participar en la misma, como así también asumo todos los riesgos asociados con la participación en la presente competencia (caídas, contacto con otros participantes, consecuencias del clima, tránsito vehicular, condiciones del camino y/o cualquier otra clase de riesgo que se pudiera ocasionar).
-        Tomo conocimiento y acepto voluntariamente, que el Club Ciclón de Chivilcoy y los sponsors de la carrera y la Municipalidad de Chivilcoy,toman a su cargo ni se responsabilizan por ningún tipo de indemnización, reclamo, costo, daño y/o perjuicio reclamado, incluyendo y no limitado a, daños por accidentes, daños materiales, físicos o psíquicos o morales, lucro cesante, causados a mi persona o a mis derecho habientes, con motivo y en ocasión de la carrera en la que participaré.
-        Habiendo leído esta declaración y conociendo estos hechos, asumo total y personal responsabilidad por mi salud y seguridad, y yo,en representación de mi mismo y de mis cesionarios, herederos, legatarios y sucesores – colectivamente herederos - acepto mantener exento de cualquier tipo de responsabilidad que surja de mi participación en esta carrera,  aunque esta responsabilidad pueda surgir por negligencia o culposidad de parte de las personas físicas o jurídicas organizadoras, y,  libero a el Club Ciclón de Chivilcoy,a los sponsors de la carrera,a la Municipalidad de Chivilcoy y cualquier tercero que hubiese colaborado con la organización y/o cualquier otra persona física o jurídica que hubiera tenido intervención principal o secundaria en la organización de la carrera referida. Así también manifiesto que no serán responsables por cualquier extravío, robo y/o hurto que pudiera sufrir con anterioridad, durante el transcurso o con posterioridad a la finalización de la competencia. Autorizo a los organizadores de la competencia y sponsors a utilizar, reproducir, distribuir y/o publicar fotografías, películas, videos, grabaciones y/o cualquier otro medio de registración de mi persona tomadas con motivo y en ocasión de la presente competencia desde la primera difusión, sin compensación económica alguna a favor del participante de la presente competencia.”</p>
-      <p><strong style="color:var(--white);">Los menores de 18 (dieciocho) años deberán ser autorizados por sus padres o tutor.</strong></p>
+        Tomo conocimiento y acepto voluntariamente, que el Club Huracán de Chivilcoy y los sponsors de la carrera y la Municipalidad de Chivilcoy,toman a su cargo ni se responsabilizan por ningún tipo de indemnización, reclamo, costo, daño y/o perjuicio reclamado, incluyendo y no limitado a, daños por accidentes, daños materiales, físicos o psíquicos o morales, lucro cesante, causados a mi persona o a mis derecho habientes, con motivo y en ocasión de la carrera en la que participaré.
+        Habiendo leído esta declaración y conociendo estos hechos, asumo total y personal responsabilidad por mi salud y seguridad, y yo,en representación de mi mismo y de mis cesionarios, herederos, legatarios y sucesores – colectivamente herederos - acepto mantener exento de cualquier tipo de responsabilidad que surja de mi participación en esta carrera,  aunque esta responsabilidad pueda surgir por negligencia o culposidad de parte de las personas físicas o jurídicas organizadoras, y,  libero a el Club Huracán de Chivilcoy,a los sponsors de la carrera,a la Municipalidad de Chivilcoy y cualquier tercero que hubiese colaborado con la organización y/o cualquier otra persona física o jurídica que hubiera tenido intervención principal o secundaria en la organización de la carrera referida. Así también manifiesto que no serán responsables por cualquier extravío, robo y/o hurto que pudiera sufrir con anterioridad, durante el transcurso o con posterioridad a la finalización de la competencia. Autorizo a los organizadores de la competencia y sponsors a utilizar, reproducir, distribuir y/o publicar fotografías, películas, videos, grabaciones y/o cualquier otro medio de registración de mi persona tomadas con motivo y en ocasión de la presente competencia desde la primera difusión, sin compensación económica alguna a favor del participante de la presente competencia.”</p>
+      <p><strong style="color:var(--ink);">Los menores de 18 (dieciocho) años deberán ser autorizados por sus padres o tutor.</strong></p>
       <div class="firma-section" id="firmaSection">
         <div class="firma-title">✍️ Firma digital</div>
         <div class="firma-subtitle">Firmá en el recuadro de abajo para aceptar los términos y condiciones.</div>
@@ -405,12 +406,13 @@
   </div>
 </div>
 
-<script src="app.js"></script>
-
 <!-- ── WHATSAPP BUTTON ── -->
-<a href="https://wa.me/5492346567051" target="_blank" rel="noopener" aria-label="WhatsApp" style="position:fixed;bottom:24px;right:20px;z-index:999;width:52px;height:52px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.45);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+<a id="waLink" href="#" target="_blank" rel="noopener" aria-label="WhatsApp" style="position:fixed;bottom:24px;right:20px;z-index:999;width:52px;height:52px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(37,211,102,.45);transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="28" height="28" fill="#fff"><path d="M16 1C7.729 1 1 7.729 1 16c0 2.65.693 5.138 1.903 7.294L1 31l7.94-1.88A14.94 14.94 0 0 0 16 31c8.271 0 15-6.729 15-15S24.271 1 16 1zm0 27.5a12.44 12.44 0 0 1-6.38-1.75l-.457-.272-4.712 1.115 1.147-4.593-.298-.472A12.46 12.46 0 0 1 3.5 16C3.5 9.096 9.096 3.5 16 3.5S28.5 9.096 28.5 16 22.904 28.5 16 28.5zm6.844-9.17c-.375-.188-2.219-1.094-2.563-1.219-.344-.125-.594-.188-.844.188s-.969 1.219-1.188 1.469-.438.281-.813.094c-.375-.188-1.584-.584-3.016-1.862-1.115-.994-1.868-2.221-2.087-2.596-.219-.375-.023-.578.164-.765.169-.168.375-.438.563-.656.188-.219.25-.375.375-.625.125-.25.063-.469-.031-.656-.094-.188-.844-2.031-1.156-2.781-.305-.729-.613-.63-.844-.641l-.719-.013c-.25 0-.656.094-.999.469s-1.313 1.281-1.313 3.125 1.344 3.625 1.531 3.875c.188.25 2.645 4.038 6.407 5.662.896.387 1.594.618 2.138.791.898.285 1.715.245 2.36.149.72-.108 2.219-.907 2.532-1.782.313-.875.313-1.625.219-1.782-.091-.156-.341-.25-.716-.437z"/></svg>
 </a>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>

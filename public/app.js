@@ -10,11 +10,35 @@ let caminataAccepted = false;
 
 const API_URL = window.location.origin;
 
-const PRICES = {
+const CFG = window.CLUB_CONFIG || {};
+
+// Precios definidos en config.js (con fallback por si falta la config)
+const PRICES = (CFG.precios) || {
   '4k':  { con: 23000, sin: 15000 },
   '10k': { con: 30000, sin: 22000 },
   'caminata': { con: 15000, sin: 0 }
 };
+
+/* ════════════════════════════════════
+   APLICAR CONFIG DEL CLUB (config.js)
+═════════════════════════════════════ */
+function cfgGet(path) {
+  return path.split('.').reduce((o, k) => (o == null ? o : o[k]), CFG);
+}
+function applyConfig() {
+  // Rellena todos los [data-cfg="ruta.al.valor"] con el texto de config.js
+  document.querySelectorAll('[data-cfg]').forEach(el => {
+    const val = cfgGet(el.getAttribute('data-cfg'));
+    if (val != null && val !== '') el.textContent = val;
+  });
+  // Título de la pestaña
+  if (cfgGet('club.nombre')) document.title = 'Maratón ' + cfgGet('club.nombre');
+  // Link de WhatsApp
+  const wa = document.getElementById('waLink');
+  const tel = cfgGet('contacto.whatsapp');
+  if (wa && tel) wa.href = 'https://wa.me/' + tel;
+}
+applyConfig();
 
 /* ════════════════════════════════════
    FECHA DE NACIMIENTO
@@ -325,7 +349,7 @@ async function processPayment() {
   if (!termsAccepted || !firmaDataUrl) {
     document.getElementById('termsError').style.display = 'block';
     const tr = document.getElementById('termsRow');
-    tr.style.borderColor = '#ff6b6b';
+    tr.style.borderColor = '#d92d20';
     setTimeout(() => tr.style.borderColor = '', 1500);
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
   }
@@ -333,7 +357,7 @@ async function processPayment() {
   const esGratis = montoTotal === 0;
   if (!esGratis && !voucherFile) {
     document.getElementById('voucherError').style.display = 'block';
-    document.getElementById('uploadArea').style.borderColor = '#ff6b6b';
+    document.getElementById('uploadArea').style.borderColor = '#d92d20';
     setTimeout(() => document.getElementById('uploadArea').style.borderColor = '', 2000); return;
   }
   const btn = document.getElementById('payBtn');
@@ -393,7 +417,7 @@ function initFirmaCanvas() {
   const wrap = document.getElementById('firmaCanvasWrap');
   firmaCanvas.width  = wrap.clientWidth  || 320;
   firmaCanvas.height = wrap.clientHeight || 160;
-  firmaCtx.strokeStyle = '#3ddc6b'; firmaCtx.lineWidth = 2.5;
+  firmaCtx.strokeStyle = '#191a1c'; firmaCtx.lineWidth = 2.5;
   firmaCtx.lineCap  = 'round'; firmaCtx.lineJoin = 'round';
   firmaCanvas.addEventListener('mousedown',  startDraw);
   firmaCanvas.addEventListener('mousemove',  draw);
@@ -506,4 +530,10 @@ function copiarTexto(btn, texto) {
     btn.classList.add('copied');
     setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 2000);
   });
+}
+
+// Copia el valor mostrado junto al botón (CBU / Alias desde config.js)
+function copiarCampo(btn) {
+  const val = btn.closest('.tf-copy-group').querySelector('.tf-val').textContent.trim();
+  copiarTexto(btn, val);
 }
