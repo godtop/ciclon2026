@@ -42,10 +42,35 @@ window.CLUB_CONFIG = {
 
   auspiciantes: 'Auspicia YPF · Primas Group',
 
+  /* ── Carreras ──
+     La CLAVE ('4k' / '10k' / 'caminata') es el identificador interno que se
+     envía al backend. NO la cambies todavía (el admin/backend la usan).
+     Editá libremente distancia, tipo, descripción y precios.               */
+  carreras: {
+    '4k': {
+      dist:   '15K',
+      tipo:   'Competitiva',
+      desc:   'Con cronometraje oficial',
+      nombre: '15K Competitiva',   // se muestra en el resumen de pago
+    },
+    '10k': {
+      dist:   '7K',
+      tipo:   'Participativa',
+      desc:   'Con cronometraje oficial',
+      nombre: '7K Participativa',
+    },
+    'caminata': {
+      dist:   '7K',
+      tipo:   'Caminata',
+      desc:   'Sin cronometraje · Solidaria',
+      nombre: '7K Caminata',
+    },
+  },
+
   // Precios por carrera (ARS). con = con remera, sin = sin remera
   precios: {
-    '4k':       { con: 23000, sin: 15000 },
-    '10k':      { con: 30000, sin: 22000 },
-    'caminata': { con: 15000, sin: 0 },
+    '4k':       { con: 45000, sin: 40000 },  // 15K
+    '10k':      { con: 35000, sin: 30000 },  // 7K
+    'caminata': { con: 5000,  sin: 0 },      // 7K caminata (sin remera: gratis)
   },
 };

@@ -54,10 +54,13 @@ body {
 
 .hero-logo {
   display: block;
-  width: 84px;
+  width: 78px;
   height: auto;
   margin: 0 auto 14px;
 }
+/* El contenido del hero centrado y acotado (el fondo sigue a todo el ancho) */
+.hero > * { max-width: 640px; margin-left: auto; margin-right: auto; }
+.hero-logo { margin: 0 auto 14px; }
 
 .edition-tag {
   display: inline-block;
@@ -94,6 +97,7 @@ body {
   display: flex;
   gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
   margin-bottom: 28px;
 }
 
@@ -1320,4 +1324,42 @@ body {
   margin-top: 8px;
   font-size: 13px;
   color: var(--danger);
+}
+
+/* ── RESPONSIVE — MOBILE CHICO ──
+   Etiquetas de distancia más largas (15K / COMPETITIVA) achican los badges
+   para que las tres entren en una fila sin cortarse. */
+@media (max-width: 420px) {
+  .distances { gap: 8px; }
+  .dist-badge { padding: 9px 12px; }
+  .dist-badge .km { font-size: 28px; }
+  .dist-badge .type { font-size: 9px; letter-spacing: .5px; }
+}
+
+/* ══════════════════════════════════════
+   RESPONSIVE — DESKTOP
+   El formulario es una columna única (mobile-first). En pantallas anchas
+   la acotamos y centramos para que no se estire ni el precio se vaya al borde.
+══════════════════════════════════════ */
+@media (min-width: 680px) {
+  .steps-bar,
+  .card,
+  .footer {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  /* Modales tipo hoja: centrados horizontalmente en desktop */
+  .modal {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 24px;
+  }
+  .modal-fullscreen .modal.modal-terms-firma,
+  .modal-alimentos {
+    border-radius: 0;
+  }
+  /* Un poco más de aire interno en la tarjeta cuando hay espacio */
+  .card { padding: 20px; }
 }

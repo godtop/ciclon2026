@@ -31,6 +31,33 @@ function applyConfig() {
     const val = cfgGet(el.getAttribute('data-cfg'));
     if (val != null && val !== '') el.textContent = val;
   });
+  // Carreras: badges del hero + tarjetas (distancia, tipo, descripción, precios)
+  document.querySelectorAll('.dist-badge[data-carrera]').forEach(b => {
+    const c = CFG.carreras && CFG.carreras[b.dataset.carrera];
+    if (!c) return;
+    if (c.dist) b.querySelector('.km').textContent = c.dist;
+    if (c.tipo) b.querySelector('.type').textContent = c.tipo;
+  });
+  const cardMap = { opt4k: '4k', opt10k: '10k', optCaminata: 'caminata' };
+  Object.entries(cardMap).forEach(([id, key]) => {
+    const card = document.getElementById(id);
+    if (!card) return;
+    const c = CFG.carreras && CFG.carreras[key];
+    if (c) {
+      if (c.dist) card.querySelector('.race-km').textContent   = c.dist;
+      if (c.tipo) card.querySelector('.race-type').textContent = c.tipo;
+      if (c.desc) card.querySelector('.race-desc').textContent = c.desc;
+    }
+    const p = PRICES[key];
+    if (p) {
+      const tags = card.querySelectorAll('.price-tag');
+      if (tags[0]) tags[0].textContent = '$' + p.con.toLocaleString('es-AR');
+      if (tags[1]) {
+        if (p.sin === 0) { tags[1].textContent = 'GRATIS'; tags[1].style.color = '#15803d'; }
+        else { tags[1].textContent = '$' + p.sin.toLocaleString('es-AR'); tags[1].style.color = ''; }
+      }
+    }
+  });
   // Título de la pestaña
   if (cfgGet('club.nombre')) document.title = 'Maratón ' + cfgGet('club.nombre');
   // Link de WhatsApp
@@ -291,8 +318,7 @@ function goStep3() {
   if (selectedShirt === 'con') setFieldError('f-talle', !talleOk);
   if (!nombreOk || !apellidoOk || !sexoOk || !dniOk || !ageOk || !fechaNacOk ||
       !codarOk || !telOk || !emailOk || !email2Ok || !ciudadOk || !domicOk || !talleOk) return;
-  const raceNames = { '4k': '4K Participativa', '10k': '10K Competitiva', 'caminata': '4K Caminata' };
-  const raceName  = raceNames[selectedRace] || selectedRace;
+  const raceName  = (CFG.carreras && CFG.carreras[selectedRace] && CFG.carreras[selectedRace].nombre) || selectedRace;
   let price    = PRICES[selectedRace][selectedShirt];
   let priceStr = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
   const discountRow = document.getElementById('sumDiscountRow');
