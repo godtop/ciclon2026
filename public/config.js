@@ -43,8 +43,6 @@ window.CLUB_CONFIG = {
     whatsapp: '5492346000000',           // MOCK — formato internacional sin '+' ni espacios
   },
 
-  auspiciantes: 'Auspicia YPF · Primas Group',
-
   /* ── Carreras ──
      La CLAVE ('4k' / '10k' / 'caminata') es el identificador interno que se
      envía al backend. NO la cambies todavía (el admin/backend la usan).
