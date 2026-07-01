@@ -132,6 +132,18 @@ body {
 .event-info span { display: flex; align-items: center; gap: 6px; }
 .event-info strong { color: var(--ink); }
 
+.date-warning {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber);
+  background: rgba(183,121,31,.10);
+  border: 1px solid rgba(183,121,31,.30);
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+
 /* ── STEP INDICATOR ── */
 .steps-bar {
   display: flex;

@@ -16,11 +16,14 @@ window.CLUB_CONFIG = {
 
   evento: {
     titulo:     'MARATÓN',
-    fechaTexto: 'Domingo 11 de Octubre',   // MOCK — poné la fecha real
-    fechaCorta: '11 de octubre',           // MOCK
-    hora:       '10:00 AM',                // MOCK
+    fechaTexto: 'Fecha a confirmar',   // TODO: reemplazar cuando esté definida
+    fechaCorta: 'a confirmar',         // TODO: reemplazar cuando esté definida
+    hora:       'Hora a confirmar',    // TODO: reemplazar cuando esté definida
     anio:       2026,
     lugar:      'Club Atlético Huracán, Chivilcoy',
+    // Se muestra como aviso en la web mientras la fecha no esté cerrada.
+    // Poné avisoFecha: '' (vacío) para ocultar el aviso una vez confirmada.
+    avisoFecha: '⚠️ La fecha del evento todavía no está confirmada',
   },
 
   // Info de retiro de kit (se muestra en la pantalla de éxito)

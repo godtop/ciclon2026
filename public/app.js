@@ -29,7 +29,10 @@ function applyConfig() {
   // Rellena todos los [data-cfg="ruta.al.valor"] con el texto de config.js
   document.querySelectorAll('[data-cfg]').forEach(el => {
     const val = cfgGet(el.getAttribute('data-cfg'));
-    if (val != null && val !== '') el.textContent = val;
+    if (val != null && val !== '') {
+      el.textContent = val;
+      el.style.display = '';   // por si arrancaba oculto en el HTML (ej. avisos condicionales)
+    }
   });
   // Carreras: badges del hero + tarjetas (distancia, tipo, descripción, precios)
   document.querySelectorAll('.dist-badge[data-carrera]').forEach(b => {
