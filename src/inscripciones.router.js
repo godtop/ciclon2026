@@ -370,7 +370,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         const isPdf = req.file.mimetype === 'application/pdf';
         const stream = cloudinary.uploader.upload_stream(
           {
-            folder: 'maraton-ciclon/comprobantes',
+            folder: 'huracan/comprobantes',
             resource_type: isPdf ? 'raw' : 'image',
           },
           (error, result) => { if (error) reject(error); else resolve(result); }
