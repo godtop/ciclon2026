@@ -62,7 +62,7 @@ function applyConfig() {
     }
   });
   // Título de la pestaña
-  if (cfgGet('club.nombre')) document.title = 'Maratón ' + cfgGet('club.nombre');
+  if (cfgGet('club.nombre')) document.title = (cfgGet('evento.titulo') || 'Running Trail') + ' ' + cfgGet('club.nombre');
   // Link de WhatsApp
   const wa = document.getElementById('waLink');
   const tel = cfgGet('contacto.whatsapp');

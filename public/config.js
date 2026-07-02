@@ -15,7 +15,7 @@ window.CLUB_CONFIG = {
   },
 
   evento: {
-    titulo:     'MARATÓN',
+    titulo:     'Running Trail',
     fechaTexto: 'Fecha a confirmar',   // TODO: reemplazar cuando esté definida
     fechaCorta: 'a confirmar',         // TODO: reemplazar cuando esté definida
     hora:       'Hora a confirmar',    // TODO: reemplazar cuando esté definida
