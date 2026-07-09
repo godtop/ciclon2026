@@ -16,19 +16,17 @@ window.CLUB_CONFIG = {
 
   evento: {
     titulo:     'Running Trail',
-    fechaTexto: 'Fecha a confirmar',   // TODO: reemplazar cuando esté definida
-    fechaCorta: 'a confirmar',         // TODO: reemplazar cuando esté definida
-    hora:       'Hora a confirmar',    // TODO: reemplazar cuando esté definida
+    fechaTexto: '17 de Octubre',
+    fechaCorta: '17 de octubre',
+    hora:       'A confirmar',
     anio:       2026,
     lugar:      'Club Atlético Huracán, Chivilcoy',
-    // Se muestra como aviso en la web mientras la fecha no esté cerrada.
-    // Poné avisoFecha: '' (vacío) para ocultar el aviso una vez confirmada.
-    avisoFecha: '⚠️ La fecha del evento todavía no está confirmada',
+    avisoFecha: '',
   },
 
   // Info de retiro de kit (se muestra en la pantalla de éxito)
   kit: {
-    chivilcoy: 'Retirá tu kit el sábado 10 de octubre de 14:00 a 19:00 hs',
+    chivilcoy: 'Retirá tu kit el viernes 16 de octubre de 14:00 a 19:00 hs',
     otras:     'Retirá tu kit el mismo día de la carrera al presentarte',
   },
 
@@ -72,6 +70,6 @@ window.CLUB_CONFIG = {
   precios: {
     '4k':       { con: 45000, sin: 40000 },  // 15K
     '10k':      { con: 35000, sin: 30000 },  // 7K
-    'caminata': { con: 5000,  sin: 0 },      // 7K caminata (sin remera: gratis)
+    'caminata': { sin: 0 },                  // 7K caminata (gratis, sin remera)
   },
 };

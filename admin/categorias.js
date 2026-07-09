@@ -1,4 +1,4 @@
-const FECHA_CARRERA = new Date(2026, 5, 14);
+const FECHA_CARRERA = new Date(2026, 9, 17);
 
 const CATEGORIAS = [
   { num: 1,  label: 'Juveniles', min: 0,  max: 19  },
@@ -274,7 +274,7 @@ function tablaHead() {
       <th>Nombre</th>
       <th>DNI</th>
       <th>Nacimiento</th>
-      <th>Edad 14/jun</th>
+      <th>Edad 17/oct</th>
       <th>Sexo</th>
       <th>Carrera</th>
       <th>Ciudad</th>
@@ -365,7 +365,7 @@ function generarExcel() {
         if (!enCarrera.length) continue;
 
         wsData.push([`  ${CARRERA_LABEL[carrera]} — ${enCarrera.length} corredor${enCarrera.length !== 1 ? 'es' : ''}`]);
-        wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 14/jun', 'Ciudad', 'Email', 'Teléfono', 'Estado', 'Remera', 'Talle']);
+        wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 17/oct', 'Ciudad', 'Email', 'Teléfono', 'Estado', 'Remera', 'Talle']);
 
         enCarrera.forEach((r, idx) => {
           wsData.push([

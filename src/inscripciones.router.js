@@ -12,7 +12,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const PRICES = {
   '4k':  { con: 23000, sin: 15000 },
   '10k': { con: 30000, sin: 22000 },
-  'caminata': { con: 15000, sin: 0 },
+  'caminata': { sin: 0 },
 };
 
 /* ─────────────────────────────────────────
@@ -152,7 +152,7 @@ async function enviarEmailConfirmacion(inscripcion) {
                 <tr>
                   <td style="padding:14px 18px;border-bottom:1px solid #1e4d2a;">
                     <span style="font-size:16px;">🗓</span>
-                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">Domingo 14 de junio · 10:00 AM</span>
+                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">17 de octubre · A confirmar</span>
                   </td>
                 </tr>
                 <tr>
@@ -260,14 +260,14 @@ async function enviarEmailConfirmacion(inscripcion) {
   <div style="margin-bottom:14px;">
     <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
     Retirá tu kit el día previo a la carrera.<br>
-    <strong style="color:#f5f9f6;">Sábado 13 de junio · 14:00 a 19:00 hs</strong><br>
+    <strong style="color:#f5f9f6;">Viernes 16 de octubre · 14:00 a 19:00 hs</strong><br>
     Club Atlético Ciclón, Chivilcoy
   </div>
 
   <div style="border-top:0.5px solid #2e4a38;padding-top:14px;">
     <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
     Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
-    <strong style="color:#f5f9f6;">Domingo 14 de junio · Desde las 8:30 hs</strong><br>
+    <strong style="color:#f5f9f6;">17 de octubre · Desde las 8:30 hs</strong><br>
     Club Atlético Ciclón, Chivilcoy
   </div>
 

@@ -3,7 +3,7 @@ let inscripciones = [];
 let filtroActual  = 'todos';
 let token         = null;
 
-const FECHA_CARRERA = new Date(2026, 5, 14);
+const FECHA_CARRERA = new Date(2026, 9, 17);
 
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('ciclon_admin_token');
@@ -149,7 +149,7 @@ function cardHTML(i) {
     '<div class="icard-detail">' +
       '<div class="detail-grid">' +
         '<div class="detail-field"><div class="detail-label">Edad declarada</div><div class="detail-value">' + i.edad + ' años</div></div>' +
-        '<div class="detail-field"><div class="detail-label">Edad 14/jun</div><div class="detail-value highlight">' + edadEnCarrera(i.fechaNacimiento) + ' años</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Edad 17/oct</div><div class="detail-value highlight">' + edadEnCarrera(i.fechaNacimiento) + ' años</div></div>' +
         '<div class="detail-field"><div class="detail-label">Sexo</div><div class="detail-value">' + fmtSexo(i.sexo) + '</div></div>' +
         '<div class="detail-field"><div class="detail-label">Nacimiento</div><div class="detail-value">' + (i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—') + '</div></div>' +
         '<div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">' + (i.remera === 'con' ? 'Con remera · ' + i.talle : 'Sin remera') + '</div></div>' +

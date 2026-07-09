@@ -16,7 +16,7 @@ const CFG = window.CLUB_CONFIG || {};
 const PRICES = (CFG.precios) || {
   '4k':  { con: 23000, sin: 15000 },
   '10k': { con: 30000, sin: 22000 },
-  'caminata': { con: 15000, sin: 0 }
+  'caminata': { sin: 0 }
 };
 
 /* ════════════════════════════════════
@@ -53,11 +53,19 @@ function applyConfig() {
     }
     const p = PRICES[key];
     if (p) {
-      const tags = card.querySelectorAll('.price-tag');
-      if (tags[0]) tags[0].textContent = '$' + p.con.toLocaleString('es-AR');
-      if (tags[1]) {
-        if (p.sin === 0) { tags[1].textContent = 'GRATIS'; tags[1].style.color = '#15803d'; }
-        else { tags[1].textContent = '$' + p.sin.toLocaleString('es-AR'); tags[1].style.color = ''; }
+      const priceOpts = card.querySelectorAll('.price-opt');
+      let optIdx = 0;
+      if (p.con !== undefined && priceOpts[optIdx]) {
+        const tag = priceOpts[optIdx].querySelector('.price-tag');
+        if (tag) tag.textContent = '$' + p.con.toLocaleString('es-AR');
+        optIdx++;
+      }
+      if (p.sin !== undefined && priceOpts[optIdx]) {
+        const tag = priceOpts[optIdx].querySelector('.price-tag');
+        if (tag) {
+          if (p.sin === 0) { tag.textContent = 'GRATIS'; tag.style.color = '#15803d'; }
+          else { tag.textContent = '$' + p.sin.toLocaleString('es-AR'); tag.style.color = ''; }
+        }
       }
     }
   });
@@ -126,17 +134,25 @@ document.querySelectorAll('input[name="race"]').forEach(radio => {
     document.querySelectorAll('.race-option').forEach(opt => opt.classList.remove('selected'));
     radio.closest('.race-option').classList.add('selected');
     const prices = PRICES[selectedRace];
-    document.getElementById('shirtConPrice').textContent = '$' + prices.con.toLocaleString('es-AR');
-    document.getElementById('shirtSinPrice').textContent = prices.sin === 0 ? 'Gratis' : '$' + prices.sin.toLocaleString('es-AR');
     document.getElementById('discountSection').style.display = 'none';
     document.getElementById('discountCode').value = '';
     document.getElementById('discountError').style.display = 'none';
     document.getElementById('discountSuccess').style.display = 'none';
-    document.getElementById('shirtSelector').style.display = 'block';
     document.getElementById('raceError').style.display  = 'none';
     document.getElementById('shirtError').style.display = 'none';
+
     if (selectedRace === 'caminata') {
+      selectedShirt = 'sin';
+      document.querySelector('#shirtSin').classList.add('selected');
+      document.querySelector('input[name="shirt"][value="sin"]').checked = true;
+      document.getElementById('shirtSelector').style.display = 'none';
       setTimeout(() => { if (selectedRace === 'caminata') abrirModalAlimentos(); }, 200);
+    } else {
+      if (prices.con !== undefined) {
+        document.getElementById('shirtConPrice').textContent = '$' + prices.con.toLocaleString('es-AR');
+      }
+      document.getElementById('shirtSinPrice').textContent = prices.sin === 0 ? 'Gratis' : '$' + prices.sin.toLocaleString('es-AR');
+      document.getElementById('shirtSelector').style.display = 'block';
     }
     setTimeout(() => {
       document.querySelector('#step1 .btn').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
