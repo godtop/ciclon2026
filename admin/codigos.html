@@ -3,60 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Códigos de Descuento – Admin Ciclón</title>
+  <title>Códigos de Descuento – Admin Huracán</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="admin.css">
   <style>
     .codigos-container { max-width: 900px; margin: 0 auto; padding: 20px; }
     .codigos-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
-    .codigos-header h2 { font-size: 22px; color: var(--white); margin: 0; }
-    .back-link { color: var(--green-glow); text-decoration: none; font-size: 14px; }
+    .codigos-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; color: var(--red); margin: 0; font-weight: 400; }
+    .back-link { color: var(--red); text-decoration: none; font-size: 14px; font-weight: 600; }
     .back-link:hover { text-decoration: underline; }
     .codigo-form {
-      background: var(--card-bg);
-      border: 1px solid rgba(255,255,255,.08);
+      background: var(--surface);
+      border: 1px solid var(--border);
       border-radius: 14px;
       padding: 24px;
       margin-bottom: 28px;
+      box-shadow: 0 6px 24px rgba(20,20,30,.05);
     }
-    .codigo-form h3 { margin: 0 0 18px; font-size: 16px; color: var(--white); }
+    .codigo-form h3 { margin: 0 0 18px; font-size: 16px; color: var(--ink); }
     .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
     .form-group { flex: 1; min-width: 160px; }
-    .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--gray); margin-bottom: 6px; font-weight: 600; }
+    .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); margin-bottom: 6px; font-weight: 600; }
     .form-group input, .form-group select {
-      width: 100%; background: var(--input-bg); border: 1.5px solid rgba(255,255,255,.12);
-      border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--white);
-      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s; box-sizing: border-box;
+      width: 100%; background: var(--input-bg); border: 1.5px solid var(--border-strong);
+      border-radius: 8px; padding: 10px 12px; font-size: 14px; color: var(--ink);
+      font-family: 'DM Sans', sans-serif; outline: none; transition: border-color .2s, box-shadow .2s; box-sizing: border-box;
     }
-    .form-group input:focus, .form-group select:focus { border-color: var(--green-glow); }
+    .form-group input:focus, .form-group select:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(226,0,26,.14); }
     .tipo-radio { display: flex; gap: 16px; margin-top: 6px; }
-    .tipo-radio label { font-size: 13px; color: var(--gray); cursor: pointer; display: flex; align-items: center; gap: 6px; }
-    .tipo-radio input[type="radio"] { accent-color: var(--green-glow); }
+    .tipo-radio label { font-size: 13px; color: var(--ink-soft); cursor: pointer; display: flex; align-items: center; gap: 6px; }
+    .tipo-radio input[type="radio"] { accent-color: var(--red); }
     .valor-input { display: flex; align-items: center; gap: 6px; }
-    .valor-input span { color: var(--gray); font-size: 13px; white-space: nowrap; }
+    .valor-input span { color: var(--ink-soft); font-size: 13px; white-space: nowrap; }
     .form-actions { display: flex; gap: 10px; margin-top: 18px; }
     .btn-sm { padding: 8px 18px; font-size: 13px; border-radius: 8px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; transition: background .2s; }
-    .btn-create { background: var(--green); color: #fff; }
-    .btn-create:hover { background: var(--green-dark); }
-    .btn-generate { background: transparent; border: 1px solid rgba(255,255,255,.2); color: var(--gray); }
-    .btn-generate:hover { border-color: var(--green-glow); color: var(--white); }
-    .codigos-table-wrap { overflow-x: auto; }
+    .btn-create { background: var(--red); color: #fff; }
+    .btn-create:hover { background: var(--red-dark); }
+    .btn-generate { background: transparent; border: 1px solid var(--border-strong); color: var(--ink-soft); }
+    .btn-generate:hover { border-color: var(--red); color: var(--red); }
+    .codigos-table-wrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 8px 16px; box-shadow: 0 6px 24px rgba(20,20,30,.05); }
     .codigos-table { width: 100%; border-collapse: collapse; }
     .codigos-table th {
       text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .8px;
-      color: var(--gray); padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,.08);
+      color: var(--red); padding: 10px 12px; border-bottom: 2px solid var(--red);
       font-weight: 600;
     }
-    .codigos-table td { padding: 12px; border-bottom: 1px solid rgba(255,255,255,.05); font-size: 13px; color: var(--white); }
-    .codigo-badge { font-family: monospace; background: rgba(61,220,107,.12); color: var(--green-glow); padding: 3px 8px; border-radius: 6px; font-size: 13px; letter-spacing: .5px; }
-    .uso-badge { color: var(--gray); font-size: 13px; }
-    .activo-si { color: var(--green-glow); }
-    .activo-no { color: #ff6b6b; }
+    .codigos-table td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 13px; color: var(--ink); }
+    .codigo-badge { font-family: monospace; background: rgba(226,0,26,.08); color: var(--red); padding: 3px 8px; border-radius: 6px; font-size: 13px; letter-spacing: .5px; }
+    .uso-badge { color: var(--ink-soft); font-size: 13px; }
+    .activo-si { color: var(--green); font-weight: 600; }
+    .activo-no { color: var(--danger); font-weight: 600; }
     .tbl-btn-sm { padding: 5px 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 600; margin-right: 6px; transition: opacity .2s; }
     .tbl-btn-sm:hover { opacity: .8; }
-    .btn-share { background: rgba(61,220,107,.15); color: var(--green-glow); }
-    .btn-delete { background: rgba(255,107,107,.15); color: #ff6b6b; }
-    .no-codigos { text-align: center; padding: 40px; color: var(--gray); font-size: 14px; }
-    .inline-error { color: #ff6b6b; font-size: 13px; margin-top: 8px; display: none; }
+    .btn-share { background: rgba(226,0,26,.08); color: var(--red); }
+    .btn-delete { background: rgba(217,45,32,.10); color: var(--danger); }
+    .no-codigos { text-align: center; padding: 40px; color: var(--ink-soft); font-size: 14px; }
+    .inline-error { color: var(--danger); font-size: 13px; margin-top: 8px; display: none; }
     @media (max-width: 600px) {
       .form-row { flex-direction: column; }
       .codigos-table th, .codigos-table td { padding: 8px 6px; font-size: 12px; }
@@ -124,7 +128,7 @@
           </tr>
         </thead>
         <tbody id="codigosBody">
-          <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--gray);">Cargando...</td></tr>
+          <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--ink-soft);">Cargando...</td></tr>
         </tbody>
       </table>
     </div>
@@ -182,7 +186,7 @@
 
     async function loadCodigos() {
       const tbody = document.getElementById('codigosBody');
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--gray);">Cargando...</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--ink-soft);">Cargando...</td></tr>';
       try {
         const res    = await apiFetch(`${API_URL}/codigos`);
         if (res.status === 401) { localStorage.removeItem('ciclon_admin_token'); window.location.href = 'index.html'; return; }
@@ -209,7 +213,7 @@
           </tr>`;
         }).join('');
       } catch {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#ff6b6b; padding:30px;">Error al cargar.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--danger); padding:30px;">Error al cargar.</td></tr>';
       }
     }
 

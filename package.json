@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^6.19.2",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -21,7 +22,6 @@
     "resend": "^6.9.3"
   },
   "devDependencies": {
-    "@prisma/client": "^6.19.2",
     "exceljs": "^4.4.0",
     "nodemon": "^3.1.14",
     "prisma": "^6.19.2"

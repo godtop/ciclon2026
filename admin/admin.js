@@ -5,6 +5,10 @@ let token         = null;
 
 const FECHA_CARRERA = new Date(2026, 9, 17);
 
+// Claves internas ('4k'/'10k'/'caminata') ≠ distancia real — mismos labels que public/config.js
+const CARRERA_LABEL = { '4k': '15K', '10k': '7K', 'caminata': 'CAMINATA' };
+function carreraLabel(c) { return CARRERA_LABEL[c] || String(c).toUpperCase(); }
+
 window.addEventListener('load', () => {
   const saved = localStorage.getItem('ciclon_admin_token');
   if (saved) { token = saved; showPanel(); load(); }
@@ -122,15 +126,15 @@ function cardHTML(i) {
   const esGratis = i.comprobanteUrl === 'GRATIS';
   const isPdf    = !esGratis && esPdf(i.comprobanteUrl);
   const voucherHTML = esGratis
-    ? '<div class="voucher-pdf-placeholder" style="background:rgba(245,200,66,.12);border-color:rgba(245,200,66,.3);"><span>🎁</span><span style="color:#f5c842;font-weight:600;">GRATIS</span></div>'
+    ? '<div class="voucher-pdf-placeholder" style="background:rgba(183,121,31,.10);border-color:rgba(183,121,31,.3);"><span>🎁</span><span style="color:#b7791f;font-weight:600;">GRATIS</span></div>'
     : isPdf
     ? '<div class="voucher-pdf-placeholder"><span>📄</span><span>comprobante.pdf</span></div>'
     : '<img src="' + i.comprobanteUrl + '" loading="lazy" alt="Comprobante">';
 
-  let montoHTML = i.monto === 0 ? '<span style="color:#f5c842;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR');
+  let montoHTML = i.monto === 0 ? '<span style="color:#b7791f;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR');
   if (i.codigoDescuentoId && i.montoOriginal) {
     const desc = i.montoOriginal - i.monto;
-    montoHTML = '<span style="text-decoration:line-through; opacity:.6; font-size:.85em;">$' + i.montoOriginal.toLocaleString('es-AR') + '</span> → $' + i.monto.toLocaleString('es-AR') + ' <span style="color:#ff9f43; font-size:.75em;">(-$' + desc.toLocaleString('es-AR') + ')</span>';
+    montoHTML = '<span style="text-decoration:line-through; opacity:.6; font-size:.85em;">$' + i.montoOriginal.toLocaleString('es-AR') + '</span> → $' + i.monto.toLocaleString('es-AR') + ' <span style="color:#d9822b; font-size:.75em;">(-$' + desc.toLocaleString('es-AR') + ')</span>';
   }
 
   return '<div class="icard" id="icard-' + i.id + '">' +
@@ -138,7 +142,7 @@ function cardHTML(i) {
       '<div class="icard-avatar">' + initials + '</div>' +
       '<div class="icard-main">' +
         '<div class="icard-name">' + i.nombre + ' ' + i.apellido + '</div>' +
-        '<div class="icard-meta">' + i.carrera.toUpperCase() + ' · DNI ' + fmtDni(i.dni) + ' · ' + fmtFechaCorta(i.createdAt) + '</div>' +
+        '<div class="icard-meta">' + carreraLabel(i.carrera) + ' · DNI ' + fmtDni(i.dni) + ' · ' + fmtFechaCorta(i.createdAt) + '</div>' +
       '</div>' +
       '<div class="icard-right">' +
         '<div class="icard-monto">' + montoHTML + '</div>' +
@@ -187,7 +191,7 @@ function renderTable(items) {
     const esGratisTbl = i.comprobanteUrl === 'GRATIS';
     const isPdf = !esGratisTbl && esPdf(i.comprobanteUrl);
     const thumb = esGratisTbl
-      ? '<div class="tbl-gratis" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.3);font-size:12px;font-weight:700;color:#f5c842;cursor:default;">🎁</div>'
+      ? '<div class="tbl-gratis" style="display:flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;background:rgba(183,121,31,.10);border:1px solid rgba(183,121,31,.3);font-size:12px;font-weight:700;color:#b7791f;cursor:default;">🎁</div>'
       : isPdf
       ? '<div class="tbl-pdf" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')" title="Ver">📄</div>'
       : '<img class="tbl-thumb" src="' + i.comprobanteUrl + '" loading="lazy" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')" title="Ver">';
@@ -195,7 +199,7 @@ function renderTable(items) {
     let descuentoHTML = '—';
     if (i.codigoDescuentoId && i.montoOriginal) {
       const desc = i.montoOriginal - i.monto;
-      descuentoHTML = '<span style="color:#ff9f43; font-size:.85em;" title="Original: $' + i.montoOriginal.toLocaleString('es-AR') + '">-$' + desc.toLocaleString('es-AR') + '</span>';
+      descuentoHTML = '<span style="color:#d9822b; font-size:.85em;" title="Original: $' + i.montoOriginal.toLocaleString('es-AR') + '">-$' + desc.toLocaleString('es-AR') + '</span>';
     }
 
     return '<tr>' +
@@ -206,9 +210,9 @@ function renderTable(items) {
       '<td class="muted">' + i.edad + '</td>' +
       '<td class="td-edad-carrera">' + edadEnCarrera(i.fechaNacimiento) + '</td>' +
       '<td class="muted">' + fmtSexo(i.sexo) + '</td>' +
-      '<td><strong>' + i.carrera.toUpperCase() + '</strong></td>' +
+      '<td><strong>' + carreraLabel(i.carrera) + '</strong></td>' +
       '<td class="muted">' + (i.remera === 'con' ? 'Talle ' + i.talle : 'Sin remera') + '</td>' +
-      '<td class="td-monto">' + (i.monto === 0 ? '<span style="color:#f5c842;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR')) + '</td>' +
+      '<td class="td-monto">' + (i.monto === 0 ? '<span style="color:#b7791f;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR')) + '</td>' +
       '<td>' + descuentoHTML + '</td>' +
       '<td class="muted">' + i.ciudad + '</td>' +
       '<td class="muted" style="font-size:.78rem">' + i.email + '</td>' +

@@ -9,11 +9,7 @@ const { Resend } = require('resend');
 const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const PRICES = {
-  '4k':  { con: 23000, sin: 15000 },
-  '10k': { con: 30000, sin: 22000 },
-  'caminata': { sin: 0 },
-};
+const PRICES = require('./prices');
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -48,8 +44,11 @@ async function enviarEmailConfirmacion(inscripcion) {
   const nombreCompleto = `${nombre} ${apellido}`;
   const remeraTexto    = remera === 'con' ? `Con remera · Talle ${talle}` : 'Sin remera';
   const fechaNacTexto  = fechaNacimiento ? fmtFecha(fechaNacimiento) : '—';
-  const labels = { '4k': '4K — Participativa', '10k': '10K — Competitiva', 'caminata': '4K — Caminata' };
-  const carreraLabel   = labels[carrera] || carrera;
+  // Claves internas ('4k'/'10k'/'caminata') ≠ distancia real — mismos labels que public/config.js
+  const DIST  = { '4k': '15K', '10k': '7K', 'caminata': '7K' };
+  const TIPO  = { '4k': 'Competitiva', '10k': 'Participativa', 'caminata': 'Caminata' };
+  const dist  = DIST[carrera] || carrera.toUpperCase();
+  const tipo  = TIPO[carrera] || '';
 
   const html = `
 <!DOCTYPE html>
@@ -59,10 +58,10 @@ async function enviarEmailConfirmacion(inscripcion) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Inscripción Confirmada</title>
 </head>
-<body style="margin:0;padding:0;background:#0b1a10;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
+<body style="margin:0;padding:0;background:#eef0f3;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;">
 
   <!-- WRAPPER -->
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#0b1a10;padding:24px 0 48px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#eef0f3;padding:24px 0 48px;">
     <tr>
       <td align="center" style="padding:0 12px;">
         <table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;max-width:540px;">
@@ -70,30 +69,30 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ HERO HEADER ══ -->
           <tr>
-            <td style="background:#0f2416;border-radius:20px 20px 0 0;padding:36px 28px 32px;text-align:center;border:1px solid #1e4d2a;border-bottom:none;">
+            <td style="background:#ffffff;border-radius:20px 20px 0 0;padding:36px 28px 32px;text-align:center;border:1px solid rgba(0,0,0,.10);border-bottom:none;">
 
               <!-- Edition tag -->
-              <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:3px;color:#3ddc6b;text-transform:uppercase;border:1px solid rgba(61,220,107,.3);border-radius:20px;padding:4px 14px;margin-bottom:20px;">
-                ✦ TERCERA EDICIÓN ✦
+              <div style="display:inline-block;font-size:10px;font-weight:700;letter-spacing:3px;color:#e2001a;text-transform:uppercase;border:1px solid rgba(226,0,26,.35);border-radius:20px;padding:4px 14px;margin-bottom:20px;">
+                ✦ PRIMERA EDICIÓN ✦
               </div>
 
               <!-- Title -->
-              <div style="font-size:42px;font-weight:900;color:#f5f9f6;letter-spacing:-1px;line-height:1;margin-bottom:4px;">
-                MARATÓN
+              <div style="font-size:42px;font-weight:900;color:#e2001a;letter-spacing:-1px;line-height:1;margin-bottom:4px;">
+                RUNNING TRAIL
               </div>
-              <div style="font-size:14px;font-weight:600;color:#3ddc6b;letter-spacing:3px;margin-bottom:28px;">
-                CLUB CICLÓN · CHIVILCOY
+              <div style="font-size:14px;font-weight:600;color:#191a1c;letter-spacing:3px;margin-bottom:28px;">
+                HURACÁN DE CHIVILCOY
               </div>
 
               <!-- Confirmed badge -->
               <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto;">
                 <tr>
-                  <td style="background:linear-gradient(135deg,#1e8a3c,#145c28);border-radius:14px;padding:18px 28px;text-align:center;">
+                  <td style="background:linear-gradient(135deg,#ff2a3a,#e2001a);border-radius:14px;padding:18px 28px;text-align:center;">
                     <div style="font-size:32px;line-height:1;margin-bottom:8px;">✅</div>
                     <div style="font-size:20px;font-weight:800;color:#ffffff;letter-spacing:0.5px;margin-bottom:4px;">
                       INSCRIPCIÓN CONFIRMADA
                     </div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.75);font-weight:500;">
+                    <div style="font-size:13px;color:rgba(255,255,255,0.85);font-weight:500;">
                       Pago verificado · Ya sos parte de la carrera
                     </div>
                   </td>
@@ -106,10 +105,10 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ GREETING ══ -->
           <tr>
-            <td style="background:#0f2416;padding:0 28px 28px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
-              <p style="margin:20px 0 0;font-size:15px;color:#aabfb0;line-height:1.7;">
-                Hola <strong style="color:#f5f9f6;">${nombre}</strong>,<br>
-                tu inscripción a la <strong style="color:#2db54f;">Maratón Club Ciclón 3ª Edición</strong>
+            <td style="background:#ffffff;padding:0 28px 28px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
+              <p style="margin:20px 0 0;font-size:15px;color:#6a6f76;line-height:1.7;">
+                Hola <strong style="color:#191a1c;">${nombre}</strong>,<br>
+                tu inscripción al <strong style="color:#e2001a;">Running Trail Huracán de Chivilcoy</strong>
                 fue confirmada exitosamente. Encontrás a continuación el resumen de tu participación.
               </p>
             </td>
@@ -118,22 +117,22 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ CARRERA DESTACADA ══ -->
           <tr>
-            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+            <td style="background:#ffffff;padding:0 28px 24px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                     style="background:linear-gradient(135deg,#162b1c,#0f2416);border:1.5px solid rgba(46,181,80,.35);border-radius:14px;overflow:hidden;">
+                     style="background:#f5f6f8;border:1.5px solid rgba(226,0,26,.30);border-radius:14px;overflow:hidden;">
                 <tr>
                   <td style="padding:20px 22px;">
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td>
-                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Carrera</div>
-                          <div style="font-size:28px;font-weight:900;color:#ffffff;line-height:1;">${carrera.toUpperCase()}</div>
-                          <div style="font-size:12px;color:#aabfb0;margin-top:2px;">${carrera === '4k' ? 'Participativa' : carrera === '10k' ? 'Competitiva' : 'Caminata'}${carrera === 'caminata' ? '' : ' · Con cronometraje oficial'}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#e2001a;text-transform:uppercase;margin-bottom:6px;">Carrera</div>
+                          <div style="font-size:28px;font-weight:900;color:#191a1c;line-height:1;">${dist}</div>
+                          <div style="font-size:12px;color:#6a6f76;margin-top:2px;">${tipo}${carrera === 'caminata' ? '' : ' · Con cronometraje oficial'}</div>
                         </td>
                         <td style="text-align:right;vertical-align:top;">
-                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:6px;">Monto abonado</div>
-                          <div style="font-size:26px;font-weight:900;color:#2db54f;line-height:1;">$${monto.toLocaleString('es-AR')}</div>
-                          <div style="font-size:11px;color:#aabfb0;margin-top:2px;">${remeraTexto}</div>
+                          <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#e2001a;text-transform:uppercase;margin-bottom:6px;">Monto abonado</div>
+                          <div style="font-size:26px;font-weight:900;color:#e2001a;line-height:1;">$${monto.toLocaleString('es-AR')}</div>
+                          <div style="font-size:11px;color:#6a6f76;margin-top:2px;">${remeraTexto}</div>
                         </td>
                       </tr>
                     </table>
@@ -146,19 +145,19 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ INFO EVENTO ══ -->
           <tr>
-            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+            <td style="background:#ffffff;padding:0 28px 24px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#0b1a10;border-radius:12px;overflow:hidden;border:1px solid #1e4d2a;">
+                     style="background:#f5f6f8;border-radius:12px;overflow:hidden;border:1px solid rgba(0,0,0,.10);">
                 <tr>
-                  <td style="padding:14px 18px;border-bottom:1px solid #1e4d2a;">
+                  <td style="padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.10);">
                     <span style="font-size:16px;">🗓</span>
-                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">17 de octubre · A confirmar</span>
+                    <span style="font-size:14px;font-weight:600;color:#191a1c;margin-left:10px;">17 de octubre · Hora a confirmar</span>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:14px 18px;">
                     <span style="font-size:16px;">📍</span>
-                    <span style="font-size:14px;font-weight:600;color:#f5f9f6;margin-left:10px;">Club Atlético Ciclón, Chivilcoy</span>
+                    <span style="font-size:14px;font-weight:600;color:#191a1c;margin-left:10px;">Club Atlético Huracán, Chivilcoy</span>
                   </td>
                 </tr>
               </table>
@@ -168,78 +167,78 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ DATOS DEL CORREDOR ══ -->
           <tr>
-            <td style="background:#0f2416;padding:0 28px 24px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+            <td style="background:#ffffff;padding:0 28px 24px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
 
-              <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#3ddc6b;text-transform:uppercase;margin-bottom:12px;">
+              <div style="font-size:10px;font-weight:700;letter-spacing:2px;color:#e2001a;text-transform:uppercase;margin-bottom:12px;">
                 Datos del corredor
               </div>
 
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#0b1a10;border-radius:12px;border:1px solid #1e4d2a;overflow:hidden;">
+                     style="background:#f5f6f8;border-radius:12px;border:1px solid rgba(0,0,0,.10);overflow:hidden;">
 
                 <!-- fila -->
                 <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;width:40%;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Nombre</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);width:40%;">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Nombre</span>
                   </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#f5f9f6;font-weight:600;">${nombreCompleto}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">DNI</span>
-                  </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${fmtDni(dni)}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;font-weight:600;">${nombreCompleto}</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Fecha de nac.</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">DNI</span>
                   </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${fechaNacTexto}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Edad</span>
-                  </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${edad} años</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${fmtDni(dni)}</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sexo</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Fecha de nac.</span>
                   </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${fmtSexo(sexo)}</span>
-                  </td>
-                </tr>
-                <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Ciudad</span>
-                  </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${ciudad}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${fechaNacTexto}</span>
                   </td>
                 </tr>
                 <tr>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Domicilio</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Edad</span>
                   </td>
-                  <td style="padding:12px 18px;border-bottom:1px solid #1a3520;">
-                    <span style="font-size:14px;color:#d0e8d8;">${domicilio}</span>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${edad} años</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Sexo</span>
+                  </td>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${fmtSexo(sexo)}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Ciudad</span>
+                  </td>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${ciudad}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Domicilio</span>
+                  </td>
+                  <td style="padding:12px 18px;border-bottom:1px solid rgba(0,0,0,.08);">
+                    <span style="font-size:14px;color:#191a1c;">${domicilio}</span>
                   </td>
                 </tr>
                 <tr>
                   <td style="padding:12px 18px;">
-                    <span style="font-size:11px;color:#6b9a78;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Teléfono</span>
+                    <span style="font-size:11px;color:#6a6f76;font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Teléfono</span>
                   </td>
                   <td style="padding:12px 18px;">
-                    <span style="font-size:14px;color:#d0e8d8;">+${codpais || '54'} ${codarea} ${telefono}</span>
+                    <span style="font-size:14px;color:#191a1c;">+${codpais || '54'} ${codarea} ${telefono}</span>
                   </td>
                 </tr>
 
@@ -250,25 +249,25 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ KIT ══ -->
           <tr>
-            <td style="background:#0f2416;padding:0 28px 28px;border-left:1px solid #1e4d2a;border-right:1px solid #1e4d2a;">
+            <td style="background:#ffffff;padding:0 28px 28px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
               <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
-                     style="background:#162211;border:1.5px solid rgba(61,220,107,.25);border-radius:14px;">
+                     style="background:#f5f6f8;border:1.5px solid rgba(226,0,26,.22);border-radius:14px;">
                 <tr>
                   <td style="padding:20px 22px;">
-                   <div style="font-size:14px;color:#aabfb0;line-height:1.9;">
+                   <div style="font-size:14px;color:#6a6f76;line-height:1.9;">
 
   <div style="margin-bottom:14px;">
-    <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
+    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
     Retirá tu kit el día previo a la carrera.<br>
-    <strong style="color:#f5f9f6;">Viernes 16 de octubre · 14:00 a 19:00 hs</strong><br>
-    Club Atlético Ciclón, Chivilcoy
+    <strong style="color:#191a1c;">Viernes 16 de octubre · 14:00 a 19:00 hs</strong><br>
+    Club Atlético Huracán, Chivilcoy
   </div>
 
-  <div style="border-top:0.5px solid #2e4a38;padding-top:14px;">
-    <div style="font-size:12px;letter-spacing:0.05em;color:#6a8f78;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
+  <div style="border-top:1px solid rgba(0,0,0,.10);padding-top:14px;">
+    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
     Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
-    <strong style="color:#f5f9f6;">17 de octubre · Desde las 8:30 hs</strong><br>
-    Club Atlético Ciclón, Chivilcoy
+    <strong style="color:#191a1c;">17 de octubre · Desde las 8:30 hs</strong><br>
+    Club Atlético Huracán, Chivilcoy
   </div>
 
 </div>
@@ -281,12 +280,9 @@ async function enviarEmailConfirmacion(inscripcion) {
 
           <!-- ══ FOOTER ══ -->
           <tr>
-            <td style="background:#0b1a10;border-radius:0 0 20px 20px;padding:24px 28px;text-align:center;border:1px solid #1e4d2a;border-top:1px solid #1e4d2a;">
-              <p style="margin:0 0 6px;font-size:12px;color:#4a7a58;">
-                Maratón Club Ciclón Chivilcoy · 3ª Edición 2026
-              </p>
-              <p style="margin:0;font-size:11px;color:#2d4d38;">
-                Auspicia YPF · Primas Group
+            <td style="background:#ffffff;border-radius:0 0 20px 20px;padding:24px 28px;text-align:center;border:1px solid rgba(0,0,0,.10);border-top:1px solid rgba(0,0,0,.10);">
+              <p style="margin:0;font-size:12px;color:#9aa0a6;">
+                Running Trail Huracán de Chivilcoy · 1ª Edición 2026
               </p>
             </td>
           </tr>
@@ -302,9 +298,9 @@ async function enviarEmailConfirmacion(inscripcion) {
   `.trim();
 
   await resend.emails.send({
-    from: 'Maratón Club Ciclón <no-reply@ciclon.com.ar>',
+    from: 'Running Trail Huracán <no-reply@huracandechivilcoy.com.ar>',
     to:   email,
-    subject: `✅ Inscripción confirmada – Maratón Club Ciclón ${carrera.toUpperCase()}`,
+    subject: `✅ Inscripción confirmada – Running Trail Huracán ${dist} ${tipo}`,
     html,
   });
 }
@@ -338,6 +334,11 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
     let monto = montoOriginal;
     let codigoDescuentoId = null;
 
+    // Validar el comprobante ANTES de consumir un uso del código de descuento
+    if (montoOriginal > 0 && !req.file) {
+      return res.status(400).json({ error: 'El comprobante es obligatorio.' });
+    }
+
     // Si viene código de descuento, validar y aplicar
     if (req.body.codigoDescuento) {
       const codigoDB = await prisma.codigoDescuento.findUnique({
@@ -363,9 +364,6 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
     let comprobantePublicId = 'GRATIS';
 
     if (montoOriginal > 0) {
-      if (!req.file) {
-        return res.status(400).json({ error: 'El comprobante es obligatorio.' });
-      }
       const uploadResult = await new Promise((resolve, reject) => {
         const isPdf = req.file.mimetype === 'application/pdf';
         const stream = cloudinary.uploader.upload_stream(
@@ -386,6 +384,8 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         carrera, remera,
         talle:          remera === 'con' ? (talle || null) : null,
         monto,
+        montoOriginal,
+        codigoDescuentoId,
         nombre, apellido, sexo,
         edad:           parseInt(edad),
         dni,
@@ -395,9 +395,6 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         comprobantePublicId,
         firmaBase64,
         estado: 'pendiente',
-        monto: monto,
-        montoOriginal: montoOriginal,
-        codigoDescuentoId: codigoDescuentoId,
       },
     });
 

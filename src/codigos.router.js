@@ -5,11 +5,7 @@ const requireAuth = require('./auth.middleware');
 
 const prisma = new PrismaClient();
 
-const PRICES = {
-  '4k':  { con: 23000, sin: 15000 },
-  '10k': { con: 30000, sin: 22000 },
-  'caminata': { sin: 0 },
-};
+const PRICES = require('./prices');
 
 router.post('/', requireAuth, async (req, res) => {
   try {

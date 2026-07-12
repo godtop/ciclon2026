@@ -1,5 +1,9 @@
 const FECHA_CARRERA = new Date(2026, 9, 17);
 
+// Claves internas ('4k'/'10k'/'caminata') ≠ distancia real — mismos labels que public/config.js
+const CARRERA_LABEL = { '4k': '15K', '10k': '7K', 'caminata': 'Caminata' };
+function carreraLabel(c) { return CARRERA_LABEL[c] || String(c).toUpperCase(); }
+
 const CATEGORIAS = [
   { num: 1,  label: 'Juveniles', min: 0,  max: 19  },
   { num: 2,  label: '20 – 24',   min: 20, max: 24  },
@@ -42,7 +46,7 @@ function mostrarNoData() {
       <div class="icon">📭</div>
       <div class="title">Sin datos cargados</div>
       <div class="sub">Primero ingresá al panel principal para cargar las inscripciones.</div>
-      <a class="link" href="admin.html">← Ir al panel</a>
+      <a class="link" href="index.html">← Ir al panel</a>
     </div>`;
 }
 
@@ -293,7 +297,7 @@ function tablaBody(items) {
       <td class="muted">${i.fechaNacimiento ? new Date(i.fechaNacimiento).toLocaleDateString('es-AR') : '—'}</td>
       <td class="td-edad">${i.edadCarrera !== null ? i.edadCarrera : '—'}</td>
       <td class="muted">${fmtSexo(i.sexo)}</td>
-      <td><strong>${i.carrera.toUpperCase()}</strong></td>
+      <td><strong>${carreraLabel(i.carrera)}</strong></td>
       <td class="muted">${i.ciudad}</td>
       <td><span class="badge ${badges[i.estado]}">${i.estado}</span></td>
     </tr>`).join('') + `</tbody>`;
@@ -307,7 +311,7 @@ function mobileCard(i) {
     <div class="mcard-avatar">${initials}</div>
     <div class="mcard-info">
       <div class="mcard-name">${i.nombre} ${i.apellido}</div>
-      <div class="mcard-meta">${i.carrera.toUpperCase()} · ${fmtSexo(i.sexo)} · ${i.ciudad}</div>
+      <div class="mcard-meta">${carreraLabel(i.carrera)} · ${fmtSexo(i.sexo)} · ${i.ciudad}</div>
     </div>
     <div class="mcard-right">
       <div class="mcard-edad">${i.edadCarrera !== null ? i.edadCarrera + ' años' : '—'}</div>
@@ -333,7 +337,6 @@ function generarExcel() {
   });
 
   const CARRERAS = ['4k', '10k', 'caminata'];
-  const CARRERA_LABEL = { '4k': '4K', '10k': '10K', 'caminata': 'Caminata' };
 
   const grupos = [
     { key: 'F', label: 'Femenino' },
