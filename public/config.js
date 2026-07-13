@@ -30,11 +30,13 @@ window.CLUB_CONFIG = {
     otras:     'Retirá tu kit el mismo día de la carrera al presentarte',
   },
 
-  // Datos para la transferencia — ⚠️ MOCK, reemplazar por los reales
+  // Datos para la transferencia
   transferencia: {
-    titular: 'Club Atlético Huracán de Chivilcoy',
-    cbu:     '0000000000000000000000',   // MOCK (22 dígitos)
-    alias:   'huracan.chivilcoy',        // MOCK
+    titular:       'CLUB SOCIAL Y AT HURACAN',
+    cuit:          '30-62064097-9',
+    numeroCuenta:  'CC$ 191-144-008643/6',
+    cbu:           '19101448-55014400864364',
+    alias:         'huracan.carrera',
   },
 
   contacto: {
