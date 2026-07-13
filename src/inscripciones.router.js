@@ -266,7 +266,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   <div style="border-top:1px solid rgba(0,0,0,.10);padding-top:14px;">
     <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
     Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
-    <strong style="color:#191a1c;">17 de octubre · Desde las 8:30 hs</strong><br>
+    <strong style="color:#191a1c;">17 de octubre · Horario a confirmar</strong><br>
     Club Atlético Huracán, Chivilcoy
   </div>
 
