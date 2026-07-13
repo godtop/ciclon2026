@@ -391,13 +391,17 @@
 </div>
 
 <!-- ── CIUDAD MODAL ── -->
-<div class="modal-overlay" id="ciudadModal">
+<div class="modal-overlay modal-fullscreen" id="ciudadModal">
   <div class="modal modal-ciudad">
-    <div class="modal-handle"></div>
-    <h3>Elegí tu ciudad</h3>
-    <div class="ciudad-search-wrap">
-      <span class="ciudad-search-icon">🔍</span>
-      <input type="text" id="ciudadSearchInput" placeholder="Escribí para filtrar..." autocomplete="off" oninput="renderCiudades(this.value.trim())">
+    <div class="ciudad-header">
+      <div class="ciudad-header-top">
+        <h3>Elegí tu ciudad</h3>
+        <button type="button" class="ciudad-close-btn" onclick="cerrarModalCiudad()" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="ciudad-search-wrap">
+        <span class="ciudad-search-icon">🔍</span>
+        <input type="text" id="ciudadSearchInput" placeholder="Escribí para filtrar..." autocomplete="off" oninput="renderCiudades(this.value.trim())">
+      </div>
     </div>
     <div class="ciudad-loading" id="ciudadLoading">
       <div class="ciudad-spinner"></div>

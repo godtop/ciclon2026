@@ -998,15 +998,46 @@ body {
 .select-styled-arrow { opacity: .45; font-size: 13px; }
 
 /* ── Modal Ciudad ── */
-.modal-ciudad {
-  max-height: min(80vh, 100%);
+/* Modal de ciudad a pantalla completa, anclado arriba: el buscador queda
+   fijo en el borde superior y la lista scrollea debajo, para que el teclado
+   del celular no tape los resultados. */
+.modal-overlay.modal-fullscreen { align-items: flex-start; }
+.modal-fullscreen .modal.modal-ciudad {
+  max-height: 100dvh;
+  height: 100dvh;
+  border-radius: 0;
   display: flex;
   flex-direction: column;
   gap: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.ciudad-header {
+  flex-shrink: 0;
+  padding: 16px 20px 12px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.ciudad-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.ciudad-header-top h3 { margin-bottom: 0; }
+.ciudad-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--ink-soft);
+  cursor: pointer;
+  padding: 4px 8px;
+  font-family: 'DM Sans', sans-serif;
 }
 .ciudad-search-wrap {
   position: relative;
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 .ciudad-search-icon {
   position: absolute;
@@ -1050,9 +1081,10 @@ body {
 
 .ciudad-lista {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   flex: 1;
-  margin: 0 -20px;
-  padding: 0 4px;
+  margin: 0;
+  padding: 8px 16px 24px;
 }
 .ciudad-item {
   display: flex;

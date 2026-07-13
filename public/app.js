@@ -233,19 +233,20 @@ let ciudadesListo        = false;
   }
 })();
 
-// Ajusta el overlay al área visible (arriba del teclado) usando VisualViewport,
-// para que el teclado del celular no tape la lista de resultados.
+// Fija la altura del modal (fullscreen, anclado arriba) al área visible que
+// deja el teclado del celular, usando VisualViewport. Así la lista scrollea
+// justo por encima del teclado y los resultados nunca quedan tapados.
 let _vvCiudadHandler = null;
 function _syncCiudadViewport() {
   const vv = window.visualViewport;
   const overlay = document.getElementById('ciudadModal');
-  if (!vv || !overlay.classList.contains('open')) return;
-  overlay.style.top    = vv.offsetTop + 'px';
-  overlay.style.height = vv.height + 'px';
-  overlay.style.bottom = 'auto';
+  const modal = overlay.querySelector('.modal-ciudad');
+  if (!vv || !modal || !overlay.classList.contains('open')) return;
+  modal.style.height = vv.height + 'px';
 }
 function abrirModalCiudad() {
   document.getElementById('ciudadModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
   document.getElementById('ciudadSearchInput').value = '';
   if (ciudadesListo) renderCiudades('');
   if (window.visualViewport && !_vvCiudadHandler) {
@@ -259,7 +260,9 @@ function abrirModalCiudad() {
 function cerrarModalCiudad() {
   const overlay = document.getElementById('ciudadModal');
   overlay.classList.remove('open');
-  overlay.style.top = ''; overlay.style.height = ''; overlay.style.bottom = '';
+  document.body.style.overflow = '';
+  const modal = overlay.querySelector('.modal-ciudad');
+  if (modal) modal.style.height = '';
   if (window.visualViewport && _vvCiudadHandler) {
     window.visualViewport.removeEventListener('resize', _vvCiudadHandler);
     window.visualViewport.removeEventListener('scroll', _vvCiudadHandler);
