@@ -259,7 +259,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   <div style="margin-bottom:14px;">
     <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
     Retirá tu kit el día previo a la carrera.<br>
-    <strong style="color:#191a1c;">Viernes 16 de octubre · 14:00 a 19:00 hs</strong><br>
+    <strong style="color:#191a1c;">Viernes 16 de octubre · 17:00 a 19:00 hs</strong><br>
     Club Atlético Huracán, Chivilcoy
   </div>
 
