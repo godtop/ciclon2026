@@ -14,8 +14,8 @@ const CFG = window.CLUB_CONFIG || {};
 
 // Precios definidos en config.js (con fallback por si falta la config)
 const PRICES = (CFG.precios) || {
-  '4k':  { con: 23000, sin: 15000 },
-  '10k': { con: 30000, sin: 22000 },
+  '15k': { con: 45000, sin: 40000 },
+  '7k':  { con: 35000, sin: 30000 },
   'caminata': { sin: 0 }
 };
 
@@ -41,7 +41,7 @@ function applyConfig() {
     if (c.dist) b.querySelector('.km').textContent = c.dist;
     if (c.tipo) b.querySelector('.type').textContent = c.tipo;
   });
-  const cardMap = { opt4k: '4k', opt10k: '10k', optCaminata: 'caminata' };
+  const cardMap = { opt15k: '15k', opt7k: '7k', optCaminata: 'caminata' };
   Object.entries(cardMap).forEach(([id, key]) => {
     const card = document.getElementById(id);
     if (!card) return;

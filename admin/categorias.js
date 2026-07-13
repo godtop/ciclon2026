@@ -1,7 +1,7 @@
 const FECHA_CARRERA = new Date(2026, 9, 17);
 
-// Claves internas ('4k'/'10k'/'caminata') ≠ distancia real — mismos labels que public/config.js
-const CARRERA_LABEL = { '4k': '15K', '10k': '7K', 'caminata': 'Caminata' };
+// Claves internas de carrera — mismos labels que public/config.js
+const CARRERA_LABEL = { '15k': '15K', '7k': '7K', 'caminata': 'Caminata' };
 function carreraLabel(c) { return CARRERA_LABEL[c] || String(c).toUpperCase(); }
 
 const CATEGORIAS = [
@@ -336,7 +336,7 @@ function generarExcel() {
     return { ...i, edadCarrera: edad, categoria: cat };
   });
 
-  const CARRERAS = ['4k', '10k', 'caminata'];
+  const CARRERAS = ['15k', '7k', 'caminata'];
 
   const grupos = [
     { key: 'F', label: 'Femenino' },

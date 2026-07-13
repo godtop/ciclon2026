@@ -42,17 +42,17 @@ window.CLUB_CONFIG = {
   },
 
   /* ── Carreras ──
-     La CLAVE ('4k' / '10k' / 'caminata') es el identificador interno que se
-     envía al backend. NO la cambies todavía (el admin/backend la usan).
+     La CLAVE ('15k' / '7k' / 'caminata') es el identificador interno que se
+     envía al backend y se guarda en la base. Debe coincidir con src/prices.js.
      Editá libremente distancia, tipo, descripción y precios.               */
   carreras: {
-    '4k': {
+    '15k': {
       dist:   '15K',
       tipo:   'Competitiva',
       desc:   'Con cronometraje oficial',
       nombre: '15K Competitiva',   // se muestra en el resumen de pago
     },
-    '10k': {
+    '7k': {
       dist:   '7K',
       tipo:   'Participativa',
       desc:   'Con cronometraje oficial',
@@ -68,8 +68,8 @@ window.CLUB_CONFIG = {
 
   // Precios por carrera (ARS). con = con remera, sin = sin remera
   precios: {
-    '4k':       { con: 45000, sin: 40000 },  // 15K
-    '10k':      { con: 35000, sin: 30000 },  // 7K
-    'caminata': { sin: 0 },                  // 7K caminata (gratis, sin remera)
+    '15k':      { con: 45000, sin: 40000 },  // 15K Competitiva
+    '7k':       { con: 35000, sin: 30000 },  // 7K Participativa
+    'caminata': { sin: 0 },                  // 7K Caminata (gratis, sin remera)
   },
 };
