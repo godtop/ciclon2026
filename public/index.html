@@ -25,6 +25,9 @@
     <span>⏰ <strong data-cfg="evento.hora">10:00 AM</strong></span>
     <span>📍 <strong data-cfg="evento.lugar">Club Atlético Huracán</strong></span>
   </div>
+  <div class="promo-banner" id="promoBanner" style="display:none;">
+    🔥 <strong><span id="promoBannerPct">10</span>% OFF</strong> para los primeros <span id="promoBannerCupo">100</span> inscriptos
+  </div>
   <div class="date-warning" id="dateWarning" data-cfg="evento.avisoFecha" style="display:none;"></div>
 </div>
 
@@ -238,6 +241,22 @@
 <!-- ── STEP 3 ── -->
 <div id="step3" class="card" style="display:none;">
   <div class="card-title">Confirmá tu inscripción</div>
+
+  <!-- Promo "primeros 100": reserva conseguida -->
+  <div class="promo-box" id="promoBox" style="display:none;">
+    <div class="promo-box-title">🎉 ¡Felicidades! Estás entre los primeros <span id="promoBoxCupo">100</span></div>
+    <div class="promo-box-sub">
+      Te reservamos un <strong><span id="promoBoxPct">10</span>% de descuento</strong>.
+      Completá tu pago antes de que venza la reserva o perderás tu lugar.
+    </div>
+    <div class="promo-timer">⏳ Tu reserva vence en <strong id="promoTimer">20:00</strong></div>
+  </div>
+
+  <!-- Promo "primeros 100": reserva perdida / cupos agotados -->
+  <div class="promo-lost" id="promoLost" style="display:none;">
+    ⚠️ <span id="promoLostMsg">Tu reserva del descuento venció y ya no quedan cupos. El total se actualizó al precio normal.</span>
+  </div>
+
    <div class="payment-summary">
      <div class="pay-row"><span>Carrera</span><span id="sumRace">—</span></div>
      <div class="pay-row"><span>Remera</span><span id="sumShirt">—</span></div>
@@ -246,6 +265,10 @@
      <div class="pay-row" id="sumDiscountRow" style="display:none;">
        <span>Descuento aplicado</span>
        <span class="discount-amount" id="sumDiscount">—</span>
+     </div>
+     <div class="pay-row" id="sumPromoRow" style="display:none;">
+       <span>Descuento primeros <span id="sumPromoCupo">100</span> (<span id="sumPromoPct">10</span>%)</span>
+       <span class="discount-amount" id="sumPromo">—</span>
      </div>
      <div class="pay-row total"><span>Total a transferir</span><span id="sumTotal">—</span></div>
    </div>

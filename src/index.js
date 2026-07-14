@@ -13,6 +13,7 @@ if (!process.env.JWT_SECRET) {
 const inscripcionesRouter = require('./inscripciones.router');
 const codigosRouter       = require('./codigos.router');
 const authRouter          = require('./auth.router');
+const promoRouter         = require('./promo.router');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,7 @@ app.get('/health', (req, res) => res.json({ status: 'ok' }));
 app.use('/auth', authRouter);
 app.use('/inscripciones', inscripcionesRouter);
 app.use('/codigos', codigosRouter);
+app.use('/promo', promoRouter);
 
 // ── Error handler ──
 app.use((err, req, res, next) => {

@@ -1,4 +1,5 @@
 const express    = require('express');
+const crypto     = require('crypto');
 const router     = express.Router();
 const { PrismaClient } = require('@prisma/client');
 const cloudinary = require('./cloudinary');
@@ -10,6 +11,8 @@ const prisma = new PrismaClient();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const PRICES = require('./prices');
+const PROMO  = require('./promo.config');
+const { PROMO_LOCK_KEY, whereCupoOcupado } = require('./promo.router');
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -37,7 +40,7 @@ function fmtSexo(s) {
 async function enviarEmailConfirmacion(inscripcion) {
   const {
     nombre, apellido, email, carrera, remera, talle,
-    monto, dni, edad, sexo, fechaNacimiento,
+    monto, montoOriginal, dni, edad, sexo, fechaNacimiento,
     ciudad, domicilio, codpais, codarea, telefono, createdAt,
   } = inscripcion;
 
@@ -131,8 +134,9 @@ async function enviarEmailConfirmacion(inscripcion) {
                         </td>
                         <td style="text-align:right;vertical-align:top;">
                           <div style="font-size:11px;font-weight:700;letter-spacing:2px;color:#e2001a;text-transform:uppercase;margin-bottom:6px;">Monto abonado</div>
+                          ${monto < montoOriginal ? `<div style="font-size:13px;color:#9aa0a6;text-decoration:line-through;line-height:1;margin-bottom:3px;">$${montoOriginal.toLocaleString('es-AR')}</div>` : ''}
                           <div style="font-size:26px;font-weight:900;color:#e2001a;line-height:1;">$${monto.toLocaleString('es-AR')}</div>
-                          <div style="font-size:11px;color:#6a6f76;margin-top:2px;">${remeraTexto}</div>
+                          <div style="font-size:11px;color:#6a6f76;margin-top:2px;">${remeraTexto}${monto < montoOriginal ? ' · Con descuento' : ''}</div>
                         </td>
                       </tr>
                     </table>
@@ -331,32 +335,38 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
     }
 
     const montoOriginal = PRICES[carrera][remera];
-    let monto = montoOriginal;
-    let codigoDescuentoId = null;
 
     // Validar el comprobante ANTES de consumir un uso del código de descuento
     if (montoOriginal > 0 && !req.file) {
       return res.status(400).json({ error: 'El comprobante es obligatorio.' });
     }
 
-    // Si viene código de descuento, validar y aplicar
+    // Si viene código de descuento, buscarlo acá (el consumo del uso se hace
+    // recién en la transacción final, junto con la creación de la inscripción)
+    let codigoDB = null;
     if (req.body.codigoDescuento) {
-      const codigoDB = await prisma.codigoDescuento.findUnique({
+      codigoDB = await prisma.codigoDescuento.findUnique({
         where: { codigo: req.body.codigoDescuento }
       });
-      if (codigoDB && codigoDB.activo && codigoDB.usosActuales < codigoDB.usosMaximos) {
-        let descuento = 0;
-        if (codigoDB.tipo === 'porcentaje' && codigoDB.porcentaje) {
-          descuento = Math.floor(montoOriginal * codigoDB.porcentaje / 100);
-        } else if (codigoDB.tipo === 'montoFijo' && codigoDB.montoFijo) {
-          descuento = Math.min(codigoDB.montoFijo, montoOriginal);
+      if (codigoDB && !codigoDB.activo) codigoDB = null;
+    }
+
+    // ── Promo "primeros 100": pre-chequeo ANTES de subir el comprobante ──
+    // (la verdad definitiva se decide en la transacción final; esto solo
+    //  evita subir el archivo si la reserva ya venció y no quedan cupos)
+    const promoToken = req.body.promoToken;
+    const aplicaPromo = PROMO.activo && montoOriginal > 0 && !!promoToken;
+    if (aplicaPromo) {
+      const reserva = await prisma.promoReserva.findUnique({ where: { token: promoToken } });
+      const vigente = reserva && reserva.estado === 'activa' && reserva.expiresAt > new Date();
+      if (!vigente) {
+        const ocupados = await prisma.promoReserva.count({ where: whereCupoOcupado() });
+        if (ocupados >= PROMO.cupoMaximo) {
+          return res.status(409).json({
+            error: 'Tu reserva del descuento venció y ya no quedan cupos.',
+            code:  'PROMO_AGOTADA',
+          });
         }
-        monto = montoOriginal - descuento;
-        codigoDescuentoId = codigoDB.id;
-        await prisma.codigoDescuento.update({
-          where: { id: codigoDB.id },
-          data: { usosActuales: { increment: 1 } }
-        });
       }
     }
 
@@ -379,24 +389,105 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
       comprobantePublicId = uploadResult.public_id;
     }
 
-    const inscripcion = await prisma.inscripcion.create({
-      data: {
-        carrera, remera,
-        talle:          remera === 'con' ? (talle || null) : null,
-        monto,
-        montoOriginal,
-        codigoDescuentoId,
-        nombre, apellido, sexo,
-        edad:           parseInt(edad),
-        dni,
-        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
-        codpais: codpais || '54', codarea, telefono, email, ciudad, domicilio,
-        comprobanteUrl,
-        comprobantePublicId,
-        firmaBase64,
-        estado: 'pendiente',
-      },
-    });
+    // ── Transacción final: consume la reserva de la promo (si corresponde)
+    //    y crea la inscripción, todo atómico bajo el advisory lock ──
+    let inscripcion;
+    try {
+      inscripcion = await prisma.$transaction(async (tx) => {
+        let descuentoPromo = 0;
+        let reservaId = null;
+        let descuentoCodigo = 0;
+        let codigoDescuentoId = null;
+
+        // Consumo atómico del código de descuento (updateMany condicional):
+        // dos requests simultáneos no pueden llevarse el mismo último uso.
+        if (codigoDB) {
+          const consumo = await tx.codigoDescuento.updateMany({
+            where: { id: codigoDB.id, activo: true, usosActuales: { lt: codigoDB.usosMaximos } },
+            data:  { usosActuales: { increment: 1 } },
+          });
+          if (consumo.count === 1) {
+            if (codigoDB.tipo === 'porcentaje' && codigoDB.porcentaje) {
+              descuentoCodigo = Math.floor(montoOriginal * codigoDB.porcentaje / 100);
+            } else if (codigoDB.tipo === 'montoFijo' && codigoDB.montoFijo) {
+              descuentoCodigo = Math.min(codigoDB.montoFijo, montoOriginal);
+            }
+            codigoDescuentoId = codigoDB.id;
+          }
+        }
+
+        if (aplicaPromo) {
+          // ::text — pg_advisory_xact_lock devuelve void y Prisma no sabe deserializarlo
+          await tx.$queryRaw`SELECT pg_advisory_xact_lock(${PROMO_LOCK_KEY})::text`;
+
+          let reserva = await tx.promoReserva.findUnique({ where: { token: promoToken } });
+          const vigente = reserva && reserva.estado === 'activa' && reserva.expiresAt > new Date();
+
+          if (!vigente) {
+            // La reserva venció (o no existe): si todavía queda cupo, se lo
+            // damos igual — re-claim. Si no queda, se pierde el descuento.
+            const ocupados = await tx.promoReserva.count({ where: whereCupoOcupado() });
+            if (ocupados >= PROMO.cupoMaximo) {
+              const e = new Error('PROMO_AGOTADA');
+              e.code = 'PROMO_AGOTADA';
+              throw e;
+            }
+            if (!reserva || reserva.estado === 'usada') {
+              reserva = await tx.promoReserva.create({
+                data: { token: crypto.randomUUID(), estado: 'activa', expiresAt: new Date() },
+              });
+            }
+          }
+
+          descuentoPromo = Math.floor(montoOriginal * PROMO.porcentaje / 100);
+          reservaId = reserva.id;
+        }
+
+        const monto = Math.max(0, montoOriginal - descuentoCodigo - descuentoPromo);
+
+        const insc = await tx.inscripcion.create({
+          data: {
+            carrera, remera,
+            talle:          remera === 'con' ? (talle || null) : null,
+            monto,
+            montoOriginal,
+            codigoDescuentoId,
+            nombre, apellido, sexo,
+            edad:           parseInt(edad),
+            dni,
+            fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento + 'T00:00:00') : null,
+            codpais: codpais || '54', codarea, telefono, email, ciudad, domicilio,
+            comprobanteUrl,
+            comprobantePublicId,
+            firmaBase64,
+            estado: 'pendiente',
+          },
+        });
+
+        if (reservaId) {
+          await tx.promoReserva.update({
+            where: { id: reservaId },
+            data:  { estado: 'usada', inscripcionId: insc.id },
+          });
+        }
+
+        return insc;
+      }, { maxWait: 15000, timeout: 30000 });
+    } catch (err) {
+      if (err.code === 'PROMO_AGOTADA') {
+        // El comprobante ya se subió: lo borramos para no dejar huérfanos
+        if (comprobantePublicId !== 'GRATIS') {
+          cloudinary.uploader.destroy(comprobantePublicId, {
+            resource_type: req.file && req.file.mimetype === 'application/pdf' ? 'raw' : 'image',
+          }).catch(() => {});
+        }
+        return res.status(409).json({
+          error: 'Tu reserva del descuento venció y ya no quedan cupos.',
+          code:  'PROMO_AGOTADA',
+        });
+      }
+      throw err;
+    }
 
     res.status(201).json({ ok: true, id: inscripcion.id });
 
@@ -475,6 +566,14 @@ router.patch('/:id/rechazar', requireAuth, async (req, res) => {
     const actualizada = await prisma.inscripcion.update({
       where: { id }, data: { estado: 'rechazado' },
     });
+
+    // Si la inscripción usaba un cupo de la promo "primeros 100", se libera
+    // para que otro corredor pueda tomarlo.
+    await prisma.promoReserva.updateMany({
+      where: { inscripcionId: id, estado: 'usada' },
+      data:  { estado: 'liberada' },
+    });
+
     res.json({ ok: true, inscripcion: actualizada });
   } catch (err) {
     console.error(err);

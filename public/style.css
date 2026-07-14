@@ -1370,6 +1370,67 @@ body {
   color: var(--danger);
 }
 
+/* ── PROMO "PRIMEROS 100" (10% OFF) ── */
+.promo-banner {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--red);
+  background: rgba(226,0,26,.08);
+  border: 1.5px solid rgba(226,0,26,.35);
+  border-radius: 20px;
+  padding: 7px 16px;
+}
+.promo-banner strong { font-weight: 800; }
+
+.promo-box {
+  background: rgba(226,0,26,.06);
+  border: 1.5px solid rgba(226,0,26,.35);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+.promo-box-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--red);
+  margin-bottom: 6px;
+}
+.promo-box-sub {
+  font-size: 13px;
+  color: var(--ink-soft);
+  line-height: 1.55;
+}
+.promo-box-sub strong { color: var(--ink); }
+.promo-timer {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: inline-block;
+}
+.promo-timer strong {
+  color: var(--red);
+  font-variant-numeric: tabular-nums;
+}
+
+.promo-lost {
+  background: rgba(183,121,31,.10);
+  border: 1px solid rgba(183,121,31,.30);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--amber);
+  line-height: 1.5;
+}
+
 /* ── RESPONSIVE — MOBILE CHICO ──
    Etiquetas de distancia más largas (15K / COMPETITIVA) achican los badges
    para que las tres entren en una fila sin cortarse. */

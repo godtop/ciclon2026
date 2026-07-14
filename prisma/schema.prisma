@@ -21,6 +21,21 @@ model CodigoDescuento {
   inscripciones Inscripcion[]
 }
 
+// Reserva de cupo para la promo "primeros 100" (10% OFF automático).
+// Una reserva cuenta como cupo ocupado si está 'usada', o si está 'activa'
+// y todavía no venció (expiresAt > now). Las vencidas/liberadas no cuentan,
+// así el cupo se libera solo sin procesos de limpieza.
+model PromoReserva {
+  id            Int          @id @default(autoincrement())
+  token         String       @unique
+  estado        String       @default("activa") // activa | usada | liberada
+  expiresAt     DateTime
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  inscripcionId Int?         @unique
+  inscripcion   Inscripcion? @relation(fields: [inscripcionId], references: [id])
+}
+
 model Inscripcion {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
@@ -62,4 +77,7 @@ model Inscripcion {
 
   // Estado
   estado String @default("pendiente")
+
+  // Reserva de la promo "primeros 100" (si la inscripción usó el descuento)
+  promoReserva PromoReserva?
 }

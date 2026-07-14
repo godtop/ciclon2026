@@ -8,6 +8,11 @@ let voucherFile     = null;
 let descuentoInfo   = null;
 let caminataAccepted = false;
 
+// Promo "primeros 100" (10% OFF automático)
+let promoEstado  = null;   // { activo, porcentaje, cupoMaximo, restantes } — GET /promo/estado
+let promoReserva = null;   // { token, expiresAt, porcentaje } — reserva vigente del paso de pago
+let promoTimerId = null;   // interval del contador regresivo
+
 const API_URL = window.location.origin;
 
 const CFG = window.CLUB_CONFIG || {};
@@ -209,6 +214,127 @@ async function validarCodigo() {
 }
 
 /* ════════════════════════════════════
+   PROMO "PRIMEROS 100" (10% OFF)
+═════════════════════════════════════ */
+const PROMO_TOKEN_KEY = 'promoToken';
+
+// Al cargar la página: solo un aviso informativo (la verdad se decide al reservar)
+(async function cargarPromoEstado() {
+  try {
+    const res = await fetch(API_URL + '/promo/estado');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.activo && data.restantes > 0) {
+      promoEstado = data;
+      document.getElementById('promoBannerPct').textContent  = data.porcentaje;
+      document.getElementById('promoBannerCupo').textContent = data.cupoMaximo;
+      document.getElementById('promoBanner').style.display = 'inline-block';
+    }
+  } catch { /* si falla, no se muestra la promo y el flujo normal sigue */ }
+})();
+
+function promoDescuento(montoBase) {
+  return promoReserva ? Math.floor(montoBase * promoReserva.porcentaje / 100) : 0;
+}
+
+// Reserva un cupo al entrar al paso de pago. Si ya teníamos una reserva
+// vigente (token en localStorage), el backend la reutiliza sin gastar otro cupo.
+async function reservarPromo() {
+  const montoBase = PRICES[selectedRace] && PRICES[selectedRace][selectedShirt];
+  if (!promoEstado || !montoBase) return;   // promo inactiva o carrera gratis
+  try {
+    const tokenPrevio = localStorage.getItem(PROMO_TOKEN_KEY) || undefined;
+    const res = await fetch(API_URL + '/promo/reservar', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: tokenPrevio }),
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.disponible) { promoReserva = null; return; }
+    promoReserva = data;
+    localStorage.setItem(PROMO_TOKEN_KEY, data.token);
+    document.getElementById('promoBoxPct').textContent  = data.porcentaje;
+    document.getElementById('promoBoxCupo').textContent = promoEstado.cupoMaximo;
+    document.getElementById('promoBox').style.display  = 'block';
+    document.getElementById('promoLost').style.display = 'none';
+    iniciarPromoTimer();
+  } catch { promoReserva = null; }
+}
+
+function iniciarPromoTimer() {
+  detenerPromoTimer();
+  const tick = async () => {
+    if (!promoReserva) { detenerPromoTimer(); return; }
+    const resta = new Date(promoReserva.expiresAt).getTime() - Date.now();
+    if (resta <= 0) {
+      detenerPromoTimer();
+      // Venció la reserva: intentamos reservar de nuevo. Si queda cupo,
+      // el descuento sigue; si no, se pierde y el total vuelve al normal.
+      promoReserva = null;
+      await reservarPromo();
+      if (promoReserva) actualizarResumenPago();
+      else perderPromo('Tu reserva del descuento venció y ya no quedan cupos. El total se actualizó al precio normal.');
+      return;
+    }
+    const m = Math.floor(resta / 60000);
+    const s = Math.floor((resta % 60000) / 1000);
+    document.getElementById('promoTimer').textContent = m + ':' + String(s).padStart(2, '0');
+  };
+  tick();
+  promoTimerId = setInterval(tick, 1000);
+}
+
+function detenerPromoTimer() {
+  if (promoTimerId) { clearInterval(promoTimerId); promoTimerId = null; }
+}
+
+function perderPromo(msg) {
+  promoReserva = null;
+  detenerPromoTimer();
+  document.getElementById('promoBox').style.display = 'none';
+  document.getElementById('promoLostMsg').textContent = msg;
+  document.getElementById('promoLost').style.display = 'block';
+  actualizarResumenPago();
+}
+
+function ocultarPromoUI() {
+  detenerPromoTimer();
+  document.getElementById('promoBox').style.display  = 'none';
+  document.getElementById('promoLost').style.display = 'none';
+}
+
+// Recalcula el total del resumen y del bloque de transferencia
+// (precio base − código de descuento − promo primeros 100)
+function actualizarResumenPago() {
+  const base       = PRICES[selectedRace][selectedShirt];
+  const descCodigo = descuentoInfo ? descuentoInfo.descuento : 0;
+  const descPromo  = base > 0 ? promoDescuento(base) : 0;
+  const price      = Math.max(0, base - descCodigo - descPromo);
+  const priceStr   = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
+
+  const discountRow = document.getElementById('sumDiscountRow');
+  if (descuentoInfo) {
+    document.getElementById('sumDiscount').textContent = '-$' + descuentoInfo.descuento.toLocaleString('es-AR') + ' (' + (descuentoInfo.tipo === 'porcentaje' ? descuentoInfo.valor + '%' : '$' + descuentoInfo.valor.toLocaleString('es-AR')) + ')';
+    discountRow.style.display = 'flex';
+  } else { discountRow.style.display = 'none'; }
+
+  const promoRow = document.getElementById('sumPromoRow');
+  if (descPromo > 0) {
+    document.getElementById('sumPromo').textContent    = '-$' + descPromo.toLocaleString('es-AR');
+    document.getElementById('sumPromoPct').textContent  = promoReserva.porcentaje;
+    document.getElementById('sumPromoCupo').textContent = (promoEstado && promoEstado.cupoMaximo) || 100;
+    promoRow.style.display = 'flex';
+  } else { promoRow.style.display = 'none'; }
+
+  document.getElementById('sumTotal').textContent      = priceStr;
+  document.getElementById('transferTotal').textContent = priceStr;
+  const esGratis = price === 0;
+  document.querySelector('.transfer-info').style.display   = esGratis ? 'none' : 'block';
+  document.querySelector('.voucher-section').style.display = esGratis ? 'none' : 'block';
+  return price;
+}
+
+/* ════════════════════════════════════
    CIUDAD
 ═════════════════════════════════════ */
 let ciudadSeleccionada   = '';
@@ -367,26 +493,19 @@ function goStep3() {
   if (!nombreOk || !apellidoOk || !sexoOk || !dniOk || !ageOk || !fechaNacOk ||
       !codarOk || !telOk || !emailOk || !email2Ok || !ciudadOk || !domicOk || !talleOk) return;
   const raceName  = (CFG.carreras && CFG.carreras[selectedRace] && CFG.carreras[selectedRace].nombre) || selectedRace;
-  let price    = PRICES[selectedRace][selectedShirt];
-  let priceStr = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
-  const discountRow = document.getElementById('sumDiscountRow');
-  if (descuentoInfo) {
-    price = descuentoInfo.montoFinal;
-    priceStr = price === 0 ? 'Gratis' : '$' + price.toLocaleString('es-AR') + ' ARS';
-    document.getElementById('sumDiscount').textContent = '-$' + descuentoInfo.descuento.toLocaleString('es-AR') + ' (' + (descuentoInfo.tipo === 'porcentaje' ? descuentoInfo.valor + '%' : '$' + descuentoInfo.valor.toLocaleString('es-AR')) + ')';
-    discountRow.style.display = 'flex';
-  } else { discountRow.style.display = 'none'; }
-  document.getElementById('sumRace').textContent       = raceName;
-  document.getElementById('sumShirt').textContent      = selectedShirt === 'con' ? 'Con remera' : 'Sin remera';
-  document.getElementById('sumName').textContent       = nombre + ' ' + apellido;
-  document.getElementById('sumDni').textContent        = formatDni(dni);
-  document.getElementById('sumTotal').textContent      = priceStr;
-  document.getElementById('transferTotal').textContent = priceStr;
-  // Ocultar sección de pago si es Gratis
-  const esGratis = price === 0;
-  document.querySelector('.transfer-info').style.display = esGratis ? 'none' : 'block';
-  document.querySelector('.voucher-section').style.display = esGratis ? 'none' : 'block';
-  showStep(3);
+  document.getElementById('sumRace').textContent  = raceName;
+  document.getElementById('sumShirt').textContent = selectedShirt === 'con' ? 'Con remera' : 'Sin remera';
+  document.getElementById('sumName').textContent  = nombre + ' ' + apellido;
+  document.getElementById('sumDni').textContent   = formatDni(dni);
+
+  // Promo "primeros 100": intenta reservar el cupo al entrar al paso de pago.
+  // El total se muestra recién cuando se sabe si hay descuento o no, para que
+  // el corredor nunca transfiera un monto distinto al que ve.
+  ocultarPromoUI();
+  reservarPromo().finally(() => {
+    actualizarResumenPago();
+    showStep(3);
+  });
 }
 function goBack(toStep) { showStep(toStep); }
 
@@ -427,7 +546,8 @@ async function processPayment() {
     setTimeout(() => tr.style.borderColor = '', 1500);
     tr.scrollIntoView({ behavior: 'smooth', block: 'center' }); return;
   }
-  const montoTotal = descuentoInfo ? descuentoInfo.montoFinal : PRICES[selectedRace][selectedShirt];
+  const montoBase  = PRICES[selectedRace][selectedShirt];
+  const montoTotal = Math.max(0, montoBase - (descuentoInfo ? descuentoInfo.descuento : 0) - (montoBase > 0 ? promoDescuento(montoBase) : 0));
   const esGratis = montoTotal === 0;
   if (!esGratis && !voucherFile) {
     document.getElementById('voucherError').style.display = 'block';
@@ -459,10 +579,25 @@ async function processPayment() {
   if (descuentoInfo && descuentoInfo.codigoId) {
     formData.append('codigoDescuento', document.getElementById('discountCode').value.trim());
   }
+  if (promoReserva && montoBase > 0) {
+    formData.append('promoToken', promoReserva.token);
+  }
   try {
     const res  = await fetch(API_URL + '/inscripciones', { method: 'POST', body: formData });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Error al enviar la inscripción.');
+    if (!res.ok) {
+      // La reserva de la promo venció y no quedan cupos: se saca el descuento,
+      // se actualiza el total y el corredor decide si envía al precio normal.
+      if (data.code === 'PROMO_AGOTADA') {
+        btn.textContent = 'Enviar inscripción ✓'; btn.classList.remove('loading'); btn.disabled = false;
+        perderPromo('Tu reserva del descuento venció y ya no quedan cupos. El total a transferir se actualizó al precio normal — revisalo antes de reenviar.');
+        document.getElementById('promoLost').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      throw new Error(data.error || 'Error al enviar la inscripción.');
+    }
+    detenerPromoTimer();
+    localStorage.removeItem(PROMO_TOKEN_KEY);
     showSuccess();
   } catch (err) {
     btn.textContent = 'Enviar inscripción ✓'; btn.classList.remove('loading'); btn.disabled = false;
