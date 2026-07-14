@@ -506,6 +506,8 @@ router.get('/', requireAuth, async (req, res) => {
     const where = estado ? { estado } : {};
     const inscripciones = await prisma.inscripcion.findMany({
       where, orderBy: { createdAt: 'desc' },
+      // promoReserva presente ⇒ usó el descuento "primeros 100"
+      include: { promoReserva: { select: { id: true, estado: true } } },
     });
     res.json(inscripciones);
   } catch (err) {

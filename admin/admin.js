@@ -103,6 +103,18 @@ function fmtFechaCorta(dt) { return new Date(dt).toLocaleString('es-AR', { day: 
 function fmtFechaSimple(dt) { return new Date(dt).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
 function fmtSexo(s) { return { M: 'Masc.', F: 'Fem.', X: 'No bin.', NI: 'N/D' }[s] || s; }
 
+// Info del descuento de una inscripción. Detecta el descuento por monto
+// (no solo por código), y arma un badge con el origen: promo "primeros 100",
+// código, o ambos. Devuelve null si no hubo descuento.
+function descuentoInfo(i) {
+  if (!i.montoOriginal || i.montoOriginal <= i.monto) return null;
+  const desc = i.montoOriginal - i.monto;
+  const chips = [];
+  if (i.promoReserva) chips.push('<span style="display:inline-block;background:rgba(226,0,26,.10);color:#e2001a;border:1px solid rgba(226,0,26,.30);border-radius:20px;padding:1px 8px;font-size:.7rem;font-weight:600;">🔥 Primeros 100</span>');
+  if (i.codigoDescuentoId) chips.push('<span style="display:inline-block;background:rgba(183,121,31,.10);color:#b7791f;border:1px solid rgba(183,121,31,.30);border-radius:20px;padding:1px 8px;font-size:.7rem;font-weight:600;">Código</span>');
+  return { desc, badge: chips.join(' ') };
+}
+
 function edadEnCarrera(fechaNac) {
   if (!fechaNac) return '—';
   const nac  = new Date(fechaNac);
@@ -131,10 +143,11 @@ function cardHTML(i) {
     ? '<div class="voucher-pdf-placeholder"><span>📄</span><span>comprobante.pdf</span></div>'
     : '<img src="' + i.comprobanteUrl + '" loading="lazy" alt="Comprobante">';
 
+  const dto = descuentoInfo(i);
   let montoHTML = i.monto === 0 ? '<span style="color:#b7791f;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR');
-  if (i.codigoDescuentoId && i.montoOriginal) {
-    const desc = i.montoOriginal - i.monto;
-    montoHTML = '<span style="text-decoration:line-through; opacity:.6; font-size:.85em;">$' + i.montoOriginal.toLocaleString('es-AR') + '</span> → $' + i.monto.toLocaleString('es-AR') + ' <span style="color:#d9822b; font-size:.75em;">(-$' + desc.toLocaleString('es-AR') + ')</span>';
+  if (dto) {
+    montoHTML = '<span style="text-decoration:line-through; opacity:.6; font-size:.85em;">$' + i.montoOriginal.toLocaleString('es-AR') + '</span> → $' + i.monto.toLocaleString('es-AR') + ' <span style="color:#d9822b; font-size:.75em;">(-$' + dto.desc.toLocaleString('es-AR') + ')</span>' +
+      '<div style="margin-top:2px;">' + dto.badge + '</div>';
   }
 
   return '<div class="icard" id="icard-' + i.id + '">' +
@@ -197,9 +210,9 @@ function renderTable(items) {
       : '<img class="tbl-thumb" src="' + i.comprobanteUrl + '" loading="lazy" onclick="openModal(\'' + i.comprobanteUrl + '\',\'' + i.nombre + ' ' + i.apellido + '\')" title="Ver">';
 
     let descuentoHTML = '—';
-    if (i.codigoDescuentoId && i.montoOriginal) {
-      const desc = i.montoOriginal - i.monto;
-      descuentoHTML = '<span style="color:#d9822b; font-size:.85em;" title="Original: $' + i.montoOriginal.toLocaleString('es-AR') + '">-$' + desc.toLocaleString('es-AR') + '</span>';
+    const dtoTbl = descuentoInfo(i);
+    if (dtoTbl) {
+      descuentoHTML = '<span style="color:#d9822b; font-size:.85em;" title="Original: $' + i.montoOriginal.toLocaleString('es-AR') + '">-$' + dtoTbl.desc.toLocaleString('es-AR') + '</span> ' + dtoTbl.badge;
     }
 
     return '<tr>' +
