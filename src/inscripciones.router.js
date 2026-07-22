@@ -48,7 +48,7 @@ async function enviarEmailConfirmacion(inscripcion) {
   const remeraTexto    = remera === 'con' ? `Con remera · Talle ${talle}` : 'Sin remera';
   const fechaNacTexto  = fechaNacimiento ? fmtFecha(fechaNacimiento) : '—';
   // Claves internas de carrera — mismos labels que public/config.js
-  const DIST  = { '15k': '15K', '7k': '7K', 'caminata': '7K' };
+  const DIST  = { '15k': '15K', '7k': '7K', 'caminata': '5K' };
   const TIPO  = { '15k': 'Competitiva', '7k': 'Participativa', 'caminata': 'Caminata' };
   const dist  = DIST[carrera] || carrera.toUpperCase();
   const tipo  = TIPO[carrera] || '';

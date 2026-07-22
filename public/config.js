@@ -61,10 +61,10 @@ window.CLUB_CONFIG = {
       nombre: '7K Participativa',
     },
     'caminata': {
-      dist:   '7K',
+      dist:   '5K',
       tipo:   'Caminata',
       desc:   'Sin cronometraje · Solidaria',
-      nombre: '7K Caminata',
+      nombre: '5K Caminata',
     },
   },
 
@@ -72,6 +72,6 @@ window.CLUB_CONFIG = {
   precios: {
     '15k':      { con: 45000, sin: 40000 },  // 15K Competitiva
     '7k':       { con: 35000, sin: 30000 },  // 7K Participativa
-    'caminata': { sin: 0 },                  // 7K Caminata (gratis, sin remera)
+    'caminata': { sin: 0 },                  // 5K Caminata (gratis, sin remera)
   },
 };
