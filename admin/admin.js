@@ -6,7 +6,7 @@ let token         = null;
 const FECHA_CARRERA = new Date(2026, 9, 17);
 
 // Claves internas de carrera — mismos labels que public/config.js
-const CARRERA_LABEL = { '15k': '15K', '7k': '7K', 'caminata': 'CAMINATA' };
+const CARRERA_LABEL = { '15k': '15K', '7k': '5K', 'caminata': 'CAMINATA' };
 function carreraLabel(c) { return CARRERA_LABEL[c] || String(c).toUpperCase(); }
 
 window.addEventListener('load', () => {

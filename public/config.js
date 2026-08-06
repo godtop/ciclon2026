@@ -55,10 +55,10 @@ window.CLUB_CONFIG = {
       nombre: '15K Competitiva',   // se muestra en el resumen de pago
     },
     '7k': {
-      dist:   '7K',
+      dist:   '5K',
       tipo:   'Participativa',
       desc:   'Con cronometraje oficial',
-      nombre: '7K Participativa',
+      nombre: '5K Participativa',
     },
     'caminata': {
       dist:   '5K',
@@ -71,7 +71,7 @@ window.CLUB_CONFIG = {
   // Precios por carrera (ARS). con = con remera, sin = sin remera
   precios: {
     '15k':      { con: 45000, sin: 40000 },  // 15K Competitiva
-    '7k':       { con: 35000, sin: 30000 },  // 7K Participativa
+    '7k':       { con: 35000, sin: 30000 },  // 5K Participativa
     'caminata': { sin: 0 },                  // 5K Caminata (gratis, sin remera)
   },
 };
