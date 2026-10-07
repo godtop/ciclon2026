@@ -241,22 +241,11 @@ function preseleccionarCorte() {
 function aplicarStockTalles() {
   const corte  = document.getElementById('corte').value;
   const select = document.getElementById('talle');
-  const hay = (c, t) => { const s = stockTalles.find(x => x.corte === c && x.talle === t); return !s || s.disponible; };
   select.querySelectorAll('option[value]:not([value=""])').forEach(opt => {
-    const t = opt.value;
-    let agotado = false, nota = '';
-    if (corte) {
-      // Corte elegido: solo importa el stock de ese corte
-      agotado = !hay(corte, t);
-    } else {
-      // Sin corte todavía: avisamos en qué corte queda
-      const mujer = hay('mujer', t), hombre = hay('hombre', t);
-      agotado = !mujer && !hombre;
-      if (mujer && !hombre) nota = ' (solo Mujer)';
-      if (hombre && !mujer) nota = ' (solo Hombre)';
-    }
+    const s = stockTalles.find(x => x.corte === corte && x.talle === opt.value);
+    const agotado = !!corte && !!s && !s.disponible;
     opt.disabled    = agotado;
-    opt.textContent = t + (agotado ? ' (sin stock)' : nota);
+    opt.textContent = agotado ? opt.value + ' (sin stock)' : opt.value;
   });
   if (select.value && select.selectedOptions[0].disabled) {
     // El talle elegido no tiene stock en este corte: se limpia y se avisa
