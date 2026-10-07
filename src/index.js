@@ -14,6 +14,7 @@ const inscripcionesRouter = require('./inscripciones.router');
 const codigosRouter       = require('./codigos.router');
 const authRouter          = require('./auth.router');
 const promoRouter         = require('./promo.router');
+const remerasRouter       = require('./remeras.router');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -38,6 +39,7 @@ app.use('/auth', authRouter);
 app.use('/inscripciones', inscripcionesRouter);
 app.use('/codigos', codigosRouter);
 app.use('/promo', promoRouter);
+app.use('/remeras', remerasRouter);
 
 // ── Error handler ──
 app.use((err, req, res, next) => {

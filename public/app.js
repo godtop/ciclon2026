@@ -214,6 +214,51 @@ async function validarCodigo() {
 }
 
 /* ════════════════════════════════════
+   STOCK DE REMERAS POR TALLE
+═════════════════════════════════════ */
+// Stock por corte y talle: [{ corte, talle, disponible }] — GET /remeras/stock.
+// Si falla, el backend igual valida el stock al enviar.
+let stockTalles = [];
+async function cargarStockTalles() {
+  try {
+    const res = await fetch(API_URL + '/remeras/stock');
+    if (!res.ok) return;
+    stockTalles = await res.json();
+    aplicarStockTalles();
+  } catch { /* sin conexión: el backend valida al enviar */ }
+}
+// Preselecciona el corte según el sexo (Masculino → Hombre, Femenino → Mujer).
+// Si el corredor ya eligió el corte a mano, no se lo pisamos.
+let corteTocado = false;
+function preseleccionarCorte() {
+  if (corteTocado) return;
+  const corte = { M: 'hombre', F: 'mujer' }[document.getElementById('sexo').value];
+  if (!corte) return;
+  document.getElementById('corte').value = corte;
+  aplicarStockTalles();
+}
+// Deshabilita en el <select> de talle los que no tienen stock para el corte elegido
+function aplicarStockTalles() {
+  const corte  = document.getElementById('corte').value;
+  const select = document.getElementById('talle');
+  select.querySelectorAll('option[value]:not([value=""])').forEach(opt => {
+    const s = stockTalles.find(x => x.corte === corte && x.talle === opt.value);
+    const agotado = !!corte && !!s && !s.disponible;
+    opt.disabled    = agotado;
+    opt.textContent = agotado ? opt.value + ' (sin stock)' : opt.value;
+  });
+  if (select.value && select.selectedOptions[0].disabled) {
+    // El talle elegido no tiene stock en este corte: se limpia y se avisa
+    const talle = select.value;
+    select.value = '';
+    document.getElementById('talleErrorMsg').textContent =
+      'No queda talle ' + talle + ' en corte ' + (corte === 'hombre' ? 'Hombre' : 'Mujer') + '. Elegí otro talle.';
+    setFieldError('f-talle', true);
+  }
+}
+cargarStockTalles();
+
+/* ════════════════════════════════════
    PROMO "PRIMEROS 100" (10% OFF)
 ═════════════════════════════════════ */
 const PROMO_TOKEN_KEY = 'promoToken';
@@ -448,6 +493,7 @@ function goStep2() {
   }
   if (!ok) return;
   document.getElementById('talleWrap').style.display = selectedShirt === 'con' ? 'block' : 'none';
+  if (selectedShirt === 'con') cargarStockTalles();
   showStep(2);
 }
 
@@ -464,6 +510,7 @@ function goStep3() {
   const email2          = document.getElementById('email2').value.trim();
   const domicilio       = document.getElementById('domicilio').value.trim();
   const talle           = selectedShirt === 'con' ? document.getElementById('talle').value : 'N/A';
+  const corte           = selectedShirt === 'con' ? document.getElementById('corte').value : '';
   const nombreOk    = nombre.length >= 2;
   const apellidoOk  = apellido.length >= 2;
   const sexoOk      = !!sexo;
@@ -477,6 +524,7 @@ function goStep3() {
   const ciudadOk    = !!ciudadSeleccionada;
   const domicOk     = domicilio.length >= 4;
   const talleOk     = selectedShirt === 'sin' || !!talle;
+  const corteOk     = selectedShirt === 'sin' || !!corte;
   setFieldError('f-nombre',          !nombreOk);
   setFieldError('f-apellido',        !apellidoOk);
   setFieldError('f-sexo',            !sexoOk);
@@ -489,12 +537,18 @@ function goStep3() {
   setFieldError('f-email2',          !email2Ok);
   setFieldError('f-ciudad',          !ciudadOk);
   setFieldError('f-domicilio',       !domicOk);
-  if (selectedShirt === 'con') setFieldError('f-talle', !talleOk);
+  if (selectedShirt === 'con') {
+    document.getElementById('talleErrorMsg').textContent = 'Elegí un talle.';
+    setFieldError('f-talle', !talleOk);
+    setFieldError('f-corte', !corteOk);
+  }
   if (!nombreOk || !apellidoOk || !sexoOk || !dniOk || !ageOk || !fechaNacOk ||
-      !codarOk || !telOk || !emailOk || !email2Ok || !ciudadOk || !domicOk || !talleOk) return;
+      !codarOk || !telOk || !emailOk || !email2Ok || !ciudadOk || !domicOk || !talleOk || !corteOk) return;
   const raceName  = (CFG.carreras && CFG.carreras[selectedRace] && CFG.carreras[selectedRace].nombre) || selectedRace;
   document.getElementById('sumRace').textContent  = raceName;
-  document.getElementById('sumShirt').textContent = selectedShirt === 'con' ? 'Con remera' : 'Sin remera';
+  document.getElementById('sumShirt').textContent = selectedShirt === 'con'
+    ? 'Con remera · ' + (corte === 'hombre' ? 'Hombre' : 'Mujer') + ' ' + talle
+    : 'Sin remera';
   document.getElementById('sumName').textContent  = nombre + ' ' + apellido;
   document.getElementById('sumDni').textContent   = formatDni(dni);
 
@@ -574,7 +628,10 @@ async function processPayment() {
   formData.append('ciudad',          ciudadSeleccionada);
   formData.append('provincia',       ciudadProvSeleccionada);
   formData.append('domicilio',       document.getElementById('domicilio').value.trim());
-  if (selectedShirt === 'con') formData.append('talle', document.getElementById('talle').value);
+  if (selectedShirt === 'con') {
+    formData.append('talle', document.getElementById('talle').value);
+    formData.append('corte', document.getElementById('corte').value);
+  }
   formData.append('firmaBase64', firmaDataUrl);
   if (descuentoInfo && descuentoInfo.codigoId) {
     formData.append('codigoDescuento', document.getElementById('discountCode').value.trim());
@@ -592,6 +649,17 @@ async function processPayment() {
         btn.textContent = 'Enviar inscripción ✓'; btn.classList.remove('loading'); btn.disabled = false;
         perderPromo('Tu reserva del descuento venció y ya no quedan cupos. El total a transferir se actualizó al precio normal — revisalo antes de reenviar.');
         document.getElementById('promoLost').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      // Se agotó el talle mientras completaba el formulario: vuelve al paso 2
+      // con el talle marcado para que elija otro.
+      if (data.code === 'TALLE_AGOTADO') {
+        btn.textContent = 'Enviar inscripción ✓'; btn.classList.remove('loading'); btn.disabled = false;
+        await cargarStockTalles();
+        document.getElementById('talle').value = '';
+        showStep(2);
+        document.getElementById('talleErrorMsg').textContent = 'Se agotó ese talle para ese corte. Elegí otro, por favor.';
+        setFieldError('f-talle', true);
         return;
       }
       throw new Error(data.error || 'Error al enviar la inscripción.');

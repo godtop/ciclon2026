@@ -45,6 +45,7 @@ model Inscripcion {
   carrera String
   remera  String
   talle   String?
+  corte   String? // mujer | hombre (corte de la remera, lo elige el corredor)
   monto   Int
 
   // Descuento
@@ -80,4 +81,16 @@ model Inscripcion {
 
   // Reserva de la promo "primeros 100" (si la inscripción usó el descuento)
   promoReserva PromoReserva?
+}
+
+// Stock de remeras por corte (mujer/hombre) y talle. `stock` es lo comprado
+// al proveedor; las pedidas se cuentan en vivo desde Inscripcion (con remera,
+// no rechazadas), así el stock baja solo al inscribirse y se libera al rechazar.
+model StockRemera {
+  corte     String   // mujer | hombre
+  talle     String
+  stock     Int      @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@id([corte, talle])
 }

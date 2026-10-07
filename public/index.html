@@ -141,7 +141,7 @@
   <div class="row-2">
     <div class="field" id="f-sexo">
       <label>Sexo</label>
-      <select id="sexo">
+      <select id="sexo" onchange="preseleccionarCorte()">
         <option value="" disabled selected>—</option>
         <option value="M">Masculino</option>
         <option value="F">Femenino</option>
@@ -225,13 +225,22 @@
   <div id="talleWrap" style="display:none;">
     <div class="field" id="f-talle">
       <label>Talle Remera</label>
-      <select id="talle">
+      <select id="talle" onchange="setFieldError('f-talle', false)">
         <option value="" disabled selected>—</option>
         <option value="XS">XS</option><option value="S">S</option>
         <option value="M">M</option><option value="L">L</option>
         <option value="XL">XL</option><option value="XXL">XXL</option>
       </select>
-      <div class="error-msg">Elegí un talle.</div>
+      <div class="error-msg" id="talleErrorMsg">Elegí un talle.</div>
+    </div>
+    <div class="field" id="f-corte">
+      <label>Corte de la remera</label>
+      <select id="corte" onchange="corteTocado = true; setFieldError('f-corte', false); aplicarStockTalles()">
+        <option value="" disabled selected>—</option>
+        <option value="mujer">Mujer</option>
+        <option value="hombre">Hombre</option>
+      </select>
+      <div class="error-msg">Elegí el corte de la remera.</div>
     </div>
   </div>
   <button class="btn" onclick="goStep3()">Continuar al pago →</button>
