@@ -2,7 +2,7 @@
 // ⚠️ Editá acá para activar/desactivar, cambiar el cupo o el porcentaje.
 //    No aplica a la caminata (es gratis, no consume cupo).
 const PROMO = {
-  activo:      true,
+  activo:      false,
   porcentaje:  10,   // % de descuento sobre el precio original
   cupoMaximo:  100,  // cantidad de inscripciones con descuento
   ttlMinutos:  20,   // minutos que dura la reserva del cupo al llegar al paso de pago
