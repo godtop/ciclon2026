@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remeras – Admin Huracán</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="admin.css">
+  <style>
+    .rem-container { max-width: 900px; margin: 0 auto; padding: 20px; }
+    .rem-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .rem-header h2 { font-family: 'Bebas Neue', sans-serif; font-size: 26px; letter-spacing: 1.5px; color: var(--red); margin: 0; font-weight: 400; }
+    .back-link { color: var(--red); text-decoration: none; font-size: 14px; font-weight: 600; }
+    .back-link:hover { text-decoration: underline; }
+
+    /* Cada sección define su color principal (--c) y su fondo suave (--c-soft);
+       el rojo del club queda como secundario. */
+    .seccion { margin-bottom: 32px; }
+    .seccion.mujer  { --c: #db2777; --c-soft: rgba(219,39,119,.08); }
+    .seccion.hombre { --c: #0284c7; --c-soft: rgba(2,132,199,.08); }
+    .sec-head {
+      display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+      background: var(--c-soft); border-left: 5px solid var(--c); border-bottom: 2px solid var(--red);
+      border-radius: 12px 12px 0 0; padding: 12px 16px; margin-bottom: 14px;
+    }
+    .sec-title { font-family: 'Bebas Neue', sans-serif; font-size: 30px; letter-spacing: 1.5px; color: var(--c); line-height: 1; }
+    .sec-tot { font-size: 13px; color: var(--ink-soft); }
+    .sec-tot strong { color: var(--ink); font-size: 15px; }
+
+    .rem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; }
+    .talle-card {
+      background: var(--surface); border: 1px solid var(--border); border-top: 4px solid var(--c);
+      border-radius: 14px; padding: 14px 16px; box-shadow: 0 6px 24px rgba(20,20,30,.05);
+    }
+    .talle-name { font-family: 'Bebas Neue', sans-serif; font-size: 30px; line-height: 1; color: var(--c); letter-spacing: 1px; margin-bottom: 10px; }
+    .talle-nums { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .num-box { background: var(--c-soft); border-radius: 10px; padding: 10px 12px; }
+    .num { font-family: 'Bebas Neue', sans-serif; font-size: 34px; line-height: 1; color: var(--ink); }
+    .num-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); font-weight: 600; margin-top: 2px; }
+    .disp { border-radius: 10px; padding: 8px 12px; font-size: 14px; font-weight: 600; margin-bottom: 12px; }
+    .disp.ok    { background: rgba(30,138,60,.10);  color: var(--green); }
+    .disp.cero  { background: rgba(180,83,9,.10);   color: #b45309; }
+    .disp.falta { background: rgba(217,45,32,.10);  color: var(--danger); }
+    .disp strong { font-size: 18px; }
+    .ajuste-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .5px; color: var(--ink-soft); font-weight: 600; margin-bottom: 6px; }
+    .ajuste { display: flex; align-items: center; gap: 6px; }
+    .ajuste input {
+      width: 60px; background: var(--input-bg); border: 1.5px solid var(--border-strong); border-radius: 8px;
+      padding: 7px 8px; font-size: 14px; color: var(--ink); font-family: 'DM Sans', sans-serif; text-align: center;
+    }
+    .ajuste button {
+      flex: 1; padding: 8px 10px; font-size: 13px; border-radius: 8px; border: none; cursor: pointer;
+      font-family: 'DM Sans', sans-serif; font-weight: 700;
+    }
+    .btn-mas   { background: rgba(30,138,60,.12); color: var(--green); }
+    .btn-menos { background: rgba(217,45,32,.10); color: var(--danger); }
+    .ajuste button:hover { opacity: .8; }
+    .ajuste button:disabled { opacity: .4; cursor: default; }
+    .rem-nota { font-size: 12px; color: var(--ink-soft); margin-top: 4px; line-height: 1.7; }
+    .inline-error { color: var(--danger); font-size: 13px; margin: 0 0 14px; display: none; }
+    @media (max-width: 600px) {
+      .rem-container { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="rem-container">
+    <div class="rem-header">
+      <h2>👕 Remeras</h2>
+      <a href="index.html" class="back-link">← Volver al panel</a>
+    </div>
+
+    <div class="inline-error" id="remError"></div>
+    <div id="secciones"><div style="color:var(--ink-soft); padding:20px;">Cargando...</div></div>
+
+    <p class="rem-nota">
+      <strong>Pedidas</strong>: remeras que pidieron los corredores por la web (pendientes + confirmadas; las rechazadas no cuentan).<br>
+      <strong>Stock</strong>: remeras que compraste al proveedor. Se cambia con − / +.<br>
+      <strong>Disponibles</strong>: stock − pedidas. Si es negativo, te faltan remeras y hay que pedir más.
+      Con 0 o menos, ese talle aparece “sin stock” en el formulario.
+    </p>
+  </div>
+
+  <script>
+    const API_URL = window.location.origin;
+    const token = localStorage.getItem('ciclon_admin_token');
+    if (!token) { window.location.href = 'index.html'; }
+
+    const CORTES = [{ key: 'mujer', label: 'Mujer' }, { key: 'hombre', label: 'Hombre' }];
+
+    function apiFetch(url, opts = {}) {
+      return fetch(url, { ...opts, headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...(opts.headers || {}) } });
+    }
+
+    function mostrarError(msg) {
+      const el = document.getElementById('remError');
+      el.textContent = msg; el.style.display = msg ? 'block' : 'none';
+    }
+
+    function dispHTML(d) {
+      if (d > 0)  return `<div class="disp ok">Disponibles: <strong>${d}</strong></div>`;
+      if (d === 0) return `<div class="disp cero">Disponibles: <strong>0</strong> · sin stock</div>`;
+      return `<div class="disp falta">Disponibles: <strong>${d}</strong> · faltan ${-d}, pedir más</div>`;
+    }
+
+    function cardHTML(f) {
+      return `
+        <div class="talle-card">
+          <div class="talle-name">Talle ${f.talle}</div>
+          <div class="talle-nums">
+            <div class="num-box"><div class="num">${f.pedidas}</div><div class="num-lbl">Pedidas</div></div>
+            <div class="num-box"><div class="num">${f.stock}</div><div class="num-lbl">Stock</div></div>
+          </div>
+          ${dispHTML(f.disponibles)}
+          <div class="ajuste-lbl">Cambiar stock</div>
+          <div class="ajuste">
+            <button class="btn-menos" onclick="ajustar('${f.corte}', '${f.talle}', -1)" ${f.stock === 0 ? 'disabled' : ''}>− Quitar</button>
+            <input type="number" min="1" value="1" id="cant-${f.corte}-${f.talle}">
+            <button class="btn-mas" onclick="ajustar('${f.corte}', '${f.talle}', 1)">+ Agregar</button>
+          </div>
+        </div>`;
+    }
+
+    function render(filas) {
+      document.getElementById('secciones').innerHTML = CORTES.map(c => {
+        const delCorte = filas.filter(f => f.corte === c.key);
+        const tot = k => delCorte.reduce((n, f) => n + f[k], 0);
+        return `
+          <section class="seccion ${c.key}">
+            <div class="sec-head">
+              <div class="sec-title">${c.label}</div>
+              <div class="sec-tot">
+                <strong>${tot('pedidas')}</strong> pedidas ·
+                <strong>${tot('stock')}</strong> stock ·
+                <strong>${tot('disponibles')}</strong> disponibles
+              </div>
+            </div>
+            <div class="rem-grid">${delCorte.map(cardHTML).join('')}</div>
+          </section>`;
+      }).join('');
+    }
+
+    async function load() {
+      try {
+        const res = await apiFetch(`${API_URL}/remeras`);
+        if (res.status === 401) { localStorage.removeItem('ciclon_admin_token'); window.location.href = 'index.html'; return; }
+        if (!res.ok) throw new Error('No se pudo cargar el stock.');
+        render(await res.json());
+      } catch (err) { mostrarError(err.message); }
+    }
+
+    // signo: +1 agrega stock, -1 quita (mínimo 0)
+    async function ajustar(corte, talle, signo) {
+      const cant = parseInt(document.getElementById(`cant-${corte}-${talle}`).value);
+      if (!cant || cant < 1) { mostrarError('Ingresá una cantidad mayor a 0.'); return; }
+      mostrarError('');
+      try {
+        const res  = await apiFetch(`${API_URL}/remeras/${corte}/${talle}`, { method: 'PATCH', body: JSON.stringify({ delta: signo * cant }) });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Error al actualizar.');
+        render(data);
+      } catch (err) { mostrarError(err.message); }
+    }
+
+    load();
+  </script>
+</body>
+</html>

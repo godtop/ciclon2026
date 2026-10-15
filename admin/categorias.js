@@ -368,7 +368,7 @@ function generarExcel() {
         if (!enCarrera.length) continue;
 
         wsData.push([`  ${CARRERA_LABEL[carrera]} — ${enCarrera.length} corredor${enCarrera.length !== 1 ? 'es' : ''}`]);
-        wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 17/oct', 'Ciudad', 'Email', 'Teléfono', 'Estado', 'Remera', 'Talle']);
+        wsData.push(['#', 'Apellido', 'Nombre', 'DNI', 'Fecha Nac.', 'Edad 17/oct', 'Ciudad', 'Email', 'Teléfono', 'Estado', 'Remera', 'Corte', 'Talle']);
 
         enCarrera.forEach((r, idx) => {
           wsData.push([
@@ -383,6 +383,7 @@ function generarExcel() {
             `+${r.codpais || '54'} ${r.codarea} ${r.telefono}`,
             fmtEstado(r.estado),
             r.remera === 'con' ? 'Con remera' : 'Sin remera',
+            r.remera === 'con' ? ({ mujer: 'Mujer', hombre: 'Hombre' }[r.corte] || '—') : '—',
             r.remera === 'con' ? r.talle : '—',
           ]);
         });
@@ -394,7 +395,7 @@ function generarExcel() {
   const wb = XLSX.utils.book_new();
   const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-  const colWidths = [{ wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 7 }, { wch: 16 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 8 }];
+  const colWidths = [{ wch: 5 }, { wch: 18 }, { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 7 }, { wch: 16 }, { wch: 28 }, { wch: 16 }, { wch: 14 }, { wch: 14 }, { wch: 9 }, { wch: 8 }];
   ws['!cols'] = colWidths;
 
   XLSX.utils.book_append_sheet(wb, ws, 'Corredores');

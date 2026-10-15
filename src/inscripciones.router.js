@@ -13,6 +13,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const PRICES = require('./prices');
 const PROMO  = require('./promo.config');
 const { PROMO_LOCK_KEY, whereCupoOcupado } = require('./promo.router');
+const { CORTES, TALLES, verificarStockTalle } = require('./remeras.router');
 
 /* ─────────────────────────────────────────
    HELPERS
@@ -39,13 +40,14 @@ function fmtSexo(s) {
 ───────────────────────────────────────── */
 async function enviarEmailConfirmacion(inscripcion) {
   const {
-    nombre, apellido, email, carrera, remera, talle,
+    nombre, apellido, email, carrera, remera, talle, corte,
     monto, montoOriginal, dni, edad, sexo, fechaNacimiento,
     ciudad, domicilio, codpais, codarea, telefono, createdAt,
   } = inscripcion;
 
   const nombreCompleto = `${nombre} ${apellido}`;
-  const remeraTexto    = remera === 'con' ? `Con remera · Talle ${talle}` : 'Sin remera';
+  const corteTexto     = { mujer: 'Mujer', hombre: 'Hombre' }[corte];
+  const remeraTexto    = remera === 'con' ? `Con remera · ${corteTexto ? corteTexto + ' ' : 'Talle '}${talle}` : 'Sin remera';
   const fechaNacTexto  = fechaNacimiento ? fmtFecha(fechaNacimiento) : '—';
   // Claves internas de carrera — mismos labels que public/config.js
   const DIST  = { '15k': '15K', '7k': '5K', 'caminata': '5K' };
@@ -315,7 +317,7 @@ async function enviarEmailConfirmacion(inscripcion) {
 router.post('/', upload.single('comprobante'), async (req, res) => {
   try {
     const {
-      carrera, remera, talle,
+      carrera, remera, talle, corte,
       nombre, apellido, sexo, edad, dni, fechaNacimiento, codpais,
       codarea, telefono, email, ciudad, domicilio,
       firmaBase64,
@@ -335,6 +337,18 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
     }
 
     const montoOriginal = PRICES[carrera][remera];
+
+    // ── Stock de remeras: pre-chequeo ANTES de subir el comprobante ──
+    // (la verdad definitiva se decide en la transacción final)
+    if (remera === 'con') {
+      if (!CORTES.includes(corte) || !TALLES.includes(talle)) {
+        return res.status(400).json({ error: 'Elegí el corte y el talle de la remera.' });
+      }
+      const hayStock = await prisma.$transaction(tx => verificarStockTalle(tx, corte, talle));
+      if (!hayStock) {
+        return res.status(409).json({ error: `No queda stock del talle ${talle} (${corte}).`, code: 'TALLE_AGOTADO' });
+      }
+    }
 
     // Validar el comprobante ANTES de consumir un uso del código de descuento
     if (montoOriginal > 0 && !req.file) {
@@ -399,6 +413,13 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         let descuentoCodigo = 0;
         let codigoDescuentoId = null;
 
+        // Stock de remera (antes que todo, para no consumir códigos/promo en vano)
+        if (remera === 'con' && !(await verificarStockTalle(tx, corte, talle))) {
+          const e = new Error('TALLE_AGOTADO');
+          e.code = 'TALLE_AGOTADO';
+          throw e;
+        }
+
         // Consumo atómico del código de descuento (updateMany condicional):
         // dos requests simultáneos no pueden llevarse el mismo último uso.
         if (codigoDB) {
@@ -449,6 +470,7 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
           data: {
             carrera, remera,
             talle:          remera === 'con' ? (talle || null) : null,
+            corte:          remera === 'con' ? corte : null,
             monto,
             montoOriginal,
             codigoDescuentoId,
@@ -474,12 +496,15 @@ router.post('/', upload.single('comprobante'), async (req, res) => {
         return insc;
       }, { maxWait: 15000, timeout: 30000 });
     } catch (err) {
-      if (err.code === 'PROMO_AGOTADA') {
+      if (err.code === 'PROMO_AGOTADA' || err.code === 'TALLE_AGOTADO') {
         // El comprobante ya se subió: lo borramos para no dejar huérfanos
         if (comprobantePublicId !== 'GRATIS') {
           cloudinary.uploader.destroy(comprobantePublicId, {
             resource_type: req.file && req.file.mimetype === 'application/pdf' ? 'raw' : 'image',
           }).catch(() => {});
+        }
+        if (err.code === 'TALLE_AGOTADO') {
+          return res.status(409).json({ error: `No queda stock del talle ${talle} (${corte}).`, code: 'TALLE_AGOTADO' });
         }
         return res.status(409).json({
           error: 'Tu reserva del descuento venció y ya no quedan cupos.',

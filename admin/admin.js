@@ -169,7 +169,7 @@ function cardHTML(i) {
         '<div class="detail-field"><div class="detail-label">Edad 17/oct</div><div class="detail-value highlight">' + edadEnCarrera(i.fechaNacimiento) + ' años</div></div>' +
         '<div class="detail-field"><div class="detail-label">Sexo</div><div class="detail-value">' + fmtSexo(i.sexo) + '</div></div>' +
         '<div class="detail-field"><div class="detail-label">Nacimiento</div><div class="detail-value">' + (i.fechaNacimiento ? fmtFechaSimple(i.fechaNacimiento) : '—') + '</div></div>' +
-        '<div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">' + (i.remera === 'con' ? 'Con remera · ' + i.talle : 'Sin remera') + '</div></div>' +
+        '<div class="detail-field"><div class="detail-label">Remera</div><div class="detail-value">' + (i.remera === 'con' ? 'Con remera · ' + corteLabel(i.corte) + i.talle : 'Sin remera') + '</div></div>' +
         '<div class="detail-field full"><div class="detail-label">Ciudad</div><div class="detail-value">' + i.ciudad + '</div></div>' +
         '<div class="detail-field full"><div class="detail-label">Domicilio</div><div class="detail-value">' + i.domicilio + '</div></div>' +
         '<div class="detail-field full"><div class="detail-label">Email</div><div class="detail-value">' + i.email + '</div></div>' +
@@ -224,7 +224,7 @@ function renderTable(items) {
       '<td class="td-edad-carrera">' + edadEnCarrera(i.fechaNacimiento) + '</td>' +
       '<td class="muted">' + fmtSexo(i.sexo) + '</td>' +
       '<td><strong>' + carreraLabel(i.carrera) + '</strong></td>' +
-      '<td class="muted">' + (i.remera === 'con' ? 'Talle ' + i.talle : 'Sin remera') + '</td>' +
+      '<td class="muted">' + (i.remera === 'con' ? corteLabel(i.corte) + 'Talle ' + i.talle : 'Sin remera') + '</td>' +
       '<td class="td-monto">' + (i.monto === 0 ? '<span style="color:#b7791f;font-weight:600;">GRATIS</span>' : '$' + i.monto.toLocaleString('es-AR')) + '</td>' +
       '<td>' + descuentoHTML + '</td>' +
       '<td class="muted">' + i.ciudad + '</td>' +
@@ -360,3 +360,8 @@ canvas.addEventListener('touchmove', e => {
 canvas.addEventListener('touchend', e => { if (e.touches.length === 0) isDragging = false; });
 window.addEventListener('resize', () => { if (document.getElementById('imgModal').classList.contains('open')) { resizeCanvas(); fitImage(); } });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+// "Mujer · " / "Hombre · " delante del talle (vacío si no tiene corte cargado)
+function corteLabel(corte) {
+  return corte === 'mujer' ? 'Mujer · ' : corte === 'hombre' ? 'Hombre · ' : '';
+}
