@@ -584,3 +584,4 @@ router.patch('/:id/rechazar', requireAuth, async (req, res) => {
 });
 
 module.exports = router;
+module.exports.enviarEmailConfirmacion = enviarEmailConfirmacion;
