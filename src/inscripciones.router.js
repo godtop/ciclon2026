@@ -337,12 +337,13 @@ ${carrera === 'caminata' ? `
   const subject = opts.asunto || `✅ Inscripción confirmada – Running Trail Huracán ${dist} ${tipo}`;
   if (opts.soloPreview) return { subject, html };
 
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: 'Running Trail Huracán <no-reply@huracandechivilcoy.com.ar>',
     to:   email,
     subject,
     html,
   });
+  if (error) throw new Error(`Resend: ${error.message || JSON.stringify(error)}`);
 }
 
 /* ─────────────────────────────────────────

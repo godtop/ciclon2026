@@ -4,6 +4,7 @@
 //   node scripts/reenviar-actualizacion.js            → solo lista destinatarios (no envía)
 //   node scripts/reenviar-actualizacion.js --preview [archivo]  → guarda el HTML de ejemplo (no envía)
 //   node scripts/reenviar-actualizacion.js --enviar   → envía de verdad
+//   ... --ids=12,34                                  → limita a esas inscripciones
 require('dotenv').config({ quiet: true });
 const { PrismaClient } = require('@prisma/client');
 const { enviarEmailConfirmacion } = require('../src/inscripciones.router');
@@ -20,9 +21,12 @@ const AVISO  = `
 async function main() {
   const enviar  = process.argv.includes('--enviar');
   const preview = process.argv.includes('--preview');
+  // --ids=12,34 → solo esas inscripciones (para reintentar las que fallaron)
+  const idsArg  = process.argv.find(a => a.startsWith('--ids='));
+  const ids     = idsArg ? idsArg.slice(6).split(',').map(Number) : null;
 
   const inscripciones = await prisma.inscripcion.findMany({
-    where:   { estado: 'confirmado', carrera: { in: ['15k', '7k'] } },
+    where:   { estado: 'confirmado', carrera: { in: ['15k', '7k'] }, ...(ids ? { id: { in: ids } } : {}) },
     orderBy: { id: 'asc' },
   });
 
@@ -43,19 +47,21 @@ Preview guardado.`);
     return;
   }
 
-  let ok = 0, fail = 0;
+  let ok = 0;
+  const fallidos = [];
   for (const i of inscripciones) {
     try {
       await enviarEmailConfirmacion(i, { asunto: ASUNTO, aviso: AVISO });
       ok++;
       console.log(`✅ #${i.id} ${i.email}`);
     } catch (err) {
-      fail++;
+      fallidos.push(i.id);
       console.error(`✗ #${i.id} ${i.email}: ${err.message}`);
     }
     await new Promise(r => setTimeout(r, 600)); // respetar rate limit de Resend
   }
-  console.log(`\nEnviados: ${ok} · Fallidos: ${fail}`);
+  console.log(`\nEnviados: ${ok} · Fallidos: ${fallidos.length}`);
+  if (fallidos.length) console.log(`Reintentar con: node scripts/reenviar-actualizacion.js --enviar --ids=${fallidos.join(",")}`);
 }
 
 main()
