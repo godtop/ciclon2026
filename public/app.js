@@ -676,6 +676,9 @@ async function processPayment() {
 function showSuccess() {
   document.getElementById('step3').style.display    = 'none';
   document.getElementById('stepsBar').style.display = 'none';
+  const esCaminata = selectedRace === 'caminata';
+  document.getElementById('successKit').style.display  = esCaminata ? 'none' : '';
+  document.getElementById('successPago').style.display = esCaminata ? 'none' : '';
   const success = document.getElementById('stepSuccess');
   success.style.display   = 'block';
   success.style.animation = 'fadeUp .4s ease';

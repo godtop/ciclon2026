@@ -26,8 +26,7 @@ window.CLUB_CONFIG = {
 
   // Info de retiro de kit (se muestra en la pantalla de éxito)
   kit: {
-    chivilcoy: 'Retirá tu kit el viernes 16 de octubre de 17:00 a 19:00 hs',
-    otras:     'Retirá tu kit el mismo día de la carrera al presentarte',
+    retiro: 'Retirá tu kit el sábado 17 de octubre a partir de las 13:00 hs',
   },
 
   // Datos para la transferencia

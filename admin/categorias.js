@@ -15,11 +15,7 @@ const CATEGORIAS = [
   { num: 8,  label: '50 – 54',   min: 50, max: 54  },
   { num: 9,  label: '55 – 59',   min: 55, max: 59  },
   { num: 10, label: '60 – 64',   min: 60, max: 64  },
-  { num: 11, label: '65 – 69',   min: 65, max: 69  },
-  { num: 12, label: '70 – 74',   min: 70, max: 74  },
-  { num: 13, label: '75 – 79',   min: 75, max: 79  },
-  { num: 14, label: '80 – 84',   min: 80, max: 84  },
-  { num: 15, label: '85+',       min: 85, max: 999 },
+  { num: 11, label: '65+',       min: 65, max: 999 },
 ];
 
 let todosLosInscriptos = [];
@@ -361,7 +357,7 @@ function generarExcel() {
       if (!enCat.length) continue;
 
       const totalCat = enCat.length;
-      wsData.push([`Cat. ${cat.num} · ${cat.label} (${cat.min}–${cat.max} años) — ${totalCat} corredor${totalCat !== 1 ? 'es' : ''}`]);
+      wsData.push([`Cat. ${cat.num} · ${cat.label} (${cat.max >= 999 ? `${cat.min}+` : `${cat.min}–${cat.max}`} años) — ${totalCat} corredor${totalCat !== 1 ? 'es' : ''}`]);
 
       for (const carrera of CARRERAS) {
         const enCarrera = enCat.filter(i => i.carrera === carrera);

@@ -253,6 +253,25 @@ async function enviarEmailConfirmacion(inscripcion) {
           </tr>
 
 
+${carrera === 'caminata' ? `
+          <!-- ══ ALIMENTOS (caminata) ══ -->
+          <tr>
+            <td style="background:#ffffff;padding:0 28px 28px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#f5f6f8;border:1.5px solid rgba(226,0,26,.22);border-radius:14px;">
+                <tr>
+                  <td style="padding:20px 22px;">
+                   <div style="font-size:14px;color:#6a6f76;line-height:1.9;">
+    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">🥫 Caminata solidaria</div>
+    Recordá llevar <strong style="color:#191a1c;">alimentos no perecederos</strong> para donar.<br>
+    Los recibimos el día de la carrera en el punto de largada.
+</div>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+` : `
           <!-- ══ KIT ══ -->
           <tr>
             <td style="background:#ffffff;padding:0 28px 28px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
@@ -262,17 +281,9 @@ async function enviarEmailConfirmacion(inscripcion) {
                   <td style="padding:20px 22px;">
                    <div style="font-size:14px;color:#6a6f76;line-height:1.9;">
 
-  <div style="margin-bottom:14px;">
-    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Chivilcoy</div>
-    Retirá tu kit el día previo a la carrera.<br>
-    <strong style="color:#191a1c;">Viernes 16 de octubre · 17:00 a 19:00 hs</strong><br>
-    Club Atlético Huracán, Chivilcoy
-  </div>
-
-  <div style="border-top:1px solid rgba(0,0,0,.10);padding-top:14px;">
-    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Otras localidades</div>
-    Tu kit se entregará el mismo día de la carrera al momento de presentarte.<br>
-    <strong style="color:#191a1c;">17 de octubre · Horario a confirmar</strong><br>
+  <div>
+    <div style="font-size:12px;letter-spacing:0.05em;color:#e2001a;text-transform:uppercase;margin-bottom:4px;">Retiro de kit</div>
+    <strong style="color:#191a1c;">Sábado 17 de octubre · A partir de las 13:00 hs</strong><br>
     Club Atlético Huracán, Chivilcoy
   </div>
 
@@ -282,6 +293,7 @@ async function enviarEmailConfirmacion(inscripcion) {
               </table>
             </td>
           </tr>
+`}
 
 
           <!-- ══ FOOTER ══ -->
