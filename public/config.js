@@ -18,7 +18,7 @@ window.CLUB_CONFIG = {
     titulo:     'Running Trail',
     fechaTexto: '17 de Octubre',
     fechaCorta: '17 de octubre',
-    hora:       'A confirmar',
+    hora:       '17:00 hs',
     anio:       2026,
     lugar:      'Club Atlético Huracán, Chivilcoy',
     avisoFecha: '',

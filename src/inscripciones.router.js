@@ -38,7 +38,10 @@ function fmtSexo(s) {
 /* ─────────────────────────────────────────
    EMAIL DE CONFIRMACIÓN
 ───────────────────────────────────────── */
-async function enviarEmailConfirmacion(inscripcion) {
+// opts.asunto: reemplaza el asunto por defecto
+// opts.aviso:  texto (HTML) de un aviso destacado arriba del email
+// opts.soloPreview: no envía, devuelve { subject, html }
+async function enviarEmailConfirmacion(inscripcion, opts = {}) {
   const {
     nombre, apellido, email, carrera, remera, talle, corte,
     monto, montoOriginal, dni, edad, sexo, fechaNacimiento,
@@ -108,6 +111,22 @@ async function enviarEmailConfirmacion(inscripcion) {
           </tr>
 
 
+${opts.aviso ? `
+          <!-- ══ AVISO ══ -->
+          <tr>
+            <td style="background:#ffffff;padding:0 28px 24px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                     style="background:#fff4e5;border:2px solid #f59e0b;border-radius:14px;">
+                <tr>
+                  <td style="padding:18px 22px;font-size:14px;color:#191a1c;line-height:1.7;">
+                    <div style="font-size:13px;font-weight:800;letter-spacing:0.05em;color:#b45309;text-transform:uppercase;margin-bottom:6px;">⚠️ Información actualizada</div>
+                    ${opts.aviso}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+` : ''}
           <!-- ══ GREETING ══ -->
           <tr>
             <td style="background:#ffffff;padding:0 28px 28px;border-left:1px solid rgba(0,0,0,.10);border-right:1px solid rgba(0,0,0,.10);">
@@ -157,7 +176,7 @@ async function enviarEmailConfirmacion(inscripcion) {
                 <tr>
                   <td style="padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.10);">
                     <span style="font-size:16px;">🗓</span>
-                    <span style="font-size:14px;font-weight:600;color:#191a1c;margin-left:10px;">17 de octubre · Hora a confirmar</span>
+                    <span style="font-size:14px;font-weight:600;color:#191a1c;margin-left:10px;">Sábado 17 de octubre · Largada 17:00 hs</span>
                   </td>
                 </tr>
                 <tr>
@@ -315,10 +334,13 @@ ${carrera === 'caminata' ? `
 </html>
   `.trim();
 
+  const subject = opts.asunto || `✅ Inscripción confirmada – Running Trail Huracán ${dist} ${tipo}`;
+  if (opts.soloPreview) return { subject, html };
+
   await resend.emails.send({
     from: 'Running Trail Huracán <no-reply@huracandechivilcoy.com.ar>',
     to:   email,
-    subject: `✅ Inscripción confirmada – Running Trail Huracán ${dist} ${tipo}`,
+    subject,
     html,
   });
 }
